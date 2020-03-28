@@ -1,7 +1,21 @@
 import app
 import os
+if app.ENABLE_SEND_TARGET_INFO:
+	MONSTER_INFO_DATA = {}
 
-if app.ENABLE_CYB_DUNGEON:
+if app.ENABLE_MINI_GAME:
+	IS_ENABLE_FISH_EVENT = False
+	IS_ENABLE_ATTENDANCE_EVENT = False
+
+if app.ENABLE_REFINE_RENEWAL:
+	IS_AUTO_REFINE = False
+	AUTO_REFINE_TYPE = 0
+	AUTO_REFINE_DATA = {
+		"ITEM" : [-1, -1],
+		"NPC" : [0, -1, -1, 0]
+	}
+
+if app.ENABLE_DUNGEON_INFO_SYSTEM:
 	INPUT_IGNORE = 0
 	dungeonInfo = []
 	dungeonRanking = {
@@ -13,20 +27,13 @@ if app.ENABLE_CYB_DUNGEON:
 		"quest_cmd" : "",
 	}
 
-if app.ENABLE_SEND_TARGET_INFO:
-	MONSTER_INFO_DATA = {}
-
-if app.ENABLE_MINI_GAME:
-	IS_ENABLE_FISH_EVENT = False
-	IS_ENABLE_ATTENDANCE_EVENT = True
 # EXTRA BEGIN
 #
 ENABLE_BONUSPAGE_CHAR_WINDOW = 1			# 1 = Enabled, 0 = Disabled -> If you want to have the bonus page on character window.
 BONUSPAGE_BONUSES_FROM_LIST = 1				# 1 = Enabled, 0 = Disabled -> If you want to list just the bonuses which are on uiCharacter.BONUS_AVAILABLE_IN_PAGE list.
 BONUSPAGE_JUST_BONUSES_UNDER = 1			# 1 = Enabled, 0 = Disabled -> If you want to list just the bonuses which value is biggest than 0 on bonuses page.
 BONUSPAGE_AUTO_UPDATE_VALUES = 1			# 1 = Enabled, 0 = Disabled -> If you want to auto update the value of bonuses.
-Chitra = ''
-Yang = 0
+
 ENABLE_COLOR_SCROLL = 1
 # loads 5 (B,M,G,P,F) skills .mse
 ENABLE_NEW_LEVELSKILL_SYSTEM = 0
@@ -39,14 +46,23 @@ ENABLE_PASTE_FEATURE = 1
 # display all the bonuses added by a stone instead of the first one
 ENABLE_FULLSTONE_DETAILS = 1
 # enable successfulness % in the refine dialog
-ENABLE_REFINE_PCT = 1
+ENABLE_REFINE_PCT = 0
 # extra ui features
 EXTRA_UI_FEATURE = 1
+#
+ADDPERCENT = 0
+#
+refineWindow = 0
 #
 NEW_678TH_SKILL_ENABLE = 0
 # The range to see the shop name, previous this will be calculated in base of range bar.
 SHOPNAMES_RANGE = 5000
 # EXTRA END
+SelectJob = {
+	'QID' : 0,
+	'QCMD' : '',
+}
+
 
 CURRENT_MOUNT = 0
 #try
@@ -57,6 +73,7 @@ CONSOLE_ENABLE = 0
 CURRENT_MOUNT_NAME = ""
 PVPMODE_ENABLE = 1
 PVPMODE_TEST_ENABLE = 0
+INPUT_IGNORE = 0
 envanter = 0
 shop_cost=[]
 gift_items={}
@@ -85,8 +102,6 @@ DUEL_IS_SHOW_EQUIP = 0
 DUEL_SAVE_VID = 0
 
 ENVIRONMENT_NIGHT="d:/ymir work/environment/moonlight04.msenv"
-
-Night = 0
 
 # constant
 HIGH_PRICE = 500000

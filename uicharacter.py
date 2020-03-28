@@ -16,96 +16,14 @@ import constInfo
 import emotion
 import chr
 import grp
+#REDDEV_MULTI_BONUS_SHOWER
+import item
+import chat
+#ENDOF_REDDEV_MULTI_BONUS_SHOWER
 
 SHOW_ONLY_ACTIVE_SKILL = False
 SHOW_LIMIT_SUPPORT_SKILL_LIST = []
 HIDE_SUPPORT_SKILL_POINT = False
-
-if constInfo.ENABLE_BONUSPAGE_CHAR_WINDOW:
-	from uitooltip import ItemToolTip
-	AFFECT_DICT = ItemToolTip.AFFECT_DICT
-	AFFECT_DICT_POINT = ItemToolTip.AFFECT_DICT_POINT
-	BONUS_AVAILABLE_IN_PAGE = [
-								1,
-								2,
-								3,
-								4,
-								5,
-								6,
-								7,
-								8,
-								9,
-								10,
-								11,
-								12,
-								15,
-								16,
-								17,
-								18,
-								19,
-								20,
-								21,
-								22,
-								23,
-								24,
-								25,
-								26,
-								27,
-								28,
-								29,
-								30,
-								31,
-								32,
-								33,
-								34,
-								35,
-								36,
-								37,
-								38,
-								39,
-								40,
-								41,
-								42,
-								43,
-								44,
-								45,
-								47,
-								53,
-								54,
-								55,
-								56,
-								58,
-								59,
-								60,
-								61,
-								62,
-								63,
-								69,
-								70,
-								71,
-								72,
-								73,
-								74,
-								75,
-								76,
-								77,
-								78,
-								79,
-								80,
-								81,
-								83,
-								87,
-								88,
-								89,
-								90,
-								91,
-								92,
-								93,
-								94,
-								95
-							]
-
-
 
 if localeInfo.IsYMIR():
 	SHOW_LIMIT_SUPPORT_SKILL_LIST = [121, 122, 123, 124, 126, 127, 129, 128, 131, 137, 138, 139, 140,141,142]
@@ -218,6 +136,13 @@ class CharacterWindow(ui.ScriptWindow):
 		self.questNameList = None
 		self.questLastTimeList = None
 		self.questLastCountList = None
+		#REDDEV_NEW_QUEST_LISTING
+		self.actualQuestList = {}
+		self.additionalY = 0
+		self.countersList = []
+		self.timersList = []
+		self.markedQuests = []
+		#ENDOF_REDDEV_NEW_QUEST_LISTING
 		self.skillGroupButton = ()
 
 		self.activeSlot = None
@@ -237,8 +162,9 @@ class CharacterWindow(ui.ScriptWindow):
 		self.dualEmotionSlot = None
 		
 		self.boardWindow = None
-		if constInfo.ENABLE_BONUSPAGE_CHAR_WINDOW:
-			self.ExpandBonusesPage = None
+		#REDDEV_MULTIBONUS_SHOW
+		self.actualSubPage = 0
+		#ENDOF_REDDEV_MULTIBONUS
 
 	def Show(self):
 		self.__LoadWindow()
@@ -350,174 +276,62 @@ class CharacterWindow(ui.ScriptWindow):
 		self.questShowingStartIndex = 0
 		self.questScrollBar = self.GetChild("Quest_ScrollBar")
 		self.questScrollBar.SetScrollEvent(ui.__mem_func__(self.OnQuestScroll))
-		self.questSlot = self.GetChild("Quest_Slot")
-		for i in xrange(quest.QUEST_MAX_NUM):
-			self.questSlot.HideSlotBaseImage(i)
-			self.questSlot.SetCoverButton(i,\
-											"d:/ymir work/ui/game/quest/slot_button_01.sub",\
-											"d:/ymir work/ui/game/quest/slot_button_02.sub",\
-											"d:/ymir work/ui/game/quest/slot_button_03.sub",\
-											"d:/ymir work/ui/game/quest/slot_button_03.sub", True)
-
-		self.questNameList = []
-		self.questLastTimeList = []
-		self.questLastCountList = []
-		for i in xrange(quest.QUEST_MAX_NUM):
-			self.questNameList.append(self.GetChild("Quest_Name_0" + str(i)))
-			self.questLastTimeList.append(self.GetChild("Quest_LastTime_0" + str(i)))
-			self.questLastCountList.append(self.GetChild("Quest_LastCount_0" + str(i)))
+		# REDDEV_NEW_QUEST_LISTING
+		#self.questSlot = self.GetChild("Quest_Slot")
+		#for i in xrange(quest.QUEST_MAX_NUM):
+		#	self.questSlot.HideSlotBaseImage(i)
+		#	self.questSlot.SetCoverButton(i,\
+		#									"d:/ymir work/ui/game/quest/slot_button_01.sub",\
+		#									"d:/ymir work/ui/game/quest/slot_button_02.sub",\
+		#									"d:/ymir work/ui/game/quest/slot_button_03.sub",\
+		#									"d:/ymir work/ui/game/quest/slot_button_03.sub", True)
+		#
+		#self.questNameList = []
+		#self.questLastTimeList = []
+		#self.questLastCountList = []
+		#for i in xrange(quest.QUEST_MAX_NUM):
+		#	self.questNameList.append(self.GetChild("Quest_Name_0" + str(i)))
+		#	self.questLastTimeList.append(self.GetChild("Quest_LastTime_0" + str(i)))
+		#	self.questLastCountList.append(self.GetChild("Quest_LastCount_0" + str(i)))
+		# ENDOF_REDDEV_NEW_QUEST_LISTING
 		
-		self.boardWindow = self.GetChild("board")
-		if constInfo.ENABLE_BONUSPAGE_CHAR_WINDOW:
-			self.ExpandBonusesPage = ui.Button()
-			self.ExpandBonusesPage.SetParent(self.boardWindow)
-			self.ExpandBonusesPage.SetPosition(251 - 5, 351 / 2 - 25)
-			self.ExpandBonusesPage.SetUpVisual("d:/ymir work/ui/pattern/expanded_bar/deactivate_r_1.tga")
-			self.ExpandBonusesPage.SetOverVisual("d:/ymir work/ui/pattern/expanded_bar/deactivate_r_2.tga")
-			self.ExpandBonusesPage.SetDownVisual("d:/ymir work/ui/pattern/expanded_bar/deactivate_r_3.tga")
-			self.ExpandBonusesPage.SetEvent(ui.__mem_func__(self.ExpandBonusesFunc))
-			self.ExpandBonusesPage.Show()
-			
-			self.BonusesScrollDrop = ui.Bar("TOP_MOST")
-			self.BonusesScrollDrop.SetParent(self.boardWindow)
-			self.BonusesScrollDrop.SetPosition(251 - 26, 12)
-			self.BonusesScrollDrop.SetSize(17, 331 - 25)
-			self.BonusesScrollDrop.SetColor(0xff0a0a0a)
-			self.BonusesScrollDrop.Hide()
-			
-			self.BonusesScrollBar = ui.ThinScrollBar()
-			self.BonusesScrollBar.SetParent(self.boardWindow)
-			self.BonusesScrollBar.SetPosition(251 - 26, 12)
-			self.BonusesScrollBar.SetScrollBarSize(331 - 25)
-			self.BonusesScrollBar.Hide()
-			
-			self.BonusesDropListB = ui.Bar("TOP_MOST")
-			self.BonusesDropListB.SetParent(self.boardWindow)
-			self.BonusesDropListB.SetPosition(15, 57 - 24)
-			self.BonusesDropListB.SetSize(251 - 15 - 26, 270)
-			self.BonusesDropListB.SetColor(grp.GenerateColor(1.0, 0.0, 0.0, 0.2))
-			self.BonusesDropListB.Hide()
-			
-			self.BonusesDropList = ui.ListBoxEx()
-			self.BonusesDropList.SetParent(self.boardWindow)
-			self.BonusesDropList.itemHeight = 12
-			self.BonusesDropList.itemStep = 13
-			self.BonusesDropList.SetPosition(17, 57 - 18)
-			self.BonusesDropList.SetSize(0, 280)
-			self.BonusesDropList.SetScrollBar(self.BonusesScrollBar)
-			self.BonusesDropList.SetViewItemCount(20)
-			self.BonusesDropList.Hide()
-			
-			self.BonusesRefreshButton = ui.Button()
-			self.BonusesRefreshButton.SetParent(self.boardWindow)
-			self.BonusesRefreshButton.SetPosition(15, 12)
-			self.BonusesRefreshButton.SetUpVisual("d:/ymir work/ui/game/guild/refresh_button_01.sub")
-			self.BonusesRefreshButton.SetOverVisual("d:/ymir work/ui/game/guild/refresh_button_02.sub")
-			self.BonusesRefreshButton.SetDownVisual("d:/ymir work/ui/game/guild/refresh_button_03.sub")
-			self.BonusesRefreshButton.SetToolTipText(localeInfo.BONUSPAGE_REFRESH, 0, - 23)
-			self.BonusesRefreshButton.SetEvent(lambda : self.RefreshBonusesFunc())
-			self.BonusesRefreshButton.Hide()
-			
-			self.BonusesCloseButton = ui.Button()
-			self.BonusesCloseButton.SetParent(self.boardWindow)
-			self.BonusesCloseButton.SetPosition(15, self.boardWindow.GetHeight() - 55)
-			self.BonusesCloseButton.SetUpVisual("d:/ymir work/ui/public/Large_button_01.sub")
-			self.BonusesCloseButton.SetOverVisual("d:/ymir work/ui/public/Large_button_02.sub")
-			self.BonusesCloseButton.SetDownVisual("d:/ymir work/ui/public/Large_button_03.sub")
-			self.BonusesCloseButton.SetEvent(lambda : self.ExpandBonusesFunc())
-			self.BonusesCloseButton.SetText(localeInfo.BONUSPAGE_BACK)
-			self.BonusesCloseButton.Hide()
-			
-			self.ExpandBonusesPage.ShowToolTip = lambda arg=1: self.OverInButton(arg)
-			self.ExpandBonusesPage.HideToolTip = lambda arg=1: self.OverOutButton()
-
-	def OverInButton(self, stat):
-		if stat > 0:
-			self.toolTip.ClearToolTip()
-			self.toolTip.AlignHorizonalCenter()
-			if stat == 1:
-				self.toolTip.AutoAppendNewTextLine(localeInfo.BONUSPAGE_CHAR_WINDOW, grp.GenerateColor(0.7607, 0.7607, 0.7607, 1.0))
-			elif stat == 2:
-				self.toolTip.AutoAppendNewTextLine(localeInfo.RECORDSPAGE_CHAR_WINDOW, grp.GenerateColor(0.7607, 0.7607, 0.7607, 1.0))
-			
-			self.toolTip.Show()
-		else:
-			self.toolTip.Hide()
-
-	def OverOutButton(self):
-			self.toolTip.Hide()
-
-	class Item(ui.ListBoxEx.Item):
-		def __init__(self,parent, text, value=0):
-			ui.ListBoxEx.Item.__init__(self)
-			self.textBox=ui.TextLine()
-			self.textBox.SetParent(self)
-			self.textBox.SetText(text)
-			self.textBox.Show()
-			self.value = value
-
-		def GetValue(self):
-			return self.value
-
-		def __del__(self):
-			ui.ListBoxEx.Item.__del__(self)
-
-	if constInfo.ENABLE_BONUSPAGE_CHAR_WINDOW:
-		def ExpandBonusesFunc(self):
-			if self.BonusesDropList.IsShow():
-				self.ExpandBonusesPage.Show()
-				self.pageDict["STATUS"].Show()
-				self.BonusesScrollDrop.Hide()
-				self.BonusesScrollBar.Hide()
-				self.BonusesRefreshButton.Hide()
-				self.BonusesCloseButton.Hide()
-				self.BonusesDropListB.Hide()
-				self.BonusesDropList.Hide()
-			else:
-				self.ExpandBonusesPage.Hide()
-				self.pageDict["STATUS"].Hide()
-				self.BonusesScrollDrop.Show()
-				self.BonusesScrollBar.Show()
-				self.BonusesRefreshButton.Show()
-				self.BonusesCloseButton.Show()
-				self.BonusesDropListB.Show()
-				self.BonusesDropList.Show()
-				self.BonusesDropList.RemoveAllItems()
-				for x in AFFECT_DICT:
-					if constInfo.BONUSPAGE_BONUSES_FROM_LIST:
-						if x in BONUS_AVAILABLE_IN_PAGE:
-							name = str(AFFECT_DICT[x](player.GetStatus(AFFECT_DICT_POINT[x])))
-							if constInfo.BONUSPAGE_JUST_BONUSES_UNDER:
-								if player.GetStatus(AFFECT_DICT_POINT[x]) > 0:
-									self.BonusesDropList.AppendItem(self.Item(self, name, 0))
-							else:
-								self.BonusesDropList.AppendItem(self.Item(self, name, 0))
-					else:
-						name = str(AFFECT_DICT[x](player.GetStatus(AFFECT_DICT_POINT[x])))
-						if constInfo.BONUSPAGE_JUST_BONUSES_UNDER:
-							if player.GetStatus(AFFECT_DICT_POINT[x]) > 0:
-								self.BonusesDropList.AppendItem(self.Item(self, name, 0))
-						else:
-							self.BonusesDropList.AppendItem(self.Item(self, name, 0))
-		def RefreshBonusesFunc(self):
-			if self.BonusesDropList.IsShow():
-				self.BonusesDropList.RemoveAllItems()
-				for x in AFFECT_DICT:
-					if constInfo.BONUSPAGE_BONUSES_FROM_LIST:
-						if x in BONUS_AVAILABLE_IN_PAGE:
-							name = str(AFFECT_DICT[x](player.GetStatus(AFFECT_DICT_POINT[x])))
-							if constInfo.BONUSPAGE_JUST_BONUSES_UNDER:
-								if player.GetStatus(AFFECT_DICT_POINT[x]) > 0:
-									self.BonusesDropList.AppendItem(self.Item(self, name, 0))
-							else:
-								self.BonusesDropList.AppendItem(self.Item(self, name, 0))
-					else:
-						name = str(AFFECT_DICT[x](player.GetStatus(AFFECT_DICT_POINT[x])))
-						if constInfo.BONUSPAGE_JUST_BONUSES_UNDER:
-							if player.GetStatus(AFFECT_DICT_POINT[x]) > 0:
-								self.BonusesDropList.AppendItem(self.Item(self, name, 0))
-						else:
-							self.BonusesDropList.AppendItem(self.Item(self, name, 0))
+		#REDDEV_MULTIBONUS
+		self.subPageText01 = ui.TextLine()
+		self.subPageText01.SetFontName(localeInfo.UI_DEF_FONT_BTN)
+		self.subPageText01.SetPackedFontColor(0xffffffff)
+		self.subPageText01.SetParent(self.GetChild("Status_Extent"))
+		self.subPageText01.SetPosition(11,35)
+		
+		self.subPageText02 = ui.TextLine()
+		self.subPageText02.SetFontName(localeInfo.UI_DEF_FONT_BTN)
+		self.subPageText02.SetPackedFontColor(0xffffffff)
+		self.subPageText02.SetParent(self.GetChild("Status_Extent"))
+		self.subPageText02.SetPosition(11,33+23+2)
+		
+		self.subPageText03 = ui.TextLine()
+		self.subPageText03.SetFontName(localeInfo.UI_DEF_FONT_BTN)
+		self.subPageText03.SetPackedFontColor(0xffffffff)
+		self.subPageText03.SetParent(self.GetChild("Status_Extent"))
+		self.subPageText03.SetPosition(11,33+46+2)
+		
+		self.subPageText04 = ui.TextLine()
+		self.subPageText04.SetFontName(localeInfo.UI_DEF_FONT_BTN)
+		self.subPageText04.SetPackedFontColor(0xffffffff)
+		self.subPageText04.SetParent(self.GetChild("Status_Extent"))
+		self.subPageText04.SetPosition(128,35)
+		
+		self.subPageText05 = ui.TextLine()
+		self.subPageText05.SetFontName(localeInfo.UI_DEF_FONT_BTN)
+		self.subPageText05.SetPackedFontColor(0xffffffff)
+		self.subPageText05.SetParent(self.GetChild("Status_Extent"))
+		self.subPageText05.SetPosition(128,33+23+2)
+		
+		self.subPageText06 = ui.TextLine()
+		self.subPageText06.SetFontName(localeInfo.UI_DEF_FONT_BTN)
+		self.subPageText06.SetPackedFontColor(0xffffffff)
+		self.subPageText06.SetParent(self.GetChild("Status_Extent"))
+		self.subPageText06.SetPosition(128,33+46+2)
+		#ENDOF_REDDEV_MULTI_BONUS_SHOWER
 
 	def __SetSkillSlotEvent(self):
 		for skillPageValue in self.skillPageDict.itervalues():
@@ -637,7 +451,95 @@ class CharacterWindow(ui.ScriptWindow):
 		for titleBarValue in self.titleBarDict.itervalues():
 			titleBarValue.SetCloseEvent(ui.__mem_func__(self.Hide))
 
-		self.questSlot.SetSelectItemSlotEvent(ui.__mem_func__(self.__SelectQuest))
+		#REDDEV_NEW_QUEST_LISTING
+		#self.questSlot.SetSelectItemSlotEvent(ui.__mem_func__(self.__SelectQuest))
+		#ENDOF_REDDEV_NEW_QUEST_LISTING
+		
+		#REDDEV_MULTI_BONUS_SHOWER
+		for i in xrange(5):
+			self.GetChild("SubPage"+str(i)).SetEvent(ui.__mem_func__(self.switchSubPage), i)
+		
+	def switchSubPage(self, num):
+		for i in xrange(5):
+			if i!=num:
+				self.GetChild("SubPage"+str(i)).SetUp()
+		if num==0:
+			self.GetChild("Status_Extent_ItemList1").Show()
+			self.GetChild("Status_Extent_ItemList2").Show()
+			self.subPageText01.Hide()
+			self.subPageText02.Hide()
+			self.subPageText03.Hide()
+			self.subPageText04.Hide()
+			self.subPageText05.Hide()
+			self.subPageText06.Hide()
+		elif num==1:		
+			self.GetChild("Status_Extent_ItemList1").Hide()
+			self.GetChild("Status_Extent_ItemList2").Hide()
+			self.subPageText01.SetText("Ap. sabie:")
+			self.subPageText01.Show()
+			self.subPageText02.SetText("Ap. 2maini:")
+			self.subPageText02.Show()
+			self.subPageText03.SetText("Ap. pumnal:")
+			self.subPageText03.Show()
+			self.subPageText04.SetText("Ap. sageti:")
+			self.subPageText04.Show()
+			self.subPageText05.SetText("Ap. evantai:")
+			self.subPageText05.Show()
+			self.subPageText06.SetText("Rez. magie:")
+			self.subPageText06.Show()
+		elif num==2:
+			self.GetChild("Status_Extent_ItemList1").Hide()
+			self.GetChild("Status_Extent_ItemList2").Hide()
+			self.subPageText01.SetText("Vs. semi-om:")
+			self.subPageText01.Show()
+			self.subPageText02.SetText("Critica:")
+			self.subPageText02.Show()
+			self.subPageText03.SetText("Patrundere:")
+			self.subPageText03.Show()
+			self.subPageText04.SetText("Vs. monstrii:")
+			self.subPageText04.Show()
+			self.subPageText05.SetText("Naucire:")
+			self.subPageText05.Show()
+			self.subPageText06.SetText("Otravire:")
+			self.subPageText06.Show()
+		
+		elif num==3:
+			self.GetChild("Status_Extent_ItemList1").Hide()
+			self.GetChild("Status_Extent_ItemList2").Hide()
+			self.subPageText01.SetText("Anti razb:")
+			self.subPageText01.Show()
+			self.subPageText02.SetText("Anti ninja:")
+			self.subPageText02.Show()
+			self.subPageText03.SetText("Anti sura:")
+			self.subPageText03.Show()
+			self.subPageText04.SetText("Anti saman:")
+			self.subPageText04.Show()
+			self.subPageText05.SetText("Absorb. PV:")
+			self.subPageText05.Show()
+			self.subPageText06.SetText("Absorb. PM:")
+			self.subPageText06.Show()
+		
+		elif num==4:
+			self.GetChild("Status_Extent_ItemList1").Hide()
+			self.GetChild("Status_Extent_ItemList2").Hide()
+			self.subPageText01.SetText("Rez. razb:")
+			self.subPageText01.Show()
+			self.subPageText02.SetText("Rez. ninja:")
+			self.subPageText02.Show()
+			self.subPageText03.SetText("Rez. sura:")
+			self.subPageText03.Show()
+			self.subPageText04.SetText("Rez. saman:")
+			self.subPageText04.Show()
+			self.subPageText05.SetText("Blocare:")
+			self.subPageText05.Show()
+			self.subPageText06.SetText("Medie:")
+			self.subPageText06.Show()
+		
+		if num < 0 or num > 4:
+			num = 0
+		self.actualSubPage = num
+		self.RefreshStatus()
+	#ENDOF_REDDEV_MULTI_BONUS_SHOWER
 
 	def __LoadWindow(self):
 		if self.isLoaded == 1:
@@ -666,17 +568,7 @@ class CharacterWindow(ui.ScriptWindow):
 		self.__Initialize()
 
 	def Close(self):
-		if constInfo.ENABLE_BONUSPAGE_CHAR_WINDOW:
-			if self.BonusesDropList.IsShow():
-				self.pageDict["STATUS"].Show()
-				self.BonusesScrollDrop.Hide()
-				self.BonusesScrollBar.Hide()
-				self.BonusesRefreshButton.Hide()
-				self.BonusesCloseButton.Hide()
-				self.BonusesDropListB.Hide()
-				self.BonusesDropList.Hide()
-		
-		if self.toolTipSkill:
+		if 0 != self.toolTipSkill:
 			self.toolTipSkill.Hide()
 
 		self.Hide()
@@ -703,21 +595,6 @@ class CharacterWindow(ui.ScriptWindow):
 		self.SetState(stateKey)
 
 	def SetState(self, stateKey):
-		if constInfo.ENABLE_BONUSPAGE_CHAR_WINDOW:
-			if self.BonusesDropList.IsShow():
-				self.pageDict["STATUS"].Show()
-				self.BonusesScrollDrop.Hide()
-				self.BonusesScrollBar.Hide()
-				self.BonusesRefreshButton.Hide()
-				self.BonusesCloseButton.Hide()
-				self.BonusesDropListB.Hide()
-				self.BonusesDropList.Hide()
-			
-			if stateKey == "STATUS":
-				if not self.ExpandBonusesPage.IsShow():
-					self.ExpandBonusesPage.Show()
-			else:
-				self.ExpandBonusesPage.Hide()
 		
 		self.state = stateKey
 
@@ -737,7 +614,12 @@ class CharacterWindow(ui.ScriptWindow):
 		self.titleBarDict[stateKey].Show()
 		self.tabDict[stateKey].Show()
 		self.pageDict[stateKey].Show()
-
+		
+		#REDDEV_NEW_QUEST_LISTING
+		if stateKey == 'QUEST':
+			self.RefreshQuest()
+		#ENDOF_REDDEV_NEW_QUEST_LISTING
+		
 
 	def GetState(self):
 		return self.state
@@ -786,15 +668,57 @@ class CharacterWindow(ui.ScriptWindow):
 
 			self.GetChild("ATT_Value").SetText(self.__GetTotalAtkText())
 			self.GetChild("DEF_Value").SetText(self.__GetTotalDefText())
-
-			self.GetChild("MATT_Value").SetText(self.__GetTotalMagAtkText())
+			
+			#REDDEV_MULTI_BONUS_SHOWER
+			#self.GetChild("MATT_Value").SetText(self.__GetTotalMagAtkText())
 			#self.GetChild("MATT_Value").SetText(str(player.GetStatus(player.MAG_ATT)))
 
-			self.GetChild("MDEF_Value").SetText(str(player.GetStatus(player.MAG_DEF)))
-			self.GetChild("ASPD_Value").SetText(str(player.GetStatus(player.ATT_SPEED)))
-			self.GetChild("MSPD_Value").SetText(str(player.GetStatus(player.MOVING_SPEED)))
-			self.GetChild("CSPD_Value").SetText(str(player.GetStatus(player.CASTING_SPEED)))
-			self.GetChild("ER_Value").SetText(str(player.GetStatus(player.EVADE_RATE)))
+			#self.GetChild("MDEF_Value").SetText(str(player.GetStatus(player.MAG_DEF)))
+			#self.GetChild("ASPD_Value").SetText(str(player.GetStatus(player.ATT_SPEED)))
+			#self.GetChild("MSPD_Value").SetText(str(player.GetStatus(player.MOVING_SPEED)))
+			#self.GetChild("CSPD_Value").SetText(str(player.GetStatus(player.CASTING_SPEED)))
+			#self.GetChild("ER_Value").SetText(str(player.GetStatus(player.EVADE_RATE)))
+			
+			if self.actualSubPage == 0:
+				self.GetChild("MATT_Value").SetText(self.__GetTotalMagAtkText())
+				self.GetChild("MDEF_Value").SetText(str(player.GetStatus(player.MAG_DEF)))
+				self.GetChild("ASPD_Value").SetText(str(player.GetStatus(player.ATT_SPEED)))
+				self.GetChild("MSPD_Value").SetText(str(player.GetStatus(player.MOVING_SPEED)))
+				self.GetChild("CSPD_Value").SetText(str(player.GetStatus(player.CASTING_SPEED)))
+				self.GetChild("ER_Value").SetText(str(player.GetStatus(player.EVADE_RATE)))
+			elif self.actualSubPage == 1:
+				self.GetChild("MSPD_Value").SetText(str(player.GetStatus(69)) + str("%")) #Resist sword
+				self.GetChild("ASPD_Value").SetText(str(player.GetStatus(70)) + str("%")) #Resist 2hand
+				self.GetChild("CSPD_Value").SetText(str(player.GetStatus(71)) + str("%")) #Resist dagger
+				self.GetChild("MATT_Value").SetText(str(player.GetStatus(74)) + str("%")) #Resist bow
+				self.GetChild("MDEF_Value").SetText(str(player.GetStatus(73)) + str("%")) #Resist fan
+				self.GetChild("ER_Value").SetText(str(player.GetStatus(77)) + str("%")) #Resist magic
+			elif self.actualSubPage == 2:
+				self.GetChild("MSPD_Value").SetText(str(player.GetStatus(43)) + str("%")) #Anti semi-om
+				self.GetChild("ASPD_Value").SetText(str(player.GetStatus(40)) + str("%")) #Critical chance
+				self.GetChild("CSPD_Value").SetText(str(player.GetStatus(41)) + str("%")) #Penetrate chance
+				self.GetChild("MATT_Value").SetText(str(player.GetStatus(53)) + str("%")) #Anti mobs
+				self.GetChild("MDEF_Value").SetText(str(player.GetStatus(38)) + str("%")) #Stun chance
+				self.GetChild("ER_Value").SetText(str(player.GetStatus(37)) + str("%")) #Poison chance
+			
+			elif self.actualSubPage == 3:
+				self.GetChild("MSPD_Value").SetText(str(player.GetStatus(54)) + str("%")) #Anti Warrior
+				self.GetChild("ASPD_Value").SetText(str(player.GetStatus(55)) + str("%")) #Anti Ninja
+				self.GetChild("CSPD_Value").SetText(str(player.GetStatus(56)) + str("%")) #Anti sura
+				self.GetChild("MATT_Value").SetText(str(player.GetStatus(57)) + str("%")) #Anti shaman
+				self.GetChild("MDEF_Value").SetText(str(player.GetStatus(63)) + str("%")) #HP Steal
+				self.GetChild("ER_Value").SetText(str(player.GetStatus(64)) + str("%")) #SP Steal
+				
+			elif self.actualSubPage == 4:
+				self.GetChild("MSPD_Value").SetText(str(player.GetStatus(59)) + str("%")) #Res warrior
+				self.GetChild("ASPD_Value").SetText(str(player.GetStatus(60)) + str("%")) #res Ninja
+				self.GetChild("CSPD_Value").SetText(str(player.GetStatus(61)) + str("%")) #res sura
+				self.GetChild("MATT_Value").SetText(str(player.GetStatus(62)) + str("%")) #res shaman
+				self.GetChild("MDEF_Value").SetText(str(player.GetStatus(67)) + str("%")) #Block
+				self.GetChild("ER_Value").SetText(str(player.GetStatus(72)) + str("%")) #Paguba Medie
+			else:
+				pass
+			#ENDOF_REDDEV_MULTI_BONUS_SHOWER
 
 		except:
 			#import exception
@@ -808,9 +732,6 @@ class CharacterWindow(ui.ScriptWindow):
 
 		if self.refreshToolTip:
 			self.refreshToolTip()
-
-		if constInfo.ENABLE_BONUSPAGE_CHAR_WINDOW and constInfo.BONUSPAGE_AUTO_UPDATE_VALUES:
-			self.RefreshBonusesFunc()
 
 	def __RefreshStatusPlusButtonList(self):
 		if self.isLoaded==0:
@@ -903,7 +824,6 @@ class CharacterWindow(ui.ScriptWindow):
 
 	## ToolTip
 	def OverInItem(self, slotNumber):
-
 		if mouseModule.mouseController.isAttached():
 			return
 
@@ -923,10 +843,19 @@ class CharacterWindow(ui.ScriptWindow):
 			if overInSkillGrade == skill.SKILL_GRADE_COUNT-1 and skillGrade == skill.SKILL_GRADE_COUNT:
 				self.toolTipSkill.SetSkillNew(srcSlotIndex, skillIndex, skillGrade, skillLevel)
 			elif overInSkillGrade == skillGrade:
-				self.toolTipSkill.SetSkillNew(srcSlotIndex, skillIndex, overInSkillGrade, skillLevel)
+				if app.ENABLE_SKILLS_LEVEL_OVER_P and skillGrade == 2:
+					self.toolTipSkill.SetSkillOnlyName(srcSlotIndex, skillIndex, overInSkillGrade + 1)
+				else:
+					self.toolTipSkill.SetSkillNew(srcSlotIndex, skillIndex, overInSkillGrade, skillLevel)
+			elif app.ENABLE_SKILLS_LEVEL_OVER_P and overInSkillGrade == skill.SKILL_GRADE_COUNT-2 and skillGrade >= skill.SKILL_GRADE_COUNT-1:
+				self.toolTipSkill.SetSkillNew(srcSlotIndex, skillIndex, skillGrade, skillLevel)
 			else:
-				self.toolTipSkill.SetSkillOnlyName(srcSlotIndex, skillIndex, overInSkillGrade)
-
+				if app.ENABLE_SKILLS_LEVEL_OVER_P and overInSkillGrade == 1 and skillGrade == 2:
+					self.toolTipSkill.SetSkillNew(srcSlotIndex, skillIndex, overInSkillGrade + 1, skillLevel)
+				elif app.ENABLE_SKILLS_LEVEL_OVER_P and overInSkillGrade == 2 and skillGrade < 3:
+					self.toolTipSkill.SetSkillOnlyName(srcSlotIndex, skillIndex, overInSkillGrade + 1)
+				else:
+					self.toolTipSkill.SetSkillOnlyName(srcSlotIndex, skillIndex, overInSkillGrade)
 		else:
 			self.toolTipSkill.SetSkillNew(srcSlotIndex, skillIndex, skillGrade, skillLevel)
 
@@ -938,9 +867,16 @@ class CharacterWindow(ui.ScriptWindow):
 	def __SelectQuest(self, slotIndex):
 		questIndex = quest.GetQuestIndex(self.questShowingStartIndex+slotIndex)
 
-		import event
-		event.QuestButtonClick(-2147483648 + questIndex)
+		#REDDEV_NEW_QUEST_LISTING
+		if not questIndex in self.markedQuests:
+			self.markedQuests.append(questIndex)
 
+		import event
+		#event.QuestButtonClick(-2147483648 + questIndex)
+		event.QuestButtonClick(questIndex)
+		#ENDOF_REDDEV_NEW_QUEST_LISTING
+
+	''' REDDEV_NEW_QUEST_LISTING
 	def RefreshQuest(self):
 
 		if self.isLoaded==0:
@@ -956,12 +892,7 @@ class CharacterWindow(ui.ScriptWindow):
 
 		for i in questRange[:questCount]:
 			(questName, questIcon, questCounterName, questCounterValue) = quest.GetQuestData(self.questShowingStartIndex+i)
-			if constInfo.ENABLE_COLOR_SCROLL and ('#' in questName):
-				for s_color in ("green","blue","purple"):
-					if questName.endswith(s_color):
-						#questIcon="locale/it/icon/scroll_open_%s.tga"%s_color
-						questName = questName[:-1-len(s_color)]
-						break
+
 			self.questNameList[i].SetText(questName)
 			self.questNameList[i].Show()
 			self.questLastCountList[i].Show()
@@ -1012,7 +943,140 @@ class CharacterWindow(ui.ScriptWindow):
 							clockText += str(questLastSecond) + localeInfo.QUEST_SEC
 
 				self.questLastTimeList[i].SetText(clockText)
+	''' #ENDOF_REDDEV_NEW_QUEST_LISTING
+	
+	#REDDEV_NEW_QUEST_LISTING
+	def RefreshQuest(self):
 
+		if self.isLoaded==0:
+			return
+		
+		self.actualQuestList = {}
+		for i in xrange(quest.QUEST_MAX_NUM):
+			try:
+				self.Pula[i].Hide()
+			except:
+				pass
+		self.countersList = []
+		self.timersList = []
+		
+		questCount = quest.GetQuestCount()
+		questRange = range(quest.QUEST_MAX_NUM)
+		
+		page = self.GetChild("Quest_Page")
+		
+
+		if questCount > quest.QUEST_MAX_NUM:
+			self.questScrollBar.Show()
+		else:
+			self.questScrollBar.Hide()
+			
+		self.GetChild("Quest_Title").SetTextAlignLeft("Misiuni (" + str(questCount) + ")")
+		actualList = quest.QUEST_MAX_NUM
+		self.additionalY = 0
+		for i in questRange[:questCount]:
+			if i >= actualList:
+				pass
+			else:
+				(questName, questIcon, questCounterName, questCounterValue) = quest.GetQuestData(self.questShowingStartIndex+i)
+				(lastName, lastTime) = quest.GetQuestLastTime(self.questShowingStartIndex+i)
+				
+				yPos = 25 + i * 20 + self.additionalY * 14
+				questSlot = ui.ListBar()
+				questSlot.SetParent(page)
+				questSlot.MakeListBar(180, 1)
+				questSlot.SetWidth(180)
+				if quest.GetQuestIndex(self.questShowingStartIndex+i) in self.markedQuests:
+					questSlot.OnClickEvent()
+				questSlot.SetPosition(10, yPos)
+				if questName[0] == "*":
+					questSlot.SetTextAlignLeft(questName[1:])
+					questSlot.SetTextColor(0xff85beea)
+				elif questName[0] == "!":
+					questSlot.SetTextAlignLeft(questName[1:])
+				elif questName[0] == "+":
+					questSlot.SetTextAlignLeft(questName[1:])
+					questSlot.SetTextColor(0xffd760ff)
+				else:
+					questSlot.SetTextAlignLeft(questName)
+				questSlot.SetEvent(ui.__mem_func__(self.__SelectQuest), i)
+				self.actualQuestList[i] = questSlot
+				self.actualQuestList[i].Show()
+				hasCounter = False
+				if len(questCounterName) > 0:
+					targetsRemain = ui.TextLine()
+					targetsRemain.SetParent(page)
+					targetsRemain.SetText("%s: %d" % (questCounterName, questCounterValue))
+					targetsRemain.SetPosition(45, yPos+20)
+					targetsRemain.Show()
+					self.countersList.append(targetsRemain)
+					self.additionalY += 1
+					actualList -= 1
+					hasCounter = True
+				
+				if len(lastName) > 0:
+
+					if lastTime <= 0:
+						clockText = localeInfo.QUEST_TIMEOVER
+
+					else:
+						questLastMinute = lastTime / 60
+						questLastSecond = lastTime % 60
+
+						clockText = lastName + ": "
+
+						if questLastMinute > 0:
+							clockText += str(questLastMinute) + localeInfo.QUEST_MIN
+							if questLastSecond > 0:
+								clockText += " "
+
+						if questLastSecond > 0:
+							clockText += str(questLastSecond) + localeInfo.QUEST_SEC
+							
+					clock = ui.TextLine()
+					clock.SetParent(page)
+					clock.SetPosition(45, yPos+20 + int(hasCounter)*14)
+					clock.SetText(clockText)
+					clock.SetProperty("idx", self.questShowingStartIndex+i)
+					clock.Show()
+					self.timersList.append(clock)
+					self.additionalY += 1
+					actualList -= 1
+
+		self.__UpdateQuestClock()
+
+	def __UpdateQuestClock(self):
+		if "QUEST" == self.state:	
+			for clock in self.timersList:
+				if not clock.GetProperty("idx"):
+					print "Invalid clock property"
+					return
+				
+				(lastName, lastTime) = quest.GetQuestLastTime(clock.GetProperty("idx"))
+
+				clockText = localeInfo.QUEST_UNLIMITED_TIME
+				if len(lastName) > 0:
+
+					if lastTime <= 0:
+						clockText = localeInfo.QUEST_TIMEOVER
+
+					else:
+						questLastMinute = lastTime / 60
+						questLastSecond = lastTime % 60
+
+						clockText = lastName + ": "
+
+						if questLastMinute > 0:
+							clockText += str(questLastMinute) + localeInfo.QUEST_MIN
+							if questLastSecond > 0:
+								clockText += " "
+
+						if questLastSecond > 0:
+							clockText += str(questLastSecond) + localeInfo.QUEST_SEC
+
+					clock.SetText(clockText)
+	#ENDOF_REDDEV_NEW_QUEST_LISTING
+	
 	def __GetStatMinusPoint(self):
 		POINT_STAT_RESET_COUNT = 112
 		return player.GetStatus(POINT_STAT_RESET_COUNT)
@@ -1056,9 +1120,7 @@ class CharacterWindow(ui.ScriptWindow):
 	## Skill Process
 	def __RefreshSkillPage(self, name, slotCount):
 		global SHOW_LIMIT_SUPPORT_SKILL_LIST
-
 		skillPage = self.skillPageDict[name]
-
 		startSlotIndex = skillPage.GetStartIndex()
 		if "ACTIVE" == name:
 			if self.PAGE_HORSE == self.curSelectedSkillGroup:
@@ -1070,13 +1132,29 @@ class CharacterWindow(ui.ScriptWindow):
 		getSkillLevel=player.GetSkillLevel
 		getSkillLevelUpPoint=skill.GetSkillLevelUpPoint
 		getSkillMaxLevel=skill.GetSkillMaxLevel
+
+		if app.ENABLE_SKILLS_LEVEL_OVER_P:
+			refresh = 0
+
 		for i in xrange(slotCount+1):
 
 			slotIndex = i + startSlotIndex
 			skillIndex = getSkillIndex(slotIndex)
-
-			for j in xrange(skill.SKILL_GRADE_COUNT):
-				skillPage.ClearSlot(self.__GetRealSkillSlot(j, i))
+			if not app.ENABLE_SKILLS_LEVEL_OVER_P:
+				for j in xrange(skill.SKILL_GRADE_COUNT):
+					skillPage.ClearSlot(self.__GetRealSkillSlot(j, i))
+			else:
+				if not refresh and skillIndex >= 137 and skillIndex <= 140:
+					for w in xrange(slotCount + 1):
+						for q in xrange(skill.SKILL_GRADE_COUNT):
+							skillPage.ClearSlot(self.__GetRealSkillSlot(q, w))
+					
+					refresh = 1
+			
+			if app.ENABLE_SKILLS_LEVEL_OVER_P:
+				if slotIndex == 7 or slotIndex == 8:
+					for j in xrange(skill.SKILL_GRADE_COUNT):
+						skillPage.ClearSlot(self.__GetRealSkillSlot(j, slotIndex))
 
 			if 0 == skillIndex:
 				continue
@@ -1085,8 +1163,14 @@ class CharacterWindow(ui.ScriptWindow):
 			skillLevel = getSkillLevel(slotIndex)
 			skillType = getSkillType(skillIndex)
 
-			## 승마 스킬 예외 처리
 			if player.SKILL_INDEX_RIDING == skillIndex:
+				if app.ENABLE_SKILLS_LEVEL_OVER_P:
+					skGrade = 0
+					if skillLevel >= 11 and skillLevel < 20:
+						skGrade = 1
+					elif skillGrade == 1:
+						skGrade = 2
+
 				if 1 == skillGrade:
 					skillLevel += 19
 				elif 2 == skillGrade:
@@ -1094,12 +1178,22 @@ class CharacterWindow(ui.ScriptWindow):
 				elif 3 == skillGrade:
 					skillLevel = 40
 
-				skillPage.SetSkillSlotNew(slotIndex, skillIndex, max(skillLevel-1, 0), skillLevel)
+				if app.ENABLE_SKILLS_LEVEL_OVER_P:
+					skGr = max(skillLevel - 1, 0)
+					skGr = skGrade
+					skillPage.SetSkillSlotNew(slotIndex, skillIndex, skGr, skillLevel)
+				else:
+					skillPage.SetSkillSlotNew(slotIndex, skillIndex, max(skillLevel-1, 0), skillLevel)
+
 				skillPage.SetSlotCount(slotIndex, skillLevel)
 
 			## ACTIVE
 			elif skill.SKILL_TYPE_ACTIVE == skillType:
 				for j in xrange(skill.SKILL_GRADE_COUNT):
+					if app.ENABLE_SKILLS_LEVEL_OVER_P:
+						if j == 2 and skillGrade == 1:
+							continue
+
 					realSlotIndex = self.__GetRealSkillSlot(j, slotIndex)
 					skillPage.SetSkillSlotNew(realSlotIndex, skillIndex, j, skillLevel)
 					skillPage.SetCoverButton(realSlotIndex)
@@ -1107,23 +1201,29 @@ class CharacterWindow(ui.ScriptWindow):
 					if (skillGrade == skill.SKILL_GRADE_COUNT) and j == (skill.SKILL_GRADE_COUNT-1):
 						skillPage.SetSlotCountNew(realSlotIndex, skillGrade, skillLevel)
 					elif (not self.__CanUseSkillNow()) or (skillGrade != j):
+						if app.ENABLE_SKILLS_LEVEL_OVER_P:
+							if j != 2 and skillGrade != 2:
+								skillPage.ClearSlot(realSlotIndex)
+								skillPage.SetSkillSlotNew(realSlotIndex, skillIndex, j, skillLevel)
+								skillPage.SetCoverButton(realSlotIndex)
+							elif skillGrade == 2 and j >= 3:
+								skillPage.ClearSlot(realSlotIndex)
+								skillPage.SetSkillSlotNew(realSlotIndex, skillIndex, j, skillLevel)
+								skillPage.SetCoverButton(realSlotIndex)
+
 						skillPage.SetSlotCount(realSlotIndex, 0)
 						skillPage.DisableCoverButton(realSlotIndex)
 					else:
 						skillPage.SetSlotCountNew(realSlotIndex, skillGrade, skillLevel)
-
-			## 그외
 			else:
 				if not SHOW_LIMIT_SUPPORT_SKILL_LIST or skillIndex in SHOW_LIMIT_SUPPORT_SKILL_LIST:
 					realSlotIndex = self.__GetETCSkillRealSlotIndex(slotIndex)
 					skillPage.SetSkillSlot(realSlotIndex, skillIndex, skillLevel)
 					skillPage.SetSlotCountNew(realSlotIndex, skillGrade, skillLevel)
-
 					if skill.CanUseSkill(skillIndex):
 						skillPage.SetCoverButton(realSlotIndex)
 
 			skillPage.RefreshSlot()
-
 
 	def RefreshSkill(self):
 
@@ -1496,8 +1596,19 @@ class CharacterWindow(ui.ScriptWindow):
 		self.canUseHorseSkill = self.__CanUseHorseSkill()
 		return ret
 
-	def __GetRealSkillSlot(self, skillGrade, skillSlot):
-		return skillSlot + min(skill.SKILL_GRADE_COUNT-1, skillGrade)*skill.SKILL_GRADE_STEP_COUNT
+	if app.ENABLE_SKILLS_LEVEL_OVER_P:
+		def __GetRealSkillSlot(self, skillGrade, skillSlot):
+			_min = skill.SKILL_GRADE_COUNT - 1
+			if app.ENABLE_SKILLS_LEVEL_OVER_P:
+				_min -= 1
+				if skillGrade == 2:
+					skillGrade -= 1
+			
+			__calc = skillSlot + min(_min, skillGrade) * skill.SKILL_GRADE_STEP_COUNT
+			return __calc
+	else:
+		def __GetRealSkillSlot(self, skillGrade, skillSlot):
+			return skillSlot + min(skill.SKILL_GRADE_COUNT-1, skillGrade)*skill.SKILL_GRADE_STEP_COUNT
 
 	def __GetETCSkillRealSlotIndex(self, skillSlot):
 		if skillSlot > 100:

@@ -64,7 +64,7 @@ window = {
 					"type" : "image",
 					"x" : 13,
 					"y" : 219 + 16,
-					"image" : "locale/es/ui/costume/effect_slot_bg.jpg",
+					"image" : "locale/ro/ui/costume/effect_slot_bg.jpg",
 				},
 				
 				{
@@ -72,7 +72,7 @@ window = {
 					"type" : "image",
 					"x" : 13,
 					"y" : 38,
-					"image" : "locale/es/ui/costume/new_costume_bg.tga",
+					"image" : "locale/ro/ui/costume/new_costume_bg.tga",
 					"children" :
 					(
 						{

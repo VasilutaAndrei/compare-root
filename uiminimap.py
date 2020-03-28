@@ -265,7 +265,6 @@ class MiniMap(ui.ScriptWindow):
 
 	def __Initialize(self):
 		self.positionInfo = 0
-		self.renderInfo = 0
 		self.observerCount = 0
 
 		self.OpenWindow = 0
@@ -346,7 +345,6 @@ class MiniMap(ui.ScriptWindow):
 			self.MiniMapShowButton = self.GetChild("MiniMapShowButton")
 			self.positionInfo = self.GetChild("PositionInfo")
 			self.observerCount = self.GetChild("ObserverCount")
-			self.renderInfo = self.GetChild("RenderInfo")
 			self.serverInfo = self.GetChild("ServerInfo")
 			if app.ENABLE_BATTLE_FIELD:
 				self.battleButton = self.GetChild("BattleButton")
@@ -415,11 +413,6 @@ class MiniMap(ui.ScriptWindow):
 
 		self.positionInfo.SetText("(%.0f, %.0f)" % (x/100, y/100))
 
-		# FPS RENDER
-		nRenderFPS = app.GetRenderFPS()
-		fps = "%3d" % (nRenderFPS)
-		self.renderInfo.SetText("FPS : " + str(fps))
-		# FPS RENDER
 		if self.tooltipInfo:
 			if True == self.MiniMapWindow.IsIn():
 				(mouseX, mouseY) = wndMgr.GetMousePosition()

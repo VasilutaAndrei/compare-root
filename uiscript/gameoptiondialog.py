@@ -7,7 +7,7 @@ BUTTON_TEMPORARY_X = 5
 PVP_X = -10
 
 LINE_LABEL_X 	= 30
-LINE_DATA_X 	= 105
+LINE_DATA_X 	= 90
 LINE_STEP	= 0
 SMALL_BUTTON_WIDTH 	= 45
 MIDDLE_BUTTON_WIDTH 	= 65
@@ -19,8 +19,8 @@ window = {
 	"x" : 0,
 	"y" : 0,
 
-	"width" : 375,
-	"height" : 29*17,
+	"width" : 300,
+	"height" : 29*12+8,
 
 	"children" :
 	(
@@ -31,7 +31,7 @@ window = {
 			"x" : 0,
 			"y" : 0,
 
-			"width" : 325,
+			"width" : 300,
 			"height" : 29*12+8,
 
 			"children" :
@@ -45,7 +45,7 @@ window = {
 					"x" : 8,
 					"y" : 8,
 
-					"width" : 309,
+					"width" : 284,
 					"color" : "gray",
 
 					"children" :
@@ -435,134 +435,98 @@ window = {
 					"down_image" : ROOT_PATH + "middle_button_03.sub",
 				},	
 				
-				#ascunde pet
-				
 				{
-					"name" : "hide_system",
+					"name" : "show_offline_shop_name",
 					"type" : "text",
 
-					"x" : LINE_LABEL_X,
-					"y" : 265+2,
+					"multi_line" : 1,
 
-					"text" : "Ascunde",
-				},
-				{
-					"name" : "ShowMadaraPetButton",
-					"type" : "toggle_button",
-
-					"x" : LINE_DATA_X,
-					"y" : 265,
-
-					"text" : "Pet",
-
-					"default_image" : ROOT_PATH + "middle_button_01.sub",
-					"over_image" : ROOT_PATH + "middle_button_02.sub",
-					"down_image" : ROOT_PATH + "middle_button_03.sub",
-				},
-				# ascunde mount
-				{
-					"name" : "ShowMadaraMountButton",
-					"type" : "toggle_button",
-	
-					"x" : LINE_DATA_X+MIDDLE_BUTTON_WIDTH,
-					"y" : 265,
-
-					"text" : "Mount",
-
-					"default_image" : ROOT_PATH + "middle_button_01.sub",
-					"over_image" : ROOT_PATH + "middle_button_02.sub",
-					"down_image" : ROOT_PATH + "middle_button_03.sub",
-				},
-				
-				#ascunde shop
-				
-				{
-					"name" : "ShowMadaraShopButton",
-					"type" : "toggle_button",
-
-					"x" : LINE_DATA_X+MIDDLE_BUTTON_WIDTH+MIDDLE_BUTTON_WIDTH,
-					"y" : 265,
-
-					"text" : "Shop",
-
-					"default_image" : ROOT_PATH + "middle_button_01.sub",
-					"over_image" : ROOT_PATH + "middle_button_02.sub",
-					"down_image" : ROOT_PATH + "middle_button_03.sub",
-				},
-				#zi-noapte
-				{
-					"name" : "showNight_on_off",
-					"type" : "text",
 					"x" : LINE_LABEL_X,
 					"y" : 290+2,
-					"text" : "Noapte/Zi",
-                },
-                {
-					"name" : "showNight_on_button",
+
+					"text" : "Offline Shop",
+				},
+				{
+					"name" : "show_offline_shop_on",
 					"type" : "radio_button",
+
 					"x" : LINE_DATA_X,
-					"y"    : 290,
+					"y" : 290,
 
-
-					"text" : "Noapte",
-
+					"text" : "Ascunde",
 
 					"default_image" : ROOT_PATH + "middle_button_01.sub",
 					"over_image" : ROOT_PATH + "middle_button_02.sub",
 					"down_image" : ROOT_PATH + "middle_button_03.sub",
-                },
-                {
-					"name" : "showNight_off_button",
+				},
+				{
+					"name" : "show_offline_shop_off",
 					"type" : "radio_button",
-
 
 					"x" : LINE_DATA_X+MIDDLE_BUTTON_WIDTH,
 					"y" : 290,
 
-
-					"text" : "Zi",
-
+					"text" : "Afiseaza",
 
 					"default_image" : ROOT_PATH + "middle_button_01.sub",
 					"over_image" : ROOT_PATH + "middle_button_02.sub",
 					"down_image" : ROOT_PATH + "middle_button_03.sub",
-                },
-				#ascunde yang
+				},
+
+
+				## Range
+				
 				{
-					"name" : "yangtext_on_off",
+					"name" : "salestext_range",
 					"type" : "text",
+					"x" : LINE_LABEL_X,
+					"y" : 269,
+					"text" : uiScriptLocale.OPTION_SALESTEXT_RANGE,
+				},
+				{
+					"name" : "salestext_range_controller",
+					"type" : "sliderbar",
+					"x" : LINE_DATA_X+MIDDLE_BUTTON_WIDTH - 37,
+					"y" : 271,
+				},
+				## Show Mob Info List
+				{
+					"name" : "show_mob_info",
+					"type" : "text",
+
+					"multi_line" : 1,
 
 					"x" : LINE_LABEL_X,
 					"y" : 315+2,
 
-					"text" : uiScriptLocale.OPTION_YANGTEXT,
+					"text" : uiScriptLocale.OPTION_MOB_INFO,
 				},
 				{
-					"name" : "yangtext_on_button",
-					"type" : "radio_button",
+					"name" : "show_mob_level_button",
+					"type" : "toggle_button",
 
 					"x" : LINE_DATA_X,
 					"y" : 315,
 
-					"text" : uiScriptLocale.OPTION_YANGTEXT_VIEW_ON,
+					"text" : uiScriptLocale.OPTION_MOB_INFO_LEVEL,
 
 					"default_image" : ROOT_PATH + "middle_button_01.sub",
 					"over_image" : ROOT_PATH + "middle_button_02.sub",
 					"down_image" : ROOT_PATH + "middle_button_03.sub",
 				},
 				{
-					"name" : "yangtext_off_button",
-					"type" : "radio_button",
+					"name" : "show_mob_AI_flag_button",
+					"type" : "toggle_button",
 
 					"x" : LINE_DATA_X+MIDDLE_BUTTON_WIDTH,
 					"y" : 315,
 
-					"text" : uiScriptLocale.OPTION_YANGTEXT_VIEW_OFF,
+					"text" : uiScriptLocale.OPTION_MOB_INFO_AGGR,
 
 					"default_image" : ROOT_PATH + "middle_button_01.sub",
 					"over_image" : ROOT_PATH + "middle_button_02.sub",
 					"down_image" : ROOT_PATH + "middle_button_03.sub",
-				},
+				},				
 			),
 		},
 	),

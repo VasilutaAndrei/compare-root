@@ -27,7 +27,7 @@ class SpecialStorageWindow(ui.ScriptWindow):
 	
 	WINDOW_NAMES = {
 		UPGRADE_TYPE	:	"Depozit Upgrade",
-		BOOK_TYPE	:	"Depozit Bonusuri",
+		BOOK_TYPE	:	"Depozit Carti",
 		STONE_TYPE	:	"Depozit Pietre"
 	}
 	
@@ -35,6 +35,7 @@ class SpecialStorageWindow(ui.ScriptWindow):
 		ui.ScriptWindow.__init__(self)
 		self.questionDialog = None
 		self.tooltipItem = None
+		self.interface = None
 		self.dlgSplitItems = None
 		self.sellingSlotNumber = -1
 		self.isLoaded = 0
@@ -49,6 +50,9 @@ class SpecialStorageWindow(ui.ScriptWindow):
 	def Show(self):
 		self.__LoadWindow()
 		ui.ScriptWindow.Show(self)
+		
+	def BindInterfaceClass(self, interface):
+		self.interface = interface
 		
 	def __LoadWindow(self):
 		if self.isLoaded == 1:
@@ -77,6 +81,8 @@ class SpecialStorageWindow(ui.ScriptWindow):
 			self.categoryTab.append(self.GetChild("Category_Tab_01"))
 			self.categoryTab.append(self.GetChild("Category_Tab_02"))
 			self.categoryTab.append(self.GetChild("Category_Tab_03"))
+			
+			self.GetChild("SetItemsStorage").SetEvent(ui.__mem_func__(self.SetItems))
 		except:
 			import exception
 			exception.Abort("SpecialStorageWindow.LoadWindow.BindObject")
@@ -133,6 +139,9 @@ class SpecialStorageWindow(ui.ScriptWindow):
 			self.dlgSplitItems.Close()	
 		self.Hide()
 
+	def SetItems(self):
+		net.SendChatPacket("/click_sort_special_storage")
+		
 	def SetInventoryPage(self, page):			
 		self.inventoryTab[self.inventoryPageIndex].SetUp()
 		self.inventoryPageIndex = page
@@ -160,6 +169,9 @@ class SpecialStorageWindow(ui.ScriptWindow):
 	def __InventoryLocalSlotPosToGlobalSlotPos(self, localSlotPos):
 		return self.inventoryPageIndex * player.SPECIAL_PAGE_SIZE + localSlotPos
 
+	def GetInventoryPageIndex(self):
+		return self.inventoryPageIndex
+		
 	def RefreshBagSlotWindow(self):
 		getItemVNum=player.GetItemIndex
 		getItemCount=player.GetItemCount

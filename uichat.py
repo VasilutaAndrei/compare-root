@@ -12,7 +12,7 @@ import systemSetting
 import player
 ENABLE_CHAT_COMMAND = True
 ENABLE_LAST_SENTENCE_STACK = True
-ENABLE_INSULT_CHECK = False
+ENABLE_INSULT_CHECK = True
 
 if localeInfo.IsHONGKONG():
 	ENABLE_LAST_SENTENCE_STACK = True
@@ -254,13 +254,12 @@ class ChatLine(ui.EditLine):
 			chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.CHAT_SHOUT_LIMIT)
 			self.__ResetChat()
 			return
-         
-		a = net.GetServerInfo()
-		Chitra = a[-3:]
-		self.__SendChatPacket(constInfo.Chitra+'|cFF0080FF|HChitra:'+str(player.GetName())+'|h[PM]|h|r' + text[1:], chat.CHAT_TYPE_SHOUT)
+
+		self.__SendChatPacket(text[1:], chat.CHAT_TYPE_SHOUT)
 		self.__ResetChat()
+
 		self.lastShoutTime = app.GetTime()
-		
+
 	def __SendTalkingChatPacket(self, text):
 		self.__SendChatPacket(text, chat.CHAT_TYPE_TALKING)
 		self.__ResetChat()

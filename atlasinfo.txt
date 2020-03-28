@@ -1,7 +1,7 @@
 map_a2	256000	665600	6	6
 map_b2	102400	51200	6	6
 map_c2	665600	281600	6	6
-map_n_snowm_01	358400	153600	6	6
+map_n_snowmdv_01	358400	153600	6	6
 metin2_map_a1	409600	896000	4	5
 metin2_map_a3	307200	819200	4	4
 metin2_map_b1	0	102400	4	5
@@ -32,7 +32,7 @@ metin2_map_guild_03	230400	0	2	2
 metin2_map_trent	281600	0	2	2
 metin2_map_trent02	1049600	0	4	4
 gm_guild_build	83200	0	1	1
-metin2_map_duel	844800	844800	1	1
+metin2_map_duel	844800	0	1	1
 season1/metin2_map_WL_01	1049600	716800	6	6
 season1/metin2_map_nusluck01	819200	716800	4	4
 season1/metin2_map_oxevent	870400	0	2	2
@@ -116,4 +116,3 @@ metin2_laurin_map	3000100	3000200	4	4
 metin2_12zi_stage	307200	1408000	6	6
 easter_map_2018	2100000	2850000	4	3
 metin2_map_battlefied	691200	0	2	2
-Shinora2_Maps	18727700	18727700	1	1

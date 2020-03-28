@@ -6,7 +6,7 @@ COSTUME_START_INDEX = item.COSTUME_SLOT_START
 window = {
 	"name" : "CostumeWindow",
 	"x" : SCREEN_WIDTH - 175 - 140,
-	"y" : SCREEN_HEIGHT - 597,
+	"y" : SCREEN_HEIGHT - 37 - 565,
 	"style" : ("movable", "float",),
 	"width" : 140,
 	"height" : 255,
@@ -41,7 +41,7 @@ window = {
 					"type" : "image",
 					"x" : 13,
 					"y" : 38,
-					"image" : "locale/es/ui/costume_bg_with_ring.tga",
+					"image" : "locale/ro/ui/costume_bg_with_ring.tga",
 					"children" :
 					(
 						{

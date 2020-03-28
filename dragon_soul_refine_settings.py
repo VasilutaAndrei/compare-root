@@ -1,7 +1,7 @@
 import item
 
 default_grade_need_count = [2, 2, 2, 2]
-default_grade_fee = [20000, 30000, 40000, 50000]
+default_grade_fee = [30000, 50000, 70000, 100000]
 default_step_need_count = [2, 2, 2, 2]
 default_step_fee = [20000, 30000, 40000, 50000]
 

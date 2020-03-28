@@ -1,3 +1,10 @@
+###################################################################
+# title_name		: Extra Refine System
+# date_created		: 2016.09.20
+# filename			: uiRefine.py
+# author			: VegaS
+# version			: 0.1.6
+#
 import app
 import net
 import player
@@ -11,6 +18,7 @@ import constInfo
 import snd
 import wndMgr
 import chat
+import uiScriptLocale
 
 REFINE_VNUM = [
 	player.REFINE_VNUM_POTION_LOW,
@@ -76,6 +84,11 @@ class RefineDialog(ui.ScriptWindow):
 		except:
 			import exception
 			exception.Abort("RefineDialog.__LoadScript.BindObject")
+
+		if constInfo.ENABLE_REFINE_PCT:
+			self.successPercentage.Show()
+		else:
+			self.successPercentage.Hide()
 
 		toolTip = uiToolTip.ItemToolTip()
 		toolTip.SetParent(self)
@@ -167,9 +180,13 @@ class RefineDialog(ui.ScriptWindow):
 		self.successPercentage.SetText(localeInfo.REFINE_SUCCESS_PROBALITY % (percentage))
 
 		itemIndex = player.GetItemIndex(targetItemPos)
+
+
 		self.toolTip.ClearToolTip()
+
 		if app.WJ_ENABLE_TRADABLE_ICON:
 			self.SetCantMouseEventSlot(targetItemPos)
+			
 		metinSlot = []
 		for i in xrange(player.METIN_SOCKET_MAX_NUM):
 			metinSlot.append(player.GetItemMetinSocket(targetItemPos, i))
@@ -200,12 +217,14 @@ class RefineDialog(ui.ScriptWindow):
 
 	def Accept(self):
 		net.SendItemUseToItemPacket(self.scrollItemPos, self.targetItemPos)
-		self.Close()
 
 	def Close(self):
-		self.dlgQuestion.Hide()
-		self.Hide()
+		if self.dlgQuestion:
+			self.dlgQuestion.Close()
 
+		self.dlgQuestion = None
+		self.Hide()
+				
 	def OnPressEscapeKey(self):
 		self.Close()
 		return TRUE
@@ -279,24 +298,35 @@ class RefineDialogNew(ui.ScriptWindow):
 		self.slotCurrent, self.slotAfter, self.numberSlotImage, self.imgPotion = {}, {}, {}, {}
 		posY = 61
 		for i in xrange(3):
-			self.slotCurrent[i] = ui.MakeImageBox(self, "d:/ymir work/ui/public/Slot_Base.sub", 25*2, posY)
-			self.slotAfter[i] = ui.MakeImageBox(self, "d:/ymir work/ui/public/Slot_Base.sub", 105*2-20, posY)
+			self.slotCurrent[i] = ui.MakeImageBox(self, "d:/ymir work/ui/public/Slot_Base.sub", 25 * 2-20, posY)
+			self.slotAfter[i] = ui.MakeImageBox(self, "d:/ymir work/ui/public/Slot_Base.sub", 105 * 2 - 20, posY)
 			posY += 32
 
-		xPos = 4
+		xPos = 25
 		name = "icon/item/potion_refine_hide_"
 		for i in xrange(3):
 			self.numberSlotImage[i] = ui.MakeImageBox(self.designMode, "d:/ymir work/ui/public/Slot_Base.sub", xPos, 25)
-			self.imgPotion[i] = ui.MakeImageBox(self.designMode, name + str(i+1) + ".tga", xPos + 3, 25)
-			xPos += 80
+			self.imgPotion[i] = ui.MakeImageBox(self.designMode, name + str(i+1) + ".tga", xPos + 1, 25)
+			xPos += 75
 
-		self.itemImageCur = ui.MakeImageBox(self, "d:/ymir work/ui/public/Slot_Base.sub", 49, 60)
-		self.itemImageNext = ui.MakeImageBox(self, "d:/ymir work/ui/public/Slot_Base.sub", 105*2-20, 60)
+		self.itemImageCur = ui.MakeImageBox(self, "d:/ymir work/ui/public/Slot_Base.sub", 49-20, 60)
+		self.itemImageNext = ui.MakeImageBox(self, "d:/ymir work/ui/public/Slot_Base.sub", 105 * 2 - 20, 60)
 		
 		self.materialList = []
 
 		self.titleBar.SetCloseEvent(ui.__mem_func__(self.CancelRefine))
 		self.isLoaded = TRUE
+		if app.ENABLE_REFINE_RENEWAL:
+			self.checkBox = ui.CheckBox()
+			self.checkBox.SetParent(self)
+			self.checkBox.SetPosition(0, 65)
+			self.checkBox.SetWindowHorizontalAlignCenter()
+			self.checkBox.SetWindowVerticalAlignBottom()
+			self.checkBox.SetEvent(ui.__mem_func__(self.AutoRefine), "ON_CHECK", True)
+			self.checkBox.SetEvent(ui.__mem_func__(self.AutoRefine), "ON_UNCKECK", False)
+			self.checkBox.SetCheckStatus(constInfo.IS_AUTO_REFINE)
+			self.checkBox.SetTextInfo(uiScriptLocale.UPGRADE)
+			self.checkBox.Show()
 
 	def __del__(self):
 		ui.ScriptWindow.__del__(self)
@@ -334,9 +364,6 @@ class RefineDialogNew(ui.ScriptWindow):
 		self.itemImageCur = 0
 		self.itemImageNext = 0
 		self.children = []
-		if app.WJ_ENABLE_TRADABLE_ICON:
-			self.wndInventory = None
-			self.lockedItem = (-1,-1)
 		self.materialList = []
 		self.toolTipMaterial = 0
 		self.slotCurrent = None
@@ -345,21 +372,46 @@ class RefineDialogNew(ui.ScriptWindow):
 		self.imgPotion = None
 		REFINE_TOTAL_PERCENTAGE["update"] = 0
 
+		if app.WJ_ENABLE_TRADABLE_ICON:
+			self.wndInventory = None
+			self.lockedItem = (-1,-1)
+
+	if app.ENABLE_REFINE_RENEWAL:
+		def __InitializeOpen(self):
+			self.children = []
+			self.vnum = 0
+			self.targetItemPos = 0
+			self.dialogHeight = 0
+			self.cost = 0
+			self.percentage = 0
+			self.type = 0
+			self.xRefineStart = 0
+			self.yRefineStart = 0	
+
 	def Open(self, targetItemPos, nextGradeItemVnum, cost, prob, type):
 		if FALSE == self.isLoaded:
 			self.__LoadScript()
 
-		self.__Initialize()
+		if app.ENABLE_REFINE_RENEWAL:
+			self.__InitializeOpen()
+		else:
+			self.__Initialize()
 
 		self.targetItemPos = targetItemPos
 		self.vnum = nextGradeItemVnum
 		self.cost = cost
 		self.percentage = prob
+		if constInfo.ADDPERCENT > 0:
+			self.percentage += constInfo.ADDPERCENT
+			constInfo.ADDPERCENT = 0
 		self.type = type
 
 		self.Clear()
 
-		self.probText.SetText(localeInfo.REFINE_CURRENT_PERCENTAGE % (self.percentage))
+		# Arata / Ascunde percentul de upgrade!
+		if constInfo.ENABLE_REFINE_PCT:
+			self.probText.SetText(localeInfo.REFINE_CURRENT_PERCENTAGE % (self.percentage))
+
 		self.costText.SetText("%s" % (localeInfo.NumberToMoneyString(self.cost)))
 
 		self.toolTipNext.ClearToolTip()
@@ -389,7 +441,7 @@ class RefineDialogNew(ui.ScriptWindow):
 		item.SelectItem(nextGradeItemVnum)
 		self.itemImageNext.LoadImage(item.GetIconImageFileName())
 
-		self.dialogHeight = 62
+		self.dialogHeight = 62+200
 		self.UpdateDialog()
 
 		self.SetTop()
@@ -403,25 +455,19 @@ class RefineDialogNew(ui.ScriptWindow):
 		REFINE_TOTAL_PERCENTAGE["update"] = 0
 
 	def Close(self):
-		if self.dlgQuestion:
-			self.dlgQuestion.Close()
-
 		self.dlgQuestion = None
+		self.Clear()
 		self.Hide()
-
-		if app.WJ_ENABLE_TRADABLE_ICON:
-			self.lockedItem = (-1, -1)
-			self.SetCanMouseEventSlot(self.targetItemPos)
 
 	def AppendMaterial(self, vnum, count):
 		grid = self.__MakeItemSlot(len(self.materialList))
-		grid.SetPosition(293-35, self.dialogHeight)
+		grid.SetPosition(15, self.dialogHeight)
 		grid.SetItemSlot(len(self.materialList), vnum, 0)
 
 		self.materialList.append(vnum)
 
 		thinBoard = self.__MakeThinBoard()
-		thinBoard.SetPosition(293, self.dialogHeight)
+		thinBoard.SetPosition(15+35, self.dialogHeight)
 		thinBoard.SetSize(191, 20)
 
 		textLine = ui.TextLine()
@@ -455,13 +501,13 @@ class RefineDialogNew(ui.ScriptWindow):
 
 	def UpdateDialog(self):
 		if localeInfo.IsARABIC():
-			self.board.SetPosition(500, 0)
+			self.board.SetPosition(255, 0)
 			(x, y) = self.titleBar.GetLocalPosition()
-			self.titleBar.SetPosition(500 - 15, y)
+			self.titleBar.SetPosition(255 - 15, y)
 
-		self.board.SetSize(500, 250)
-		self.titleBar.SetWidth(500-15)
-		self.SetSize(500, 250)
+		self.board.SetSize(255, 350+100+35)
+		self.titleBar.SetWidth(255-15)
+		self.SetSize(255, 350+100+35)
 
 		(x, y) = self.GetLocalPosition()
 		self.SetPosition(x, y)
@@ -496,7 +542,37 @@ class RefineDialogNew(ui.ScriptWindow):
 	def Accept(self):
 		totalPerc = self.percentage + REFINE_TOTAL_PERCENTAGE["update"]
 		net.SendRefinePacket(self.targetItemPos, self.type, REFINE_MODE[0], REFINE_MODE[1], REFINE_MODE[2], totalPerc)
-		self.Close()
+		if not app.ENABLE_REFINE_RENEWAL:
+			self.Close()
+
+	if app.ENABLE_REFINE_RENEWAL:	
+		def AutoRefine(self, checkType, autoFlag):
+			constInfo.IS_AUTO_REFINE = autoFlag
+		
+		def CheckRefine(self, isFail):
+			if constInfo.IS_AUTO_REFINE == True:
+				if constInfo.AUTO_REFINE_TYPE == 1:
+					if constInfo.AUTO_REFINE_DATA["ITEM"][0] != -1 and constInfo.AUTO_REFINE_DATA["ITEM"][1] != -1:
+						scrollIndex = player.GetItemIndex(constInfo.AUTO_REFINE_DATA["ITEM"][0])
+						itemIndex = player.GetItemIndex(constInfo.AUTO_REFINE_DATA["ITEM"][1])
+						
+						# chat.AppendChat(chat.CHAT_TYPE_INFO, "%d %d" % (itemIndex, int(itemIndex %10)))
+						if scrollIndex == 0 or (itemIndex % 10 == 8 and not isFail):
+							self.Close()
+						else:
+							net.SendItemUseToItemPacket(constInfo.AUTO_REFINE_DATA["ITEM"][0], constInfo.AUTO_REFINE_DATA["ITEM"][1])
+				elif constInfo.AUTO_REFINE_TYPE == 2:
+					npcData = constInfo.AUTO_REFINE_DATA["NPC"]
+					if npcData[0] != 0 and npcData[1] != -1 and npcData[2] != -1 and npcData[3] != 0:
+						itemIndex = player.GetItemIndex(npcData[1], npcData[2])
+						if (itemIndex % 10 == 8 and not isFail) or isFail:
+							self.Close()
+						else:
+							net.SendGiveItemPacket(npcData[0], npcData[1], npcData[2], npcData[3])
+				else:
+					self.Close()
+			else:
+				self.Close()
 
 	def OnUpdate(self):
 		if self.itemImageCur:
@@ -516,6 +592,12 @@ class RefineDialogNew(ui.ScriptWindow):
 	def CancelRefine(self):
 		net.SendRefinePacket(255, 255, 0, 0, 0, 0)
 		self.Close()
+		if app.ENABLE_REFINE_RENEWAL:
+			constInfo.AUTO_REFINE_TYPE = 0
+			constInfo.AUTO_REFINE_DATA = {
+				"ITEM" : [-1, -1],
+				"NPC" : [0, -1, -1, 0]
+			}
 
 	def OnPressEscapeKey(self):
 		self.CancelRefine()
@@ -548,8 +630,8 @@ class RefineDialogNew(ui.ScriptWindow):
 				if self.wndInventory.GetInventoryPageIndex() == itemInvenPage:
 					self.wndInventory.wndItem.SetCantMouseEventSlot(itemSlotPos)
 
-				self.wndInventory.wndItem.RefreshSlot()		
-		
+				self.wndInventory.wndItem.RefreshSlot()
+
 	def OverInItem(self, slot):
 		if self.toolTipMaterial:
 			self.toolTipMaterial.SetItemToolTip(self.materialList[slot])

@@ -107,7 +107,7 @@ class ChestDropWindow(ui.ScriptWindow):
 		self.tooltipItem = tooltip
 		
 	def OnChangeOpenAmount(self):
-		openTemp = int(self.openCountController.GetSliderPos() * 200)
+		openTemp = int(self.openCountController.GetSliderPos() * 50)
 		if openTemp == 0:
 			self.SetOpenAmount(1)
 		else:

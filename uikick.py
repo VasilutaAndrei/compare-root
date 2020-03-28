@@ -17,7 +17,7 @@ class KickChatWindow(ui.Window):
 		self.Board.SetCenterPosition()
 		self.Board.AddFlag('movable')
 		self.Board.AddFlag('float')
-		self.Board.SetTitleName('Panou Administrare Cybernetic ~Deconectare~')
+		self.Board.SetTitleName('Panou Administrare Metin ~Deconectare~')
 		self.Board.SetCloseEvent(self.Close)
 		self.comp = Component()
 

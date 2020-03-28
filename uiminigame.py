@@ -6,7 +6,11 @@ import localeInfo
 import net
 import app
 import constInfo
+import systemSetting
 
+if app.ENABLE_FISH_EVENT:
+	import uiMiniGameFishEvent
+	
 if app.ENABLE_ATTENDANCE_EVENT:
 	import uiMiniGameAttendance
 
@@ -111,6 +115,9 @@ class MiniGameWindow(ui.ScriptWindow):
 		self.isLoaded = 0
 
 		self.miniGameDialog = None
+		
+		if app.ENABLE_FISH_EVENT:
+			self.fishGame = None
 			
 		if app.ENABLE_ATTENDANCE_EVENT:
 			self.tooltipItem = None
@@ -146,6 +153,14 @@ class MiniGameWindow(ui.ScriptWindow):
 			self.miniGameDialog.Destroy()
 			self.miniGameDialog = None		
 			
+		self.tooltipItem = None
+		self.wndInterface = None
+		self.wndInventory = None
+
+		if app.ENABLE_FISH_EVENT:
+			if self.fishGame:
+				self.fishGame.Destroy()
+				self.fishGame = None
 		if app.ENABLE_ATTENDANCE_EVENT:
 			self.tooltipItem = None
 			
@@ -169,7 +184,7 @@ class MiniGameWindow(ui.ScriptWindow):
 		try:
 			self.eventBannerButton = ui.Button()
 			self.eventBannerButton.SetParent(self.GetChild("mini_game_window"))
-			self.eventBannerButton.SetPosition(0, 0)
+			self.eventBannerButton.SetPosition(-25, 0)
 			self.eventBannerButton.SetUpVisual("d:/ymir work/ui/minigame/banner.sub")
 			self.eventBannerButton.SetOverVisual("d:/ymir work/ui/minigame/banner.sub")
 			self.eventBannerButton.SetDownVisual("d:/ymir work/ui/minigame/banner.sub")
@@ -218,6 +233,24 @@ class MiniGameWindow(ui.ScriptWindow):
 			if False == enable:
 				self.miniGameDialog.Hide()
 			else:
+				if app.ENABLE_FISH_EVENT:
+					if not self.fishGame:
+						self.fishGame = uiMiniGameFishEvent.MiniGameFish()
+						
+						if self.tooltipItem:
+							self.fishGame.SetItemToolTip(self.tooltipItem)
+							
+						if self.wndInterface:
+							self.fishGame.BindInterface(self.wndInterface)
+							
+						if self.wndInventory:
+							self.fishGame.BindInventory(self.wndInventory)
+						
+					if constInfo.IS_ENABLE_FISH_EVENT:
+						self.miniGameDialog.AppendButton(uiScriptLocale.BANNER_FISH_BUTTON, self.__ClickFishEventButton)
+					else:
+						self.miniGameDialog.DeleteButton(uiScriptLocale.BANNER_FISH_BUTTON)
+						
 				if app.ENABLE_ATTENDANCE_EVENT:
 					if not self.attendanceGame:
 						self.attendanceGame = uiMiniGameAttendance.MiniGameAttendance()
@@ -229,11 +262,41 @@ class MiniGameWindow(ui.ScriptWindow):
 						self.miniGameDialog.AppendButton(uiScriptLocale.BANNER_ATTENDANCE_BUTTON, self.__ClickAttendanceButton)
 
 			self.miniGameDialog.RefreshDialog()
-
-	if app.ENABLE_ATTENDANCE_EVENT:
-		def SetItemToolTip(self, tooltip):
-			self.tooltipItem = tooltip
 			
+	def SetItemToolTip(self, tooltip):
+		self.tooltipItem = tooltip
+		
+	def BindInterface(self, interface):
+		self.wndInterface = interface
+		
+	def BindInventory(self, inventory):
+		self.wndInventory = inventory
+			
+	if app.ENABLE_FISH_EVENT:
+		def __ClickFishEventButton(self):
+			if self.miniGameDialog:
+				self.miniGameDialog.Close()
+			
+			if self.fishGame:
+				self.fishGame.Open()
+				
+		def MiniGameFishUse(self, shape, useCount):			
+			if self.fishGame:
+				self.fishGame.MiniGameFishUse(shape, useCount)
+				
+		def MiniGameFishAdd(self, pos, shape):			
+			if self.fishGame:
+				self.fishGame.MiniGameFishAdd(pos, shape)
+				
+		def MiniGameFishReward(self, vnum):			
+			if self.fishGame:
+				self.fishGame.MiniGameFishReward(vnum)
+				
+		def MiniGameFishCount(self, count):			
+			if self.fishGame:
+				self.fishGame.MiniGameFishCount(count)
+			
+	if app.ENABLE_ATTENDANCE_EVENT:
 		def __ClickAttendanceButton(self):
 			if self.miniGameDialog:
 				self.miniGameDialog.Close()

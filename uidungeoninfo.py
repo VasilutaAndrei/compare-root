@@ -3,12 +3,11 @@
 
 import app
 import ui
-import dbg
 import uiToolTip
 import grp
 import item
 import player
-import constInfo2
+import constInfo
 import localeInfo
 import uiScriptLocale
 import uiCommon
@@ -58,7 +57,6 @@ class DungeonInfo(ui.ScriptWindow):
 
 	def LoadDialog(self):
 		try:
-			dbg.TraceError("uidungeoninfo.py LoadDialog")
 			pyScrLoader = ui.PythonScriptLoader()
 			pyScrLoader.LoadScriptFile(self, "UIScript/dungeoninfowindow.py")
 		except:
@@ -130,7 +128,6 @@ class DungeonInfo(ui.ScriptWindow):
 		return True
 
 	def Open(self):
-		dbg.TraceError("uidungeoninfo.py open")
 		if not self.isLoaded:
 			self.LoadDialog()
 
@@ -139,29 +136,28 @@ class DungeonInfo(ui.ScriptWindow):
 		self.Show()
 
 	def LoadDungeonButtons(self):
-		dbg.TraceError("uidungeoninfo.py LoadDungeonButtons")
-		if not constInfo2.dungeonInfo:
+		if not constInfo.dungeonInfo:
 			return
 
-		for index in xrange(min(self.MIN_SCROLLBAR_LIST, len(constInfo2.dungeonInfo))):
+		for index in xrange(min(self.MIN_SCROLLBAR_LIST, len(constInfo.dungeonInfo))):
 			self.AppendDungeonButton(
 				index,\
 				self.dungeonButtonBoard,\
 				3, 3 + (38 * index)
 			)
 
-		if len(constInfo2.dungeonInfo) <= self.MIN_SCROLLBAR_LIST:
-			self.dungeonScrollBar.SetMiddleBarSize(float(len(constInfo2.dungeonInfo)) / float(len(constInfo2.dungeonInfo)))
+		if len(constInfo.dungeonInfo) <= self.MIN_SCROLLBAR_LIST:
+			self.dungeonScrollBar.SetMiddleBarSize(float(len(constInfo.dungeonInfo)) / float(len(constInfo.dungeonInfo)))
 			self.dungeonScrollBar.Show()
 		else:
-			self.dungeonScrollBar.SetMiddleBarSize(float(self.MIN_SCROLLBAR_LIST) / float(len(constInfo2.dungeonInfo)))
+			self.dungeonScrollBar.SetMiddleBarSize(float(self.MIN_SCROLLBAR_LIST) / float(len(constInfo.dungeonInfo)))
 			self.dungeonScrollBar.Show()
 
 		self.dungeonScrollBar.SetScrollEvent(self.OnScroll)
 
 	def OnScroll(self):
 		button_count = len(self.dungeonButton)
-		pos = int(self.dungeonScrollBar.GetPos() * (len(constInfo2.dungeonInfo) - button_count))
+		pos = int(self.dungeonScrollBar.GetPos() * (len(constInfo.dungeonInfo) - button_count))
 
 		self.dungeonButton = {}
 		self.dungeonImage = {}
@@ -202,8 +198,8 @@ class DungeonInfo(ui.ScriptWindow):
 		self.dungeonImageIcon[index] = ui.Button()
 		self.dungeonImageIcon[index].SetParent(self.dungeonImage[index])
 
-		#imageIcon = constInfo2.dungeonInfo[index]['item_vnum']
-		mapIndex = constInfo2.dungeonInfo[index]['map_index']
+		#imageIcon = constInfo.dungeonInfo[index]['item_vnum']
+		mapIndex = constInfo.dungeonInfo[index]['map_index']
 		#if imageIcon > 0:
 		self.dungeonImageIcon[index].SetUpVisual("d:/ymir work/ui/game/dungeon_info/icons/%d.tga" % mapIndex)
 		self.dungeonImageIcon[index].SetOverVisual("d:/ymir work/ui/game/dungeon_info/icons/%d.tga" % mapIndex)
@@ -220,18 +216,17 @@ class DungeonInfo(ui.ScriptWindow):
 		self.dungeonName[index] = ui.TextLine()
 		self.dungeonName[index].SetParent(self.dungeonButton[index])
 		self.dungeonName[index].SetPosition(40, 10)
-		self.dungeonName[index].SetText("%s" % constInfo2.dungeonInfo[index]['map'])
+		self.dungeonName[index].SetText("%s" % constInfo.dungeonInfo[index]['map'])
 		self.dungeonName[index].Show()
 
 	def LoadDungeonInfoBoard(self, index):
-		dbg.TraceError("uidungeoninfo.py LoadDungeonInfoBoard")
 		self.dungeonIndex = index
 
 		self.dungeonButton[self.dungeonIndex].SetUpVisual("d:/ymir work/ui/game/mailbox/post_select.sub")
 		self.dungeonButton[self.dungeonIndex].SetOverVisual("d:/ymir work/ui/game/mailbox/post_select.sub")
 		self.dungeonButton[self.dungeonIndex].SetDownVisual("d:/ymir work/ui/game/mailbox/post_select.sub")
 
-		pos = int(self.dungeonScrollBar.GetPos() * (len(constInfo2.dungeonInfo) - len(self.dungeonButton)))
+		pos = int(self.dungeonScrollBar.GetPos() * (len(constInfo.dungeonInfo) - len(self.dungeonButton)))
 		for idx in xrange(len(self.dungeonButton)):
 			realPos = idx + pos
 			if realPos != self.dungeonIndex:
@@ -239,20 +234,20 @@ class DungeonInfo(ui.ScriptWindow):
 				self.dungeonButton[realPos].SetOverVisual("d:/ymir work/ui/game/mailbox/post_over.sub")
 				self.dungeonButton[realPos].SetDownVisual("d:/ymir work/ui/game/mailbox/post_select.sub")
 
-		dungeonMap = str(constInfo2.dungeonInfo[self.dungeonIndex]['map'])
-		dungeonType = constInfo2.dungeonInfo[self.dungeonIndex]['type']
-		dungeonOrganization = constInfo2.dungeonInfo[self.dungeonIndex]['organization']
-		dungeonLevelLimit = constInfo2.dungeonInfo[self.dungeonIndex]['level_limit']
-		dungeonPartyMembers = constInfo2.dungeonInfo[self.dungeonIndex]['party_members']
-		dungeonCooldown = constInfo2.dungeonInfo[self.dungeonIndex]['cooldown']
-		dungeonDuration = constInfo2.dungeonInfo[self.dungeonIndex]['duration']
-		dungeonEntranceMap = str(constInfo2.dungeonInfo[self.dungeonIndex]['entrance_map'])
-		dungeonStrengthBonus = str(constInfo2.dungeonInfo[self.dungeonIndex]['strength_bonus'])
-		dungeonResistanceBonus = str(constInfo2.dungeonInfo[self.dungeonIndex]['resistance_bonus'])
-		dungeonItemVnum = int(constInfo2.dungeonInfo[self.dungeonIndex]['item_vnum'])
-		dungeonFinished = int(constInfo2.dungeonInfo[self.dungeonIndex]['finished'])
-		dungeonFastestTime = constInfo2.dungeonInfo[self.dungeonIndex]['fastest_time']
-		dungeonHighestDamage = int(constInfo2.dungeonInfo[self.dungeonIndex]['highest_damage'])
+		dungeonMap = str(constInfo.dungeonInfo[self.dungeonIndex]['map'])
+		dungeonType = constInfo.dungeonInfo[self.dungeonIndex]['type']
+		dungeonOrganization = constInfo.dungeonInfo[self.dungeonIndex]['organization']
+		dungeonLevelLimit = constInfo.dungeonInfo[self.dungeonIndex]['level_limit']
+		dungeonPartyMembers = constInfo.dungeonInfo[self.dungeonIndex]['party_members']
+		dungeonCooldown = constInfo.dungeonInfo[self.dungeonIndex]['cooldown']
+		dungeonDuration = constInfo.dungeonInfo[self.dungeonIndex]['duration']
+		dungeonEntranceMap = str(constInfo.dungeonInfo[self.dungeonIndex]['entrance_map'])
+		dungeonStrengthBonus = str(constInfo.dungeonInfo[self.dungeonIndex]['strength_bonus'])
+		dungeonResistanceBonus = str(constInfo.dungeonInfo[self.dungeonIndex]['resistance_bonus'])
+		dungeonItemVnum = int(constInfo.dungeonInfo[self.dungeonIndex]['item_vnum'])
+		dungeonFinished = int(constInfo.dungeonInfo[self.dungeonIndex]['finished'])
+		dungeonFastestTime = constInfo.dungeonInfo[self.dungeonIndex]['fastest_time']
+		dungeonHighestDamage = int(constInfo.dungeonInfo[self.dungeonIndex]['highest_damage'])
 
 		self.dungeonInfoName.SetText("%s" % dungeonMap)
 		self.dungeonInfoType.SetText("%s : %s" % (uiScriptLocale.DUNGEON_INFO_TYPE, self.DUNGEON_TYPE[dungeonType]))
@@ -284,7 +279,7 @@ class DungeonInfo(ui.ScriptWindow):
 
 	def TeleportDungeon(self):
 		self.questionDialog = uiCommon.QuestionDialogWithTimeLimit()
-		self.questionDialog.Open("Queres teleportar para %s?" % str(constInfo2.dungeonInfo[self.dungeonIndex]['map']), 5)
+		self.questionDialog.Open("Queres teleportar para %s?" % str(constInfo.dungeonInfo[self.dungeonIndex]['map']), 5)
 		self.questionDialog.SetAcceptText(localeInfo.UI_ACCEPT)
 		self.questionDialog.SetCancelText(localeInfo.UI_DENY)
 		self.questionDialog.SetAcceptEvent(lambda arg = True: self.AnswerTeleport(arg))
@@ -299,30 +294,28 @@ class DungeonInfo(ui.ScriptWindow):
 		if answer == True:
 			import event
 
-			dungeonMapCoordX = int(constInfo2.dungeonInfo[self.dungeonIndex]['map_coord_x'])
-			dungeonMapCoordY = int(constInfo2.dungeonInfo[self.dungeonIndex]['map_coord_y'])
+			dungeonMapCoordX = int(constInfo.dungeonInfo[self.dungeonIndex]['map_coord_x'])
+			dungeonMapCoordY = int(constInfo.dungeonInfo[self.dungeonIndex]['map_coord_y'])
 
-			constInfo2.dungeonData["quest_cmd"] = "WARP#%d#%d" % (dungeonMapCoordX, dungeonMapCoordY)
-			event.QuestButtonClick(int(constInfo2.dungeonData["quest_index"]))
+			constInfo.dungeonData["quest_cmd"] = "WARP#%d#%d" % (dungeonMapCoordX, dungeonMapCoordY)
+			event.QuestButtonClick(int(constInfo.dungeonData["quest_index"]))
 
 		self.questionDialog.Close()
 		self.questionDialog = None
 
 	def OpenRankingBoard(self, rankType):
-		dbg.TraceError("uidungeoninfo.py OpenRankingBoard")
 		if rankType > 0:
 			import event
-			constInfo2.dungeonData["quest_cmd"] = "RANKING#%d#%d" % (self.dungeonIndex, rankType)
-			constInfo2.dungeonRanking["ranking_type"] = rankType
-			event.QuestButtonClick(int(constInfo2.dungeonData["quest_index"]))
+			constInfo.dungeonData["quest_cmd"] = "RANKING#%d#%d" % (self.dungeonIndex, rankType)
+			constInfo.dungeonRanking["ranking_type"] = rankType
+			event.QuestButtonClick(int(constInfo.dungeonData["quest_index"]))
 
 	def OnUpdate(self):
-		dbg.TraceError("uidungeoninfo.py OnUpdate")
 		if self.toolTip:
 			if self.dungeonInfoItemSlot.IsIn():
 				self.toolTip.ClearToolTip()
 
-				dungeonItemVnum = constInfo2.dungeonInfo[self.dungeonIndex]['item_vnum']
+				dungeonItemVnum = constInfo.dungeonInfo[self.dungeonIndex]['item_vnum']
 				if dungeonItemVnum > 0:
 					item.SelectItem(dungeonItemVnum)
 
@@ -461,8 +454,8 @@ class DungeonRank(ui.ScriptWindow):
 	def RefreshDungeonRanking(self):
 		self.AllClear()
 
-		dungeonRankingType = constInfo2.dungeonRanking["ranking_type"]
-		dungeonRankingList = constInfo2.dungeonRanking["ranking_list"]
+		dungeonRankingType = constInfo.dungeonRanking["ranking_type"]
+		dungeonRankingList = constInfo.dungeonRanking["ranking_list"]
 
 		if not dungeonRankingList:
 			return
@@ -533,17 +526,17 @@ class DungeonRank(ui.ScriptWindow):
 		return True
 
 	def CheckNowItemCount(self):
-		if len(constInfo2.dungeonRanking["ranking_list"]) <= self.MAX_LINE_COUNT:
+		if len(constInfo.dungeonRanking["ranking_list"]) <= self.MAX_LINE_COUNT:
 			return self.MAX_LINE_COUNT
 		else:
-			return len(constInfo2.dungeonRanking["ranking_list"])
+			return len(constInfo.dungeonRanking["ranking_list"])
 
 	def OnScrollControl(self):
 		nowitemcount = 0
-		if len(constInfo2.dungeonRanking["ranking_list"]) <= self.MAX_LINE_COUNT :
+		if len(constInfo.dungeonRanking["ranking_list"]) <= self.MAX_LINE_COUNT :
 			nowitemcount = 0
 		else:
-			nowitemcount = (len(constInfo2.dungeonRanking["ranking_list"]) - self.MAX_LINE_COUNT)
+			nowitemcount = (len(constInfo.dungeonRanking["ranking_list"]) - self.MAX_LINE_COUNT)
 
 		pos = self.dungeonRankingScrollBar.GetPos() * nowitemcount
 

@@ -133,20 +133,6 @@ if app.ENABLE_BATTLE_FIELD:
 
 						"text" : "",
 					},
-					## RenderInfo
-					{
-						"name": "RenderInfo",
-						"type": "text",
-
-						"text_horizontal_align": "center",
-
-						"outline": 1,
-
-						"x": 70,
-						"y": 176,
-
-						"text": "",
-					},
 					## ObserverCount
 					{
 						"name" : "ObserverCount",

@@ -9,11 +9,12 @@ import chr
 import nonplayer
 import localeInfo
 import constInfo
-import uiToolTip
 import item
-if app.ENABLE_VIEW_ELEMENT:
-	ELEMENT_IMAGE_DIC = {1: "elect", 2: "fire", 3: "ice", 4: "wind", 5: "earth", 6 : "dark"}
-	
+import uiToolTip
+import uiCommon
+import colorInfo
+
+
 if app.ENABLE_SEND_TARGET_INFO:
 	def HAS_FLAG(value, flag):
 		return (value & flag) == flag
@@ -296,7 +297,7 @@ class TargetBoard(ui.ThinBoard):
 					realName = itemName[:itemName.find("+")]
 					if item.GetItemType() == item.ITEM_TYPE_METIN:
 						realName = localeInfo.TARGET_INFO_STONE_NAME
-						itemName = realName + "+5"
+						itemName = realName + "+0 - +4"
 					else:
 						itemName = realName + "+" + str(vnums[0] % 10) + " - +" + str(vnums[len(vnums) - 1] % 10)
 					vnum = vnums[len(vnums) - 1]
@@ -361,7 +362,7 @@ class TargetBoard(ui.ThinBoard):
 					item.SelectItem(nextImg)
 					itemName = item.GetItemName()
 					realName = itemName[:itemName.find("+")]
-					realName = realName + "+5"
+					realName = realName + "+0 - +4"
 					self.stoneImg.LoadImage(item.GetIconImageFileName(), realName)
 
 					if self.itemTooltip.IsShow() and self.itemTooltip.isStone:
@@ -418,6 +419,10 @@ class TargetBoard(ui.ThinBoard):
 		hpGauge.SetParent(self)
 		hpGauge.MakeGauge(130, "red")
 		hpGauge.Hide()
+
+		elementImage = ui.ImageBox()
+		elementImage.SetParent(self)
+		elementImage.Hide()
 
 		if app.ENABLE_VIEW_TARGET_DECIMAL_HP:
 			hpDecimal = ui.TextLine()
@@ -502,6 +507,7 @@ class TargetBoard(ui.ThinBoard):
 
 		self.name = name
 		self.hpGauge = hpGauge
+		self.elementImage = elementImage
 		if app.ENABLE_VIEW_TARGET_DECIMAL_HP:
 			self.hpDecimal = hpDecimal
 		if app.ENABLE_SEND_TARGET_INFO:
@@ -514,7 +520,6 @@ class TargetBoard(ui.ThinBoard):
 		self.vid = 0
 		self.eventWhisper = None
 		self.isShowButton = False
-		self.elementImage = None
 
 		self.__Initialize()
 		self.ResetTargetBoard()
@@ -541,11 +546,11 @@ class TargetBoard(ui.ThinBoard):
 		self.buttonDict = None
 		self.name = None
 		self.hpGauge = None
+		self.elementImage = None
 		if app.ENABLE_VIEW_TARGET_DECIMAL_HP:
 			self.hpDecimal = None
 		if app.ENABLE_ATTENDANCE_EVENT:
 			self.hitCount = None
-		self.elementImage = None
 		self.__Initialize()
 	if app.ENABLE_SEND_TARGET_INFO:
 		def RefreshMonsterInfoBoard(self):
@@ -571,6 +576,25 @@ class TargetBoard(ui.ThinBoard):
 			self.infoButton.showWnd.Close()
 		self.Hide()
 
+	def OpenOffShopName(self, vid, name):
+		if vid:
+			if vid != self.GetTargetVID():
+				self.ResetTargetBoard()
+				self.SetTargetVID(vid)
+				self.SetTargetName(name[0:name.find(" Shop")])
+				player.SetTarget(vid)
+			
+			
+			self.HideAllButton()
+			self.__ShowButton(localeInfo.TARGET_BUTTON_WHISPER)
+			self.__ArrangeButtonPosition()
+			self.SetSize(150, 65)
+			self.name.SetPosition(0, 13)
+			self.name.SetWindowHorizontalAlignCenter()
+			self.name.SetHorizontalAlignCenter()
+			self.UpdatePosition()
+			self.Show()
+
 	def Open(self, vid, name):
 		if app.ENABLE_ATTENDANCE_EVENT:
 			if self.hitCount:
@@ -580,6 +604,9 @@ class TargetBoard(ui.ThinBoard):
 				if not player.IsSameEmpire(vid):
 					self.Hide()
 					return
+
+			if " Buffi" in name:
+				return
 
 			if vid != self.GetTargetVID():
 				self.ResetTargetBoard()
@@ -658,12 +685,12 @@ class TargetBoard(ui.ThinBoard):
 				self.hitCount.SetHorizontalAlignLeft()
 				self.hitCount.SetWindowHorizontalAlignCenter()
 		self.hpGauge.Hide()
+		self.elementImage.Hide()
 		if app.ENABLE_VIEW_TARGET_DECIMAL_HP:
 			self.hpDecimal.Hide()
 		if app.ENABLE_SEND_TARGET_INFO:
 			self.infoButton.Hide()
 			self.infoButton.showWnd.Close()
-		self.elementImage = None
 		self.SetSize(250, 40)
 
 	def SetTargetVID(self, vid):
@@ -673,6 +700,7 @@ class TargetBoard(ui.ThinBoard):
 
 	def SetEnemyVID(self, vid):
 		self.SetTargetVID(vid)
+		self.SetRaceElement(vid)
 
 		name = chr.GetNameByVID(vid)
 		if app.ENABLE_SEND_TARGET_INFO:
@@ -702,6 +730,32 @@ class TargetBoard(ui.ThinBoard):
 
 			self.vnum = vnum
 			self.infoButton.Show()
+
+	def SetRaceElement(self, vid):
+		flagList = {
+			"ATT_ELEC" : "elect", 
+			"ATT_FIRE" : "fire",
+			"ATT_ICE" : "ice",
+			"ATT_WIND" : "wind",
+			"ATT_EARTH" : "earth",
+			"ATT_DARK" : "dark"
+		}
+		
+		vnum = nonplayer.GetVnumByVID(vid)
+		hasElement = False
+		elementName = ""
+		
+		if vnum != 0:
+			for key, value in flagList.iteritems():
+				if nonplayer.MonsterHasRaceFlag(vnum, key):
+					hasElement = True
+					elementName = key
+					break
+			
+		if vnum != 0 and hasElement == True:
+			self.elementImage.LoadImage("d:/ymir work/ui/game/12zi/element/%s.sub" % (flagList[elementName]))
+			self.elementImage.SetPosition(-self.elementImage.GetWidth(), 4)
+			self.elementImage.Show()
 
 	def GetTargetVID(self):
 		return self.vid
@@ -866,17 +920,6 @@ class TargetBoard(ui.ThinBoard):
 				self.hpGauge.Show()
 				self.UpdatePosition()
 
-	def SetElementImage(self,elementId):
-		try:
-			if elementId > 0 and elementId in ELEMENT_IMAGE_DIC.keys():
-				self.elementImage = ui.ImageBox()
-				self.elementImage.SetParent(self.name)
-				self.elementImage.SetPosition(-60,-12)
-				self.elementImage.LoadImage("d:/ymir work/ui/game/12zi/element/%s.sub" % (ELEMENT_IMAGE_DIC[elementId]))
-				self.elementImage.Show()
-		except:
-			pass		
-
 	def ShowDefaultButton(self):
 
 		self.isShowButton = True
@@ -922,10 +965,7 @@ class TargetBoard(ui.ThinBoard):
 		net.SendExchangeStartPacket(self.vid)
 
 	def OnPVP(self):
-		if app.ENABLE_PVP_ADVANCED:
-			net.SendChatPacket("/pvp_advanced %d" % (self.vid))
-		else:
-			net.SendChatPacket("/pvp %d" % (self.vid))
+		net.SendChatPacket("/pvp %d" % (self.vid))
 
 	def OnAppendToMessenger(self):
 		net.SendMessengerAddByVIDPacket(self.vid)

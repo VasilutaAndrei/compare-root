@@ -62,15 +62,106 @@ if app.ENABLE_SPECIAL_STORAGE:
 	import uiSpecialStorage
 if app.ENABLE_MINI_GAME:
 	import uiMiniGame
-from switchbot import Bot
+	
 IsQBHide = 0
 class Interface(object):
 	CHARACTER_STATUS_TAB = 1
 	CHARACTER_SKILL_TAB = 2
 
+	class NewGoldChat(ui.Window):
+		def __init__(self, parent = None, x = 0, y = 0):
+			ui.Window.__init__(self)
+			self.texts = {}
+			self.parent = parent
+			self.SpaceBet = 14
+			self.maxY = 0
+			self.x = x
+			self.y = y
+			self.ColorValue = 0xFFFFFFFF
+			
+			self.show = self.Button('Show Yang', x, y+3, self.showYang, 'gold_dialog/btn_expand_normal.tga', 'gold_dialog/btn_expand_over.tga', 'gold_dialog/btn_expand_down.tga')
+			self.hide = self.Button('Hide Yang', x, y+3, self.hideYang, 'gold_dialog/btn_minimize_normal.tga', 'gold_dialog/btn_minimize_over.tga', 'gold_dialog/btn_minimize_down.tga')
+			self.show.Hide()
+			self.Show()
+
+		def Button(self, tooltipText, x, y, func, UpVisual, OverVisual, DownVisual):
+			button = ui.Button()
+			if self.parent != None:
+				button.SetParent(self.parent)
+			button.SetPosition(x, y)
+			button.SetUpVisual(UpVisual)
+			button.SetOverVisual(OverVisual)
+			button.SetDownVisual(DownVisual)
+			button.SetToolTipText(tooltipText)
+			button.Show()
+			button.SetEvent(func)
+			return button
+
+		def showYang(self):
+			for i in xrange(len(self.texts)):
+				self.texts[i].Show()
+			self.hide.Show()
+			self.show.Hide()
+			self.Show()
+
+		def hideYang(self):
+			for i in xrange(len(self.texts)):
+				self.texts[i].Hide()
+			self.hide.Hide()
+			self.show.Show()
+			self.Hide()
+			
+		def GetMaxY(self):
+			return self.maxY
+
+		def AddGoldValue(self, text):
+			for i in xrange(len(self.texts)):
+				if len(self.texts) == 10 and i == 0:
+					self.texts[i].Hide()
+				x, y = self.texts[i].GetLocalPosition()
+				self.texts[i].SetPosition(x, y-self.SpaceBet)
+
+			i = 0
+			if len(self.texts) == 10:
+				for i in xrange(len(self.texts)-1):
+					self.texts[i] = self.texts[i+1]
+				i = 9
+			else:
+				i = len(self.texts)
+			
+			self.texts[i] = ui.TextLine("Tahoma:14")
+			if self.parent != None:
+				self.texts[i].SetParent(self.parent)
+			self.texts[i].SetPosition(self.x, self.y)
+			self.texts[i].SetPackedFontColor(self.ColorValue)
+			self.texts[i].SetHorizontalAlignLeft()
+			self.texts[i].SetOutline(TRUE)
+			self.texts[i].SetText(text)
+			if self.hide.IsShow():
+				self.texts[i].Show()
+
+			if self.hide.IsShow():
+				x, y = self.texts[0].GetLocalPosition()
+				x2, y2 = self.hide.GetLocalPosition()
+				self.hide.SetPosition(x2, y-10)
+
+		def ClearAll(self):
+			self.Hide()
+			self.texts = {}
+			self.show.Hide()
+			self.show = None
+			self.hide.Hide()
+			self.hide = None
+
+		def OnRender(self):
+			if len(self.texts) > 0 and self.hide.IsShow():
+				x, y = self.hide.GetGlobalPosition()
+				w, h = self.texts[0].GetTextSize()
+				grp.SetColor(grp.GenerateColor(0.0, 0.0, 0.0, 0.5))
+				grp.RenderBar(x, y+h-6, 108, h*len(self.texts)+4)
+
 	def __init__(self):
 		systemSetting.SetInterfaceHandler(self)
-		self.switchBot = Bot()
 		self.windowOpenPosition = 0
 		if app.WJ_ENABLE_TRADABLE_ICON:
 			self.onTopWindow = player.ON_TOP_WND_NONE
@@ -93,27 +184,29 @@ class Interface(object):
 		self.wndDragonSoul = None
 		self.wndDragonSoulRefine = None
 		self.wndChat = None
+		self.yangText = None
 		self.wndMessenger = None
 		self.wndMiniMap = None
 		self.wndGuild = None
 		self.wndGuildBuilding = None
+		if app.ENABLE_MINI_GAME:
+			self.wndMiniGame = None
+			self.miniGameList = []
 		if app.ENABLE_SPECIAL_STORAGE:
 			self.wndSpecialStorage = None
 		if app.ENABLE_SHOW_CHEST_DROP:
 			self.dlgChestDrop = None
 		if app.ENABLE_GEM_SYSTEM:
 			self.dlgGemShop = None
-		if app.ENABLE_PVP_ADVANCED:
-			import uiduel
-			self.wndBlockEquip = uiduel.WindowEquipmentBlock()
+
 		self.listGMName = {}
 		self.wndQuestWindow = {}
 		self.wndQuestWindowNewKey = 0
 		self.privateShopAdvertisementBoardDict = {}
 		self.guildScoreBoardDict = {}
 		self.equipmentDialogDict = {}
-		#if app.ENABLE_CYB_DUNGEON:
-		self.wndDungeonInfo = None
+		if app.ENABLE_DUNGEON_INFO_SYSTEM:
+			self.wndDungeonInfo = None
 		if app.ENABLE_MINI_GAME:
 			self.wndMiniGame = None
 			self.miniGameList = []
@@ -129,13 +222,6 @@ class Interface(object):
 				self.wndGiftBox.Open()
 			else:
 				self.wndGiftBox.Close()
-	
-	if app.ENABLE_PVP_ADVANCED:
-		def __OnClickBlockEquipment(self):
-			if self.wndBlockEquip.IsShow():
-				self.wndBlockEquip.Hide()
-			else:
-				self.wndBlockEquip.Show()	
 
 	def OpenGift(self):
 		if self.wndGameButton:
@@ -182,9 +268,13 @@ class Interface(object):
 		self.wndChat.SetSendWhisperEvent(ui.__mem_func__(self.OpenWhisperDialogWithoutTarget))
 		self.wndChat.SetOpenChatLogEvent(ui.__mem_func__(self.ToggleChatLogWindow))
 
-	def __MakeNewShop(self):
-		import uiNewShop
-		net.SendChatPacket("/open_shop")
+		if self.yangText:
+			self.yangText.Hide()
+		yangText = self.NewGoldChat(None, wndMgr.GetScreenWidth()/2 - wndChat.CHAT_WINDOW_WIDTH/2 + 600, wndMgr.GetScreenHeight() - wndChat.EDIT_LINE_HEIGHT - 37 + 9)
+		self.yangText = yangText
+
+	def OnPickMoneyNew(self, money):
+		self.yangText.AddGoldValue("+%s"%(localeInfo.NumberToMoneyString(money)))
 
 	def __MakeTaskBar(self):
 		import uiGift
@@ -200,10 +290,6 @@ class Interface(object):
 		self.wndTaskBar.SetToggleButtonEvent(uiTaskBar.TaskBar.BUTTON_MESSENGER, ui.__mem_func__(self.ToggleMessenger))
 		self.wndTaskBar.SetToggleButtonEvent(uiTaskBar.TaskBar.BUTTON_SYSTEM, ui.__mem_func__(self.ToggleSystemDialog))
 		self.wndTaskBar.SetToggleButtonEvent(uiTaskBar.TaskBar.BUTTON_EXPAND_MONEY, ui.__mem_func__(self.ToggleExpandedMoneyButton))
-		self.wndTaskBar.SetToggleButtonEvent(uiTaskBar.TaskBar.BUTTON_SPECIAL_STORAGE, ui.__mem_func__(self.ToggleSpecialStorageWindow))
-		self.wndTaskBar.SetToggleButtonEvent(uiTaskBar.TaskBar.BUTTON_PRIVATE_SHOP, ui.__mem_func__(self.__MakeNewShop))
-		self.wndTaskBar.SetToggleButtonEvent(uiTaskBar.TaskBar.BUTTON_SWITCH_BOT, ui.__mem_func__(self.switchBot.Show))
-		self.wndTaskBar.SetToggleButtonEvent(uiTaskBar.TaskBar.BUTTON_BLOCK_EQUIPMENT, ui.__mem_func__(self.__OnClickBlockEquipment))
 		if uiTaskBar.TaskBar.IS_EXPANDED:
 			self.wndTaskBar.SetToggleButtonEvent(uiTaskBar.TaskBar.BUTTON_EXPAND, ui.__mem_func__(self.ToggleExpandedButton))
 			self.wndExpandedTaskBar = uiTaskBar.ExpandedTaskBar()
@@ -241,6 +327,10 @@ class Interface(object):
 	def __IsChatOpen(self):
 		return True
 
+	if app.ENABLE_REFINE_RENEWAL:
+		def CheckRefineDialog(self, isFail):
+			self.dlgRefineNew.CheckRefine(isFail)
+
 	def __MakeWindows(self):
 		wndCharacter = uiCharacter.CharacterWindow()
 		wndInventory = uiInventory.InventoryWindow()
@@ -275,8 +365,10 @@ class Interface(object):
 			self.dlgChestDrop = uiChestDrop.ChestDropWindow()
 		if app.ENABLE_GEM_SYSTEM:
 			self.dlgGemShop = uiGemShop.GemShopWindow()
-		import uiDungeonInfo
-		self.wndDungeonInfo = uiDungeonInfo.DungeonInfo()
+		if app.ENABLE_DUNGEON_INFO_SYSTEM:
+			import uiDungeonInfo
+			self.wndDungeonInfo = uiDungeonInfo.DungeonInfo()
+
 		if app.ENABLE_DRAGON_SOUL_SYSTEM:
 			self.wndDragonSoul.SetDragonSoulRefineWindow(self.wndDragonSoulRefine)
 			self.wndDragonSoulRefine.SetInventoryWindows(self.wndInventory, self.wndDragonSoul)
@@ -287,7 +379,6 @@ class Interface(object):
 			self.wndSpecialStorage = None
 
 	def __MakeDialogs(self):
-
 		self.dlgExchange = uiExchange.ExchangeDialog()
 		if app.WJ_ENABLE_TRADABLE_ICON:
 			self.dlgExchange.BindInterface(self)
@@ -481,6 +572,7 @@ class Interface(object):
 
 		self.__InitWhisper()
 		self.DRAGON_SOUL_IS_QUALIFIED = False
+
 		if app.ENABLE_MINI_GAME:
 			self.IntegrationEventBanner()
 
@@ -490,13 +582,13 @@ class Interface(object):
 			type = tokens[0]
 			if "item" == type:
 				self.hyperlinkItemTooltip.SetHyperlinkItem(tokens)
+			elif "msg" == type and str(tokens[1]) != player.GetMainCharacterName():
+				self.OpenWhisperDialog(str(tokens[1]))	
 			elif "link" == type:
 				if tokens[1][:4] == "www.":
 					webbrowser.open_new(tokens[1])
 				elif tokens[1] == "http" or tokens[1] == "https":
 					webbrowser.open_new(tokens[1]+":"+tokens[2])
-			elif "Chitra" == type:    
-					self.OpenWhisperDialog(str(tokens[1]))
 
 	## Make Windows & Dialogs
 	################################
@@ -519,6 +611,9 @@ class Interface(object):
 		if self.wndChat:
 			self.wndChat.Destroy()
 
+		if self.yangText:
+			self.yangText.ClearAll()
+
 		if self.wndCofres:
 			self.wndCofres.Destroy()		
 			
@@ -528,10 +623,15 @@ class Interface(object):
 		if self.wndExpandedTaskBar:
 			self.wndExpandedTaskBar.Destroy()
 			
+		if app.ENABLE_MINI_GAME:
+			if self.wndMiniGame:
+				self.wndMiniGame.HideMiniGameDialog()
+				
 		if self.wndExpandedMoneyTaskBar:
 			self.wndExpandedMoneyTaskBar.Destroy()
 
 		if self.wndEnergyBar:
+			self.wndEnergyBar.Hide()
 			self.wndEnergyBar.Destroy()
 
 		if self.wndCharacter:
@@ -638,15 +738,15 @@ class Interface(object):
 				
 			if self.wndItemSelectEx:
 				self.wndItemSelectEx.Destroy()
-		if self.wndDungeonInfo:
-			self.wndDungeonInfo.Destroy()
+		if app.ENABLE_DUNGEON_INFO_SYSTEM:
+			if self.wndDungeonInfo:
+				self.wndDungeonInfo.Destroy()
 		# END_OF_ITEM_MALL
 
 		# ACCESSORY_REFINE_ADD_METIN_STONE
 		if self.wndItemSelect:
 			self.wndItemSelect.Destroy()
 		# END_OF_ACCESSORY_REFINE_ADD_METIN_STONE
-		#if app.ENABLE_CYB_DUNGEON:
 
 		self.wndChatLog.Destroy()
 		for btn in self.questButtonList:
@@ -668,6 +768,7 @@ class Interface(object):
 		del self.wndMessenger
 		del self.wndUICurtain
 		del self.wndChat
+		del self.yangText
 		del self.wndTaskBar
 		if self.wndExpandedTaskBar:
 			del self.wndExpandedTaskBar
@@ -728,10 +829,10 @@ class Interface(object):
 				del self.wndItemSelectEx
 			if self.dlgGemShop:
 				del self.dlgGemShop
-		#if app.ENABLE_CYB_DUNGEON:
-		if self.wndDungeonInfo:
-			del self.wndDungeonInfo
-		
+		if app.ENABLE_DUNGEON_INFO_SYSTEM:
+			if self.wndDungeonInfo:
+				del self.wndDungeonInfo
+
 		self.questButtonList = []
 		self.whisperButtonList = []
 		self.whisperDialogDict = {}
@@ -800,7 +901,7 @@ class Interface(object):
 		if app.ENABLE_SPECIAL_STORAGE:
 			self.wndSpecialStorage.RefreshItemSlot()
 			
-	def RefreshCharacter(self): ## Character íŽ˜ì´ì§€ì˜ ì–¼êµ´, Inventory íŽ˜ì´ì§€ì˜ ì „ì‹  ê·¸ë¦¼ ë“±ì˜ Refresh
+	def RefreshCharacter(self): ## Character ÆäÀÌÁöÀÇ ¾ó±¼, Inventory ÆäÀÌÁöÀÇ Àü½Å ±×¸² µîÀÇ Refresh
 		self.wndCharacter.RefreshCharacter()
 		self.wndTaskBar.RefreshQuickSlot()
 
@@ -964,7 +1065,7 @@ class Interface(object):
 	def RemovePartyMember(self, pid):
 		self.wndParty.RemovePartyMember(pid)
 
-		##!! 20061026.levites.í€˜ìŠ¤íŠ¸_ìœ„ì¹˜_ë³´ì •
+		##!! 20061026.levites.Äù½ºÆ®_À§Ä¡_º¸Á¤
 		self.__ArrangeQuestButton()
 
 	def LinkPartyMember(self, pid, vid):
@@ -979,7 +1080,7 @@ class Interface(object):
 	def ExitParty(self):
 		self.wndParty.ExitParty()
 
-		##!! 20061026.levites.í€˜ìŠ¤íŠ¸_ìœ„ì¹˜_ë³´ì •
+		##!! 20061026.levites.Äù½ºÆ®_À§Ä¡_º¸Á¤
 		self.__ArrangeQuestButton()
 
 	def PartyHealReady(self):
@@ -1087,6 +1188,11 @@ class Interface(object):
 			if self.wndMiniGame:
 				self.wndMiniGame.ShowMiniGameDialog()
 				
+		self.IsHideUiMode = False
+		
+	def IsHideUiMode(self):
+		return self.IsHideUiMode
+			
 	def ShowAllWindows(self):
 		self.wndTaskBar.Show()
 		self.wndCharacter.Show()
@@ -1095,16 +1201,13 @@ class Interface(object):
 			self.wndDragonSoul.Show()
 			self.wndDragonSoulRefine.Show()
 		self.wndChat.Show()
+		self.yangText.Show()
 		self.wndMiniMap.Show()
 		if self.wndEnergyBar:
 			self.wndEnergyBar.Show()
 		if self.wndExpandedTaskBar:
 			self.wndExpandedTaskBar.Show()
-			self.wndExpandedTaskBar.SetTop()
-			
-		if app.ENABLE_MINI_GAME:
-			if self.wndMiniGame:
-				self.wndMiniGame.HideMiniGameDialog()			
+			self.wndExpandedTaskBar.SetTop()	
 			
 		if self.wndExpandedMoneyTaskBar:
 			self.wndExpandedMoneyTaskBar.Show()
@@ -1118,7 +1221,7 @@ class Interface(object):
 			self.wndEnergyBar.Hide()
 			
 		if self.wndCharacter:
-			self.wndCharacter.Hide()
+			self.wndCharacter.Close()
 
 		if self.wndInventory:
 			self.wndInventory.Hide()
@@ -1129,6 +1232,9 @@ class Interface(object):
 
 		if self.wndChat:
 			self.wndChat.Hide()
+
+		if self.yangText:
+			self.yangText.Hide()
 
 		if self.wndMiniMap:
 			self.wndMiniMap.Hide()
@@ -1142,12 +1248,16 @@ class Interface(object):
 		if self.wndExpandedTaskBar:
 			self.wndExpandedTaskBar.Hide()
 			
+		if app.ENABLE_MINI_GAME:
+			if self.wndMiniGame:
+				self.wndMiniGame.HideMiniGameDialog()
+
 		if self.wndExpandedMoneyTaskBar:
 			self.wndExpandedMoneyTaskBar.Hide()
 
-		#if app.ENABLE_CYB_DUNGEON:
-		if self.wndDungeonInfo:
-			self.wndDungeonInfo.Hide()
+		if app.ENABLE_DUNGEON_INFO_SYSTEM:
+			if self.wndDungeonInfo:
+				self.wndDungeonInfo.Hide()
 
 	def ShowMouseImage(self):
 		self.wndTaskBar.ShowMouseImage()
@@ -1159,7 +1269,7 @@ class Interface(object):
 		if True == self.wndChat.IsEditMode():
 			self.wndChat.CloseChat()
 		else:
-			# ì›¹íŽ˜ì´ì§€ê°€ ì—´ë ¸ì„ë•ŒëŠ” ì±„íŒ… ìž…ë ¥ì´ ì•ˆë¨
+			# À¥ÆäÀÌÁö°¡ ¿­·ÈÀ»¶§´Â Ã¤ÆÃ ÀÔ·ÂÀÌ ¾ÈµÊ
 			if self.wndWeb and self.wndWeb.IsShow():
 				pass
 			else:
@@ -1172,15 +1282,8 @@ class Interface(object):
 		self.wndChat.SetChatFocus()
 
 	def OpenRestartDialog(self):
-		if app.ENABLE_DEATHMATCH_SYSTEM:
-			if player.IsDeathMatchMap():
-				self.dlgRestart.Hide()
-			else:
-				self.dlgRestart.OpenDialog()
-				self.dlgRestart.SetTop()
-		else:
-			self.dlgRestart.OpenDialog()
-			self.dlgRestart.SetTop()
+		self.dlgRestart.OpenDialog()
+		self.dlgRestart.SetTop()
 
 	def CloseRestartDialog(self):
 		self.dlgRestart.Close()
@@ -1237,7 +1340,7 @@ class Interface(object):
 			else:
 				if state == self.wndCharacter.GetState():
 					self.wndCharacter.OverOutItem()
-					self.wndCharacter.Hide()
+					self.wndCharacter.Close()
 				else:
 					self.wndCharacter.SetState(state)
 
@@ -1294,19 +1397,27 @@ class Interface(object):
 			else:
 				self.wndExpandedTaskBar.Close()
 
-	# ìš©í˜¼ì„
+	# ¿ëÈ¥¼®
 	def DragonSoulActivate(self, deck):
 		if app.ENABLE_DRAGON_SOUL_SYSTEM:
 			self.wndDragonSoul.ActivateDragonSoulByExtern(deck)
+			
+		if self.wndInventory:
+			self.wndInventory.ActivateDragonSoul(deck)
 
 	def DragonSoulDeactivate(self):
 		if app.ENABLE_DRAGON_SOUL_SYSTEM:
 			self.wndDragonSoul.DeactivateDragonSoul()
+			
+		if self.wndInventory:
+			self.wndInventory.DeactivateDragonSoul()
 
 	def Highligt_Item(self, inven_type, inven_pos):
 		if player.DRAGON_SOUL_INVENTORY == inven_type:
 			if app.ENABLE_DRAGON_SOUL_SYSTEM:
 				self.wndDragonSoul.HighlightSlot(inven_pos)
+		elif player.SLOT_TYPE_INVENTORY == inven_type:
+			self.wndInventory.HighlightSlot(inven_pos)
 
 	def DragonSoulGiveQuilification(self):
 		self.DRAGON_SOUL_IS_QUALIFIED = True
@@ -1338,14 +1449,13 @@ class Interface(object):
 				else:
 					self.wndDragonSoul.Close()
 
-	#if app.ENABLE_CYB_DUNGEON:
-	def ToggleDungeonInfoWindow(self):
-		self.wndDungeonInfo.Open()
-		if False == player.IsObserverMode():
-			if False == self.wndDungeonInfo.IsShow():
-				self.wndDungeonInfo.Open()
-			else:
-				self.wndDungeonInfo.Close()
+	if app.ENABLE_DUNGEON_INFO_SYSTEM:
+		def ToggleDungeonInfoWindow(self):
+			if False == player.IsObserverMode():
+				if False == self.wndDungeonInfo.IsShow():
+					self.wndDungeonInfo.Open()
+				else:
+					self.wndDungeonInfo.Close()
 
 	if app.ENABLE_SPECIAL_STORAGE:
 		def ToggleSpecialStorageWindow(self):
@@ -1382,7 +1492,7 @@ class Interface(object):
 				if True == self.wndDragonSoulRefine.IsShow():
 					self.wndDragonSoulRefine.Close()
 
-	# ìš©í˜¼ì„ ë
+	# ¿ëÈ¥¼® ³¡
 
 	def ToggleGuildWindow(self):
 		if not self.wndGuild.IsShow():
@@ -1437,7 +1547,7 @@ class Interface(object):
 	def OpenWebWindow(self, url):
 		self.wndWeb.Open(url)
 
-		# ì›¹íŽ˜ì´ì§€ë¥¼ ì—´ë©´ ì±„íŒ…ì„ ë‹«ëŠ”ë‹¤
+		# À¥ÆäÀÌÁö¸¦ ¿­¸é Ã¤ÆÃÀ» ´Ý´Â´Ù
 		self.wndChat.CloseChat()
 
 	if app.ENABLE_MELEY_LAIR_DUNGEON:
@@ -1553,9 +1663,9 @@ class Interface(object):
 	def SucceedCubeWork(self, itemVnum, count):
 		self.wndCube.Clear()
 
-		print "íë¸Œ ì œìž‘ ì„±ê³µ! [%d:%d]" % (itemVnum, count)
+		print "Å¥ºê Á¦ÀÛ ¼º°ø! [%d:%d]" % (itemVnum, count)
 
-		if 0: # ê²°ê³¼ ë©”ì‹œì§€ ì¶œë ¥ì€ ìƒëžµ í•œë‹¤
+		if 0: # °á°ú ¸Þ½ÃÁö Ãâ·ÂÀº »ý·« ÇÑ´Ù
 			self.wndCubeResult.SetPosition(*self.wndCube.GetGlobalPosition())
 			self.wndCubeResult.SetCubeResultItem(itemVnum, count)
 			self.wndCubeResult.Open()
@@ -1569,6 +1679,7 @@ class Interface(object):
 						self.wndGuild,\
 						self.wndMessenger,\
 						self.wndChat,\
+						self.yangText,\
 						self.wndParty,\
 						self.wndGameButton,
 
@@ -1588,9 +1699,10 @@ class Interface(object):
 		if app.ENABLE_DRAGON_SOUL_SYSTEM:
 			hideWindows += self.wndDragonSoul,\
 						self.wndDragonSoulRefine,
-		#if app.ENABLE_CYB_DUNGEON:
-		if self.wndDungeonInfo:
-			hideWindows += self.wndDungeonInfo,
+
+		if app.ENABLE_DUNGEON_INFO_SYSTEM:
+			if self.wndDungeonInfo:
+				hideWindows += self.wndDungeonInfo,
 
 		hideWindows = filter(lambda x:x.IsShow(), hideWindows)
 		map(lambda x:x.Hide(), hideWindows)
@@ -1678,14 +1790,7 @@ class Interface(object):
 	### Equipment ###
 
 	def OpenEquipmentDialog(self, vid):
-		import uiequipmentdialog
-
-		if app.ENABLE_PVP_ADVANCED:
-			if self.equipmentDialogDict.has_key(vid):
-				self.equipmentDialogDict[vid].Destroy()
-				self.CloseEquipmentDialog(vid)
-
-		dlg = uiequipmentdialog.EquipmentDialog()
+		dlg = uiEquipmentDialog.EquipmentDialog()
 		dlg.SetItemToolTip(self.tooltipItem)
 		dlg.SetCloseEvent(ui.__mem_func__(self.CloseEquipmentDialog))
 		dlg.Open(vid)
@@ -1710,11 +1815,6 @@ class Interface(object):
 	def CloseEquipmentDialog(self, vid):
 		if not vid in self.equipmentDialogDict:
 			return
-
-		if app.ENABLE_PVP_ADVANCED:
-			if self.equipmentDialogDict.has_key(vid):
-				self.equipmentDialogDict[vid].Destroy()
-
 		del self.equipmentDialogDict[vid]
 
 	#####################################################################################
@@ -1733,54 +1833,87 @@ class Interface(object):
 
 	def BINARY_RecvQuest(self, index, name, iconType, iconName):
 
-		btn = self.__FindQuestButton(index)
-		if 0 != btn:
-			self.__DestroyQuestButton(btn)
+		# REDDEV_NEW_QUEST_LISTING
+		if name[0] == '*' or name[0] == '~' or name[0] == '&' or name[0] == '+' or name[0] == '!':
+		# ENDOF_REDDEV_NEW_QUEST_LISTING
+			btn = self.__FindQuestButton(index)
+			if 0 != btn:
+				self.__DestroyQuestButton(btn)
 
-		btn = uiWhisper.WhisperButton()
+			btn = uiWhisper.WhisperButton()
 
-		# QUEST_LETTER_IMAGE
-		##!! 20061026.levites.í€˜ìŠ¤íŠ¸_ì´ë¯¸ì§€_êµì²´
-		import item
-		if "item"==iconType:
-			item.SelectItem(int(iconName))
-			buttonImageFileName=item.GetIconImageFileName()
-		else:
-			buttonImageFileName=iconName
-		if constInfo.ENABLE_COLOR_SCROLL and ('#' in name):
-			for s_color in ("green","blue","purple"):
-				if name.endswith(s_color):
-					btn.SetUpVisual("locale/it/icon/scroll_close_%s.tga"%s_color)
-					btn.SetOverVisual("locale/it/icon/scroll_open_%s.tga"%s_color)
-					btn.SetDownVisual("locale/it/icon/scroll_open_%s.tga"%s_color)
-					name = name[:-1-len(s_color)]
-					break
-		else:
+			# QUEST_LETTER_IMAGE
+			##!! 20061026.levites.Äù½ºÆ®_ÀÌ¹ÌÁö_±³Ã¼
+			import item
+			if "item"==iconType:
+				item.SelectItem(int(iconName))
+				buttonImageFileName=item.GetIconImageFileName()
+			else:
+				buttonImageFileName=iconName
+
 			if localeInfo.IsEUROPE():
-				btn.SetUpVisual(localeInfo.GetLetterCloseImageName())
-				btn.SetOverVisual(localeInfo.GetLetterOpenImageName())
-				btn.SetDownVisual(localeInfo.GetLetterOpenImageName())
+				# REDDEV_NEW_QUEST_LISTING
+				#if "highlight" == iconType:
+				#	btn.SetUpVisual("locale/ymir_ui/highlighted_quest.tga")
+				#	btn.SetOverVisual("locale/ymir_ui/highlighted_quest_r.tga")
+				#	btn.SetDownVisual("locale/ymir_ui/highlighted_quest_r.tga")
+				if name[0] == '*':
+					btn.SetUpVisual("d:/ymir work/ui/game/quest/questicon/scroll_close_blue.tga")
+					btn.SetOverVisual("d:/ymir work/ui/game/quest/questicon/scroll_open_blue.tga")
+					btn.SetDownVisual("d:/ymir work/ui/game/quest/questicon/scroll_open_blue.tga")
+					name = name[1:]
+				elif name[0] == '~':
+					btn.SetUpVisual("d:/ymir work/ui/game/quest/questicon/scroll_close_golden.tga")
+					btn.SetOverVisual("d:/ymir work/ui/game/quest/questicon/scroll_open_golden.tga")
+					btn.SetDownVisual("d:/ymir work/ui/game/quest/questicon/scroll_open_golden.tga")
+					name = name[1:]
+				elif name[0] == '&':
+					btn.SetUpVisual("d:/ymir work/ui/game/quest/questicon/scroll_close_green.tga")
+					btn.SetOverVisual("d:/ymir work/ui/game/quest/questicon/scroll_open_green.tga")
+					btn.SetDownVisual("d:/ymir work/ui/game/quest/questicon/scroll_open_green.tga")
+					name = name[1:]
+				elif name[0] == '+':
+					btn.SetUpVisual("d:/ymir work/ui/game/quest/questicon/scroll_close_purple.tga")
+					btn.SetOverVisual("d:/ymir work/ui/game/quest/questicon/scroll_open_purple.tga")
+					btn.SetDownVisual("d:/ymir work/ui/game/quest/questicon/scroll_open_purple.tga")
+					name = name[1:]
+				elif name[0] == '!':
+					btn.SetUpVisual(localeInfo.GetLetterCloseImageName())
+					btn.SetOverVisual(localeInfo.GetLetterOpenImageName())
+					btn.SetDownVisual(localeInfo.GetLetterOpenImageName())	
+					name = name[1:]
+				# ENDOF_REDDEV_NEW_QUEST_LISTING
+				else:
+					btn.SetUpVisual(localeInfo.GetLetterCloseImageName())
+					btn.SetOverVisual(localeInfo.GetLetterOpenImageName())
+					btn.SetDownVisual(localeInfo.GetLetterOpenImageName())				
 			else:
 				btn.SetUpVisual(buttonImageFileName)
 				btn.SetOverVisual(buttonImageFileName)
 				btn.SetDownVisual(buttonImageFileName)
 				btn.Flash()
-		# END_OF_QUEST_LETTER_IMAGE
-		if localeInfo.IsARABIC():
-			btn.SetToolTipText(name, 0, 35)
-			btn.ToolTipText.SetHorizontalAlignCenter()
-		else:
-			btn.SetToolTipText(name, -20, 35)
-			btn.ToolTipText.SetHorizontalAlignLeft()
+			# END_OF_QUEST_LETTER_IMAGE
 
-		btn.SetEvent(ui.__mem_func__(self.__StartQuest), btn)
-		btn.Show()
+			if localeInfo.IsARABIC():
+				btn.SetToolTipText(name, 0, 35)
+				btn.ToolTipText.SetHorizontalAlignCenter()
+			else:
+				btn.SetToolTipText(name, -20, 35)
+				btn.ToolTipText.SetHorizontalAlignLeft()
+				
+			btn.SetEvent(ui.__mem_func__(self.__StartQuest), btn)
+			btn.Show()
 
-		btn.index = index
-		btn.name = name
+			btn.index = index
+			btn.name = name
 
-		self.questButtonList.insert(0, btn)
-		self.__ArrangeQuestButton()
+			self.questButtonList.insert(0, btn)
+			self.__ArrangeQuestButton()
+			
+		#REDDEV_NEW_QUEST_LISTING
+		if self.wndCharacter.IsShow():
+			self.wndCharacter.RefreshQuest()
+		#ENDOF_REDDEV_NEW_QUEST_LISTING
 
 		#chat.AppendChat(chat.CHAT_TYPE_NOTICE, localeInfo.QUEST_APPEND)
 
@@ -1789,7 +1922,7 @@ class Interface(object):
 		screenWidth = wndMgr.GetScreenWidth()
 		screenHeight = wndMgr.GetScreenHeight()
 
-		##!! 20061026.levites.í€˜ìŠ¤íŠ¸_ìœ„ì¹˜_ë³´ì •
+		##!! 20061026.levites.Äù½ºÆ®_À§Ä¡_º¸Á¤
 		if self.wndParty.IsShow():
 			xPos = 100 + 30
 		else:
@@ -1843,8 +1976,8 @@ class Interface(object):
 	def __InitWhisper(self):
 		chat.InitWhisper(self)
 
-	## ì±„íŒ…ì°½ì˜ "ë©”ì‹œì§€ ë³´ë‚´ê¸°"ë¥¼ ëˆŒë €ì„ë•Œ ì´ë¦„ ì—†ëŠ” ëŒ€í™”ì°½ì„ ì—¬ëŠ” í•¨ìˆ˜
-	## ì´ë¦„ì´ ì—†ê¸° ë•Œë¬¸ì— ê¸°ì¡´ì˜ WhisperDialogDict ì™€ ë³„ë„ë¡œ ê´€ë¦¬ëœë‹¤.
+	## Ã¤ÆÃÃ¢ÀÇ "¸Þ½ÃÁö º¸³»±â"¸¦ ´­·¶À»¶§ ÀÌ¸§ ¾ø´Â ´ëÈ­Ã¢À» ¿©´Â ÇÔ¼ö
+	## ÀÌ¸§ÀÌ ¾ø±â ¶§¹®¿¡ ±âÁ¸ÀÇ WhisperDialogDict ¿Í º°µµ·Î °ü¸®µÈ´Ù.
 	def OpenWhisperDialogWithoutTarget(self):
 		if not self.dlgWhisperWithoutTarget:
 			dlgWhisper = uiWhisper.WhisperDialog(self.MinimizeWhisperDialog, self.CloseWhisperDialog)
@@ -1861,7 +1994,7 @@ class Interface(object):
 			self.dlgWhisperWithoutTarget.SetTop()
 			self.dlgWhisperWithoutTarget.OpenWithoutTarget(self.RegisterTemporaryWhisperDialog)
 
-	## ì´ë¦„ ì—†ëŠ” ëŒ€í™”ì°½ì—ì„œ ì´ë¦„ì„ ê²°ì •í–ˆì„ë•Œ WhisperDialogDictì— ì°½ì„ ë„£ì–´ì£¼ëŠ” í•¨ìˆ˜
+	## ÀÌ¸§ ¾ø´Â ´ëÈ­Ã¢¿¡¼­ ÀÌ¸§À» °áÁ¤ÇßÀ»¶§ WhisperDialogDict¿¡ Ã¢À» ³Ö¾îÁÖ´Â ÇÔ¼ö
 	def RegisterTemporaryWhisperDialog(self, name):
 		if not self.dlgWhisperWithoutTarget:
 			return
@@ -1880,7 +2013,7 @@ class Interface(object):
 		self.dlgWhisperWithoutTarget = None
 		self.__CheckGameMaster(name)
 
-	## ìºë¦­í„° ë©”ë‰´ì˜ 1:1 ëŒ€í™” í•˜ê¸°ë¥¼ ëˆŒë €ì„ë•Œ ì´ë¦„ì„ ê°€ì§€ê³  ë°”ë¡œ ì°½ì„ ì—¬ëŠ” í•¨ìˆ˜
+	## Ä³¸¯ÅÍ ¸Þ´ºÀÇ 1:1 ´ëÈ­ ÇÏ±â¸¦ ´­·¶À»¶§ ÀÌ¸§À» °¡Áö°í ¹Ù·Î Ã¢À» ¿©´Â ÇÔ¼ö
 	def OpenWhisperDialog(self, name):
 		if not self.whisperDialogDict.has_key(name):
 			dlg = self.__MakeWhisperDialog(name)
@@ -1893,7 +2026,7 @@ class Interface(object):
 			if 0 != btn:
 				self.__DestroyWhisperButton(btn)
 
-	## ë‹¤ë¥¸ ìºë¦­í„°ë¡œë¶€í„° ë©”ì„¸ì§€ë¥¼ ë°›ì•˜ì„ë•Œ ì¼ë‹¨ ë²„íŠ¼ë§Œ ë„ì›Œ ë‘ëŠ” í•¨ìˆ˜
+	## ´Ù¸¥ Ä³¸¯ÅÍ·ÎºÎÅÍ ¸Þ¼¼Áö¸¦ ¹Þ¾ÒÀ»¶§ ÀÏ´Ü ¹öÆ°¸¸ ¶ç¿ö µÎ´Â ÇÔ¼ö
 	def RecvWhisper(self, name):
 		if not self.whisperDialogDict.has_key(name):
 			btn = self.__FindWhisperButton(name)
@@ -1912,7 +2045,7 @@ class Interface(object):
 	def MakeWhisperButton(self, name):
 		self.__MakeWhisperButton(name)
 
-	## ë²„íŠ¼ì„ ëˆŒë €ì„ë•Œ ì°½ì„ ì—¬ëŠ” í•¨ìˆ˜
+	## ¹öÆ°À» ´­·¶À»¶§ Ã¢À» ¿©´Â ÇÔ¼ö
 	def ShowWhisperDialog(self, btn):
 		try:
 			self.__MakeWhisperDialog(btn.name)
@@ -1924,11 +2057,11 @@ class Interface(object):
 			import dbg
 			dbg.TraceError("interface.ShowWhisperDialog - Failed to find key")
 
-		## ë²„íŠ¼ ì´ˆê¸°í™”
+		## ¹öÆ° ÃÊ±âÈ­
 		self.__DestroyWhisperButton(btn)
 
-	## WhisperDialog ì°½ì—ì„œ ìµœì†Œí™” ëª…ë ¹ì„ ìˆ˜í–‰í–ˆì„ë•Œ í˜¸ì¶œë˜ëŠ” í•¨ìˆ˜
-	## ì°½ì„ ìµœì†Œí™” í•©ë‹ˆë‹¤.
+	## WhisperDialog Ã¢¿¡¼­ ÃÖ¼ÒÈ­ ¸í·ÉÀ» ¼öÇàÇßÀ»¶§ È£ÃâµÇ´Â ÇÔ¼ö
+	## Ã¢À» ÃÖ¼ÒÈ­ ÇÕ´Ï´Ù.
 	def MinimizeWhisperDialog(self, name):
 
 		if 0 != name:
@@ -1936,8 +2069,8 @@ class Interface(object):
 
 		self.CloseWhisperDialog(name)
 
-	## WhisperDialog ì°½ì—ì„œ ë‹«ê¸° ëª…ë ¹ì„ ìˆ˜í–‰í–ˆì„ë•Œ í˜¸ì¶œë˜ëŠ” í•¨ìˆ˜
-	## ì°½ì„ ì§€ì›ë‹ˆë‹¤.
+	## WhisperDialog Ã¢¿¡¼­ ´Ý±â ¸í·ÉÀ» ¼öÇàÇßÀ»¶§ È£ÃâµÇ´Â ÇÔ¼ö
+	## Ã¢À» Áö¿ó´Ï´Ù.
 	def CloseWhisperDialog(self, name):
 
 		if 0 == name:
@@ -1956,7 +2089,7 @@ class Interface(object):
 			import dbg
 			dbg.TraceError("interface.CloseWhisperDialog - Failed to find key")
 
-	## ë²„íŠ¼ì˜ ê°œìˆ˜ê°€ ë°”ë€Œì—ˆì„ë•Œ ë²„íŠ¼ì„ ìž¬ì •ë ¬ í•˜ëŠ” í•¨ìˆ˜
+	## ¹öÆ°ÀÇ °³¼ö°¡ ¹Ù²î¾úÀ»¶§ ¹öÆ°À» ÀçÁ¤·Ä ÇÏ´Â ÇÔ¼ö
 	def __ArrangeWhisperButton(self):
 
 		screenWidth = wndMgr.GetScreenWidth()
@@ -1973,9 +2106,9 @@ class Interface(object):
 			button.SetPosition(xPos + (int(count/yCount) * -50), yPos + (count%yCount * 63))
 			count += 1
 
-	## ì´ë¦„ìœ¼ë¡œ Whisper ë²„íŠ¼ì„ ì°¾ì•„ ë¦¬í„´í•´ ì£¼ëŠ” í•¨ìˆ˜
-	## ë²„íŠ¼ì€ ë”•ì…”ë„ˆë¦¬ë¡œ í•˜ì§€ ì•ŠëŠ” ê²ƒì€ ì •ë ¬ ë˜ì–´ ë²„ë ¤ ìˆœì„œê°€ ìœ ì§€ ë˜ì§€ ì•Šìœ¼ë©°
-	## ì´ë¡œ ì¸í•´ ToolTipë“¤ì´ ë‹¤ë¥¸ ë²„íŠ¼ë“¤ì— ì˜í•´ ê°€ë ¤ì§€ê¸° ë•Œë¬¸ì´ë‹¤.
+	## ÀÌ¸§À¸·Î Whisper ¹öÆ°À» Ã£¾Æ ¸®ÅÏÇØ ÁÖ´Â ÇÔ¼ö
+	## ¹öÆ°Àº µñ¼Å³Ê¸®·Î ÇÏÁö ¾Ê´Â °ÍÀº Á¤·Ä µÇ¾î ¹ö·Á ¼ø¼­°¡ À¯Áö µÇÁö ¾ÊÀ¸¸ç
+	## ÀÌ·Î ÀÎÇØ ToolTipµéÀÌ ´Ù¸¥ ¹öÆ°µé¿¡ ÀÇÇØ °¡·ÁÁö±â ¶§¹®ÀÌ´Ù.
 	def __FindWhisperButton(self, name):
 		for button in self.whisperButtonList:
 			if button.name == name:
@@ -1983,7 +2116,7 @@ class Interface(object):
 
 		return 0
 
-	## ì°½ì„ ë§Œë“­ë‹ˆë‹¤.
+	## Ã¢À» ¸¸µì´Ï´Ù.
 	def __MakeWhisperDialog(self, name):
 		dlgWhisper = uiWhisper.WhisperDialog(self.MinimizeWhisperDialog, self.CloseWhisperDialog)
 		dlgWhisper.BindInterface(self)
@@ -1995,7 +2128,7 @@ class Interface(object):
 
 		return dlgWhisper
 
-	## ë²„íŠ¼ì„ ë§Œë“­ë‹ˆë‹¤.
+	## ¹öÆ°À» ¸¸µì´Ï´Ù.
 	def __MakeWhisperButton(self, name):
 		whisperButton = uiWhisper.WhisperButton()
 		whisperButton.SetUpVisual("d:/ymir work/ui/game/windows/btn_mail_up.sub")
@@ -2112,35 +2245,70 @@ class Interface(object):
 		self.wndGameButton.HideBuildButton()
 
 	if app.ENABLE_MINI_GAME:
+		if app.ENABLE_FISH_EVENT:
+			def MiniGameFishUse(self, shape, useCount):
+				if self.wndMiniGame:
+					self.wndMiniGame.MiniGameFishUse(shape, useCount)
+				
+			def MiniGameFishAdd(self, pos, shape):
+				if self.wndMiniGame:
+					self.wndMiniGame.MiniGameFishAdd(pos, shape)
+				
+			def MiniGameFishReward(self, vnum):
+				if self.wndMiniGame:
+					self.wndMiniGame.MiniGameFishReward(vnum)
+					
+			def MiniGameFishCount(self, count):
+				if self.wndMiniGame:
+					self.wndMiniGame.MiniGameFishCount(count)
+
+			def SetFishEventStatus(self, isEnable):
+				if isEnable:
+					constInfo.IS_ENABLE_FISH_EVENT = True
+					self.miniGameList.append( 1 )
+				else:
+					if constInfo.IS_ENABLE_FISH_EVENT == True and len(self.miniGameList) >= 1:
+						constInfo.IS_ENABLE_FISH_EVENT = False
+						self.miniGameList.pop()
+
 		if app.ENABLE_ATTENDANCE_EVENT:
 			def SetAttendanceEventStatus(self, isEnable):
 				if isEnable:
 					constInfo.IS_ENABLE_ATTENDANCE_EVENT = True
 					self.miniGameList.append( 1 )
 				else:
-					constInfo.IS_ENABLE_ATTENDANCE_EVENT = False
+					if constInfo.IS_ENABLE_ATTENDANCE_EVENT == True and len(self.miniGameList) >= 1:
+						constInfo.IS_ENABLE_ATTENDANCE_EVENT = False
+						self.miniGameList.pop()
 					
 			def MiniGameAttendanceSetData(self, type, value):
 				if self.wndMiniGame:
 					self.wndMiniGame.MiniGameAttendanceSetData(type, value)
 					
-		def IntegrationEventBanner(self):
-			if True in self.miniGameList:
-				if not self.wndMiniGame:
-					self.wndMiniGame = uiMiniGame.MiniGameWindow()
+			def IntegrationEventBanner(self):
+				if True in self.miniGameList:
+					if not self.wndMiniGame:
+						self.wndMiniGame = uiMiniGame.MiniGameWindow()
+						
+						if app.ENABLE_FISH_EVENT or app.ENABLE_ATTENDANCE_EVENT:
+							if self.tooltipItem:
+								if self.wndMiniGame:
+									self.wndMiniGame.SetItemToolTip(self.tooltipItem)
+									
+							if app.WJ_ENABLE_TRADABLE_ICON:
+								if self.wndMiniGame:	
+									self.wndMiniGame.BindInterface(self)
+									
+								if self.wndInventory:
+									if self.wndMiniGame:
+										self.wndMiniGame.BindInventory(self.wndInventory)
 					
-					if app.ENABLE_ATTENDANCE_EVENT:
-						if self.tooltipItem:
-							if self.wndMiniGame:
-								self.wndMiniGame.SetItemToolTip(self.tooltipItem)
-				
-				self.wndMiniGame.IntegrationMiniGame(True)
-			else:
-				if self.wndMiniGame:
-					self.wndMiniGame.IntegrationMiniGame(False)		
-		
-	#####################################################################################
+					self.wndMiniGame.IntegrationMiniGame(True)
+				else:
+					if self.wndMiniGame:
+						self.wndMiniGame.IntegrationMiniGame(False)
 
+						
 	def IsEditLineFocus(self):
 		if self.ChatWindow.chatLine.IsFocus():
 			return 1

@@ -10,7 +10,8 @@ import chrmgr
 import player
 import uiPrivateShopBuilder
 import interfaceModule
-import background
+if app.ENABLE_MELEY_LAIR_DUNGEON:
+	import background
 	
 blockMode = 0
 viewChatMode = 0
@@ -29,13 +30,10 @@ class OptionDialog(ui.ScriptWindow):
 		self.RefreshViewChat()
 		self.RefreshAlwaysShowName()
 		self.RefreshShowDamage()
-		self.RefreshShowYangText()
 		self.RefreshShowSalesText()
-		self.RefreshShowNightText()
-		self.UpdateMadaraModel()
-		#self.RefreshShowOfflineShop()
-		#if app.WJ_SHOW_MOB_INFO:
-		#	self.RefreshShowMobInfo()
+		self.RefreshShowOfflineShop()
+		if app.WJ_SHOW_MOB_INFO:
+			self.RefreshShowMobInfo()
 
 	def __del__(self):
 		ui.ScriptWindow.__del__(self)
@@ -48,13 +46,10 @@ class OptionDialog(ui.ScriptWindow):
 		self.pvpModeButtonDict = {}
 		self.blockButtonList = []
 		self.viewChatButtonList = []
-		self.showyangTextButtonList = []
 		self.alwaysShowNameButtonList = []
 		self.showDamageButtonList = []
 		self.showsalesTextButtonList = []
 		self.showOfflineShopButtonList = []
-		self.MadaraModelShow = []
-		self.showNightButtonList = []
 		if app.WJ_SHOW_MOB_INFO:
 			self.showMobInfoButtonList = []
 
@@ -95,25 +90,20 @@ class OptionDialog(ui.ScriptWindow):
 			self.alwaysShowNameButtonList.append(GetObject("always_show_name_off_button"))
 			self.showDamageButtonList.append(GetObject("show_damage_on_button"))
 			self.showDamageButtonList.append(GetObject("show_damage_off_button"))
-			self.showyangTextButtonList.append(GetObject("yangtext_on_button"))
-			self.showyangTextButtonList.append(GetObject("yangtext_off_button"))
 			self.showsalesTextButtonList.append(GetObject("salestext_on_button"))
 			self.showsalesTextButtonList.append(GetObject("salestext_off_button"))
-			self.MadaraModelShow.append(GetObject("ShowMadaraPetButton"))
-			self.MadaraModelShow.append(GetObject("ShowMadaraMountButton"))	
-			self.MadaraModelShow.append(GetObject("ShowMadaraShopButton"))
-			self.showNightButtonList.append(GetObject("showNight_on_button"))
-			self.showNightButtonList.append(GetObject("showNight_off_button"))
-			#if app.WJ_SHOW_MOB_INFO:
-			#	self.showMobInfoButtonList.append(GetObject("show_mob_level_button"))
-			#	self.showMobInfoButtonList.append(GetObject("show_mob_AI_flag_button"))
+			self.showOfflineShopButtonList.append(GetObject("show_offline_shop_on"))
+			self.showOfflineShopButtonList.append(GetObject("show_offline_shop_off"))
+			if app.WJ_SHOW_MOB_INFO:
+				self.showMobInfoButtonList.append(GetObject("show_mob_level_button"))
+				self.showMobInfoButtonList.append(GetObject("show_mob_AI_flag_button"))
 			global MOBILE
 			if MOBILE:
 				self.inputMobileButton = GetObject("input_mobile_button")
 				self.deleteMobileButton = GetObject("delete_mobile_button")
 							
-			#if app.ENABLE_SHOPNAMES_RANGE:
-			#	self.ctrlShopNamesRange = GetObject("salestext_range_controller")
+			if app.ENABLE_SHOPNAMES_RANGE:
+				self.ctrlShopNamesRange = GetObject("salestext_range_controller")
 
 		except:
 			import exception
@@ -160,28 +150,17 @@ class OptionDialog(ui.ScriptWindow):
 		self.showDamageButtonList[0].SAFE_SetEvent(self.__OnClickShowDamageOnButton)
 		self.showDamageButtonList[1].SAFE_SetEvent(self.__OnClickShowDamageOffButton)
 		
-		self.showyangTextButtonList[0].SAFE_SetEvent(self.__OnClickYangTextOnButton)
-		self.showyangTextButtonList[1].SAFE_SetEvent(self.__OnClickYangTextOffButton)
-		
 		self.showsalesTextButtonList[0].SAFE_SetEvent(self.__OnClickSalesTextOnButton)
-		self.showsalesTextButtonList[1].SAFE_SetEvent(self.__OnClickSalesTextOffButton)
-		
-		self.MadaraModelShow[0].SetToggleUpEvent(self.__OnClickHidePetsButton)
-		self.MadaraModelShow[0].SetToggleDownEvent(self.__OnClickHidePetsButton)
-		self.MadaraModelShow[1].SetToggleUpEvent(self.__OnClickHideMountsButton)
-		self.MadaraModelShow[1].SetToggleDownEvent(self.__OnClickHideMountsButton)
-		self.MadaraModelShow[2].SetToggleUpEvent(self.__OnClickHideShopsButton)
-		self.MadaraModelShow[2].SetToggleDownEvent(self.__OnClickHideShopsButton)
-		
-		
-		self.showNightButtonList[0].SAFE_SetEvent(self.__OnClickShowNightOnButton)
-		self.showNightButtonList[1].SAFE_SetEvent(self.__OnClickShowNightOffButton)
-		#if app.WJ_SHOW_MOB_INFO:
-			#self.showMobInfoButtonList[0].SetToggleUpEvent(self.__OnClickShowMobLevelButton)
-			#self.showMobInfoButtonList[1].SetToggleUpEvent(self.__OnClickShowMobAIFlagButton)
+		self.showsalesTextButtonList[1].SAFE_SetEvent(self.__OnClickSalesTextOffButton)	
+		self.showOfflineShopButtonList[0].SAFE_SetEvent(self.__OnClickOfflineShopOnButton)
+		self.showOfflineShopButtonList[1].SAFE_SetEvent(self.__OnClickOfflineShopOffButton)		
 
-#			self.showMobInfoButtonList[0].SetToggleDownEvent(self.__OnClickShowMobLevelButton)
-#			self.showMobInfoButtonList[1].SetToggleDownEvent(self.__OnClickShowMobAIFlagButton)		
+		if app.WJ_SHOW_MOB_INFO:
+			self.showMobInfoButtonList[0].SetToggleUpEvent(self.__OnClickShowMobLevelButton)
+			self.showMobInfoButtonList[1].SetToggleUpEvent(self.__OnClickShowMobAIFlagButton)
+
+			self.showMobInfoButtonList[0].SetToggleDownEvent(self.__OnClickShowMobLevelButton)
+			self.showMobInfoButtonList[1].SetToggleDownEvent(self.__OnClickShowMobAIFlagButton)		
 		
 		self.__ClickRadioButton(self.nameColorModeButtonList, constInfo.GET_CHRNAME_COLOR_INDEX())
 		self.__ClickRadioButton(self.viewTargetBoardButtonList, constInfo.GET_VIEW_OTHER_EMPIRE_PLAYER_TARGET_BOARD())
@@ -192,16 +171,16 @@ class OptionDialog(ui.ScriptWindow):
 			self.deleteMobileButton.SetEvent(ui.__mem_func__(self.__OnDeleteMobilePhoneNumber))
 			
 		
-		#if app.ENABLE_SHOPNAMES_RANGE:
-		#	self.ctrlShopNamesRange.SetSliderPos(float(systemSetting.GetShopNamesRange()))
-		#	self.ctrlShopNamesRange.SetEvent(ui.__mem_func__(self.OnChangeShopNamesRange))
+		if app.ENABLE_SHOPNAMES_RANGE:
+			self.ctrlShopNamesRange.SetSliderPos(float(systemSetting.GetShopNamesRange()))
+			self.ctrlShopNamesRange.SetEvent(ui.__mem_func__(self.OnChangeShopNamesRange))
 
-	#if app.ENABLE_SHOPNAMES_RANGE:
-	#	def OnChangeShopNamesRange(self):
-	#		pos = self.ctrlShopNamesRange.GetSliderPos()
-	#		systemSetting.SetShopNamesRange(pos)
-	#		if systemSetting.IsShowSalesText():
-	#			uiPrivateShopBuilder.UpdateADBoard()
+	if app.ENABLE_SHOPNAMES_RANGE:
+		def OnChangeShopNamesRange(self):
+			pos = self.ctrlShopNamesRange.GetSliderPos()
+			systemSetting.SetShopNamesRange(pos)
+			if systemSetting.IsShowSalesText():
+				uiPrivateShopBuilder.UpdateADBoard()
 			
 	def __ClickRadioButton(self, buttonList, buttonIndex):
 		try:
@@ -213,43 +192,7 @@ class OptionDialog(ui.ScriptWindow):
 			eachButton.SetUp()
 
 		selButton.Down()
-	
-	def UpdateMadaraModel(self):
-		if systemSetting.IsHidePets():
-			self.MadaraModelShow[0].Down()
-		else:
-			self.MadaraModelShow[0].SetUp()
 
-		if systemSetting.IsHideMounts():
-			self.MadaraModelShow[1].Down()
-		else:
-			self.MadaraModelShow[1].SetUp()	
-
-		if systemSetting.IsHideShops():
-			self.MadaraModelShow[2].Down()
-		else:
-			self.MadaraModelShow[2].SetUp()
-			
-	def __OnClickHidePetsButton(self):
-		systemSetting.SetHidePets(not systemSetting.IsHidePets())
-		self.UpdateMadaraModel()
-
-	def __OnClickHideMountsButton(self):
-		systemSetting.SetHideMounts(not systemSetting.IsHideMounts())
-		self.UpdateMadaraModel()	
-		
-	def __OnClickHideShopsButton(self):
-		import uiPrivateShopBuilder
-		systemSetting.SetHideShops(not systemSetting.IsHideShops())
-		if systemSetting.IsHideShops():		
-			systemSetting.SetShowSalesTextFlag(False)
-			uiPrivateShopBuilder.UpdateADBoard()
-		else:
-			systemSetting.SetShowSalesTextFlag(True)
-			uiPrivateShopBuilder.UpdateADBoard()
-			
-		self.UpdateMadaraModel()
-	
 	def __SetNameColorMode(self, index):
 		constInfo.SET_CHRNAME_COLOR_INDEX(index)
 		self.__ClickRadioButton(self.nameColorModeButtonList, index)
@@ -344,28 +287,17 @@ class OptionDialog(ui.ScriptWindow):
 		
 	def __OnClickSalesTextOffButton(self):
 		systemSetting.SetShowSalesTextFlag(False)
-		self.RefreshShowSalesText()
-		
-	def __OnClickShowNightOnButton(self):
-		background.RegisterEnvironmentData(1, constInfo.ENVIRONMENT_NIGHT)
-		background.SetEnvironmentData(1)
-		constInfo.Night = 1
-		self.RefreshShowNightText()
+		self.RefreshShowSalesText()		
 
-	def __OnClickShowNightOffButton(self):
-		background.SetEnvironmentData(0)
-		constInfo.Night = 0
-		self.RefreshShowNightText()
+	def __OnClickOfflineShopOnButton(self):
+		systemSetting.SetShowOfflineShop(1)
+		self.RefreshShowOfflineShop()
+		net.SendChatPacket("/show_hide_shops 1")	
 
-	#def __OnClickOfflineShopOnButton(self):
-	#	systemSetting.SetShowOfflineShop(1)
-	#	self.RefreshShowOfflineShop()
-	#	net.SendChatPacket("/show_hide_shops 1")	
-
-	#def __OnClickOfflineShopOffButton(self):
-	#	systemSetting.SetShowOfflineShop(0)
-	#	self.RefreshShowOfflineShop()
-	#	net.SendChatPacket("/show_hide_shops 0")
+	def __OnClickOfflineShopOffButton(self):
+		systemSetting.SetShowOfflineShop(0)
+		self.RefreshShowOfflineShop()
+		net.SendChatPacket("/show_hide_shops 0")
 		
 	def __OnClickShowMobLevelButton(self):
 		if app.WJ_SHOW_MOB_INFO:
@@ -628,24 +560,6 @@ class OptionDialog(ui.ScriptWindow):
 			self.showDamageButtonList[0].SetUp()
 			self.showDamageButtonList[1].Down()
 			
-	def __OnClickYangTextOnButton(self):
-		if constInfo.Yang == 0:
-			constInfo.Yang = 1
-			self.RefreshShowYangText()
-
-	def __OnClickYangTextOffButton(self):
-		if constInfo.Yang == 1:
-			constInfo.Yang = 0
-			self.RefreshShowYangText()
-
-	def RefreshShowYangText(self):
-		if constInfo.Yang == 1:
-			self.showyangTextButtonList[0].Down()
-			self.showyangTextButtonList[1].SetUp()
-		elif constInfo.Yang == 0:
-			self.showyangTextButtonList[0].SetUp()
-			self.showyangTextButtonList[1].Down()
-
 	def RefreshShowSalesText(self):
 		if systemSetting.IsShowSalesText():
 			self.showsalesTextButtonList[0].Down()
@@ -653,22 +567,14 @@ class OptionDialog(ui.ScriptWindow):
 		else:
 			self.showsalesTextButtonList[0].SetUp()
 			self.showsalesTextButtonList[1].Down()
-
-	def RefreshShowNightText(self):
-		if constInfo.Night == 1:
-			self.showNightButtonList[0].Down()
-			self.showNightButtonList[1].SetUp()
+			
+	def RefreshShowOfflineShop(self):
+		if systemSetting.IsShowOfflineShop() == 1:
+			self.showOfflineShopButtonList[0].Down()
+			self.showOfflineShopButtonList[1].SetUp()		
 		else:
-			self.showNightButtonList[0].SetUp()
-			self.showNightButtonList[1].Down()
-
-	#def RefreshShowOfflineShop(self):
-	#	if systemSetting.IsShowOfflineShop() == 1:
-	#		self.showOfflineShopButtonList[0].Down()
-	#		self.showOfflineShopButtonList[1].SetUp()		
-	#	else:
-	#		self.showOfflineShopButtonList[0].SetUp()
-	#		self.showOfflineShopButtonList[1].Down()
+			self.showOfflineShopButtonList[0].SetUp()
+			self.showOfflineShopButtonList[1].Down()
 
 	def RefreshShowMobInfo(self):
 		if app.WJ_SHOW_MOB_INFO:

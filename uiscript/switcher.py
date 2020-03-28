@@ -57,7 +57,7 @@ window = {
 					"x" : 13,
 					"y" : 38,
 					
-					"image" : "locale/es/ui/switcher.tga",					
+					"image" : "locale/ro/ui/switcher.tga",					
 
 					"children" :
 					(

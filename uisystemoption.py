@@ -43,6 +43,10 @@ class OptionDialog(ui.ScriptWindow):
 		self.cameraModeButtonList = []
 		self.fogModeButtonList = []
 		self.tilingModeButtonList = []
+		if app.ENABLE_ENVIRONMENT_EFFECT_OPTION:
+			self.NightModeOption = []
+			self.SnowModeOption = []
+			self.SnowTextureModeOption = []
 		self.ctrlShadowQuality = 0
 
 	def Destroy(self):
@@ -79,6 +83,13 @@ class OptionDialog(ui.ScriptWindow):
 			self.tilingModeButtonList.append(GetObject("tiling_cpu"))
 			self.tilingModeButtonList.append(GetObject("tiling_gpu"))
 			self.tilingApplyButton=GetObject("tiling_apply")
+			if app.ENABLE_ENVIRONMENT_EFFECT_OPTION:
+				self.NightModeOption.append(GetObject("night_mode_off"))
+				self.NightModeOption.append(GetObject("night_mode_on"))
+				self.SnowModeOption.append(GetObject("snow_mode_off"))
+				self.SnowModeOption.append(GetObject("snow_mode_on"))
+				self.SnowTextureModeOption.append(GetObject("snow_texture_mode_off"))
+				self.SnowTextureModeOption.append(GetObject("snow_texture_mode_on"))
 			#self.ctrlShadowQuality = GetObject("shadow_bar")
 		except:
 			import exception
@@ -118,6 +129,19 @@ class OptionDialog(ui.ScriptWindow):
 		self.tilingModeButtonList[1].SAFE_SetEvent(self.__OnClickTilingModeGPUButton)
 
 		self.tilingApplyButton.SAFE_SetEvent(self.__OnClickTilingApplyButton)
+		if app.ENABLE_ENVIRONMENT_EFFECT_OPTION:
+			self.NightModeOption[0].SAFE_SetEvent(self.__OnNightModeOffButton)
+			self.NightModeOption[1].SAFE_SetEvent(self.__OnNightModeOnButton)
+
+			self.SnowModeOption[0].SAFE_SetEvent(self.__OnSnowModeOffButton)
+			self.SnowModeOption[1].SAFE_SetEvent(self.__OnSnowModeOnButton)
+
+			self.SnowTextureModeOption[0].SAFE_SetEvent(self.__OnSnowTextureModeOffButton)
+			self.SnowTextureModeOption[1].SAFE_SetEvent(self.__OnSnowTextureModeOnButton)
+
+			self.__ClickRadioButton(self.NightModeOption, systemSetting.GetNightModeOption())
+			self.__ClickRadioButton(self.SnowModeOption, systemSetting.GetSnowModeOption())
+			self.__ClickRadioButton(self.SnowTextureModeOption, systemSetting.GetSnowTextureModeOption())
 
 		self.__SetCurTilingMode()
 
@@ -198,6 +222,31 @@ class OptionDialog(ui.ScriptWindow):
 
 	def __OnClickFogModeLevel2Button(self):
 		self.__SetFogLevel(2)
+
+	if app.ENABLE_ENVIRONMENT_EFFECT_OPTION:
+		def __OnNightModeOffButton(self):
+			systemSetting.SetNightModeOption(False)
+			self.__ClickRadioButton(self.NightModeOption, 0)
+
+		def __OnNightModeOnButton(self):
+			systemSetting.SetNightModeOption(True)
+			self.__ClickRadioButton(self.NightModeOption, 1)
+
+		def __OnSnowModeOffButton(self):
+			systemSetting.SetSnowModeOption(False)
+			self.__ClickRadioButton(self.SnowModeOption, 0)
+
+		def __OnSnowModeOnButton(self):
+			systemSetting.SetSnowModeOption(True)
+			self.__ClickRadioButton(self.SnowModeOption, 1)
+
+		def __OnSnowTextureModeOffButton(self):
+			systemSetting.SetSnowTextureModeOption(False)
+			self.__ClickRadioButton(self.SnowTextureModeOption, 0)
+
+		def __OnSnowTextureModeOnButton(self):
+			systemSetting.SetSnowTextureModeOption(True)
+			self.__ClickRadioButton(self.SnowTextureModeOption, 1)
 
 	def __OnChangeMusic(self, fileName):
 		self.selectMusicFile.SetText(fileName[:MUSIC_FILENAME_MAX_LEN])

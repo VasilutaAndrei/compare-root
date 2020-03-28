@@ -11,9 +11,6 @@ class GameButtonWindow(ui.ScriptWindow):
 		self.adminWhisperManager = whisper.WhisperManager()
 		import uiadmintool 
 		self.wndAdminTool = uiadmintool.AdminTool()
-		if app.ENABLE_PVP_ADVANCED:
-			import uiduel
-			self.wndBlockEquip = uiduel.WindowEquipmentBlock()
 		self.__LoadWindow("UIScript/gamewindow.py")
 
 	def __del__(self):
@@ -39,15 +36,15 @@ class GameButtonWindow(ui.ScriptWindow):
 				"BUILD" : self.GetChild("BuildGuildBuilding"),
 				"EXIT_OBSERVER" : self.GetChild("ExitObserver"),
 				"GIFT" : self.GetChild("GiftIcon"),
-				"ADMPANEL" : self.GetChild("AdmPanel"),
-				"ADMPANEL2" : self.GetChild("AdmPanel2"),
-				"ADMPANEL3" : self.GetChild("AdmPanel3"),
+				"AP_0" : self.GetChild("AP_0"),
+				"AP_1" : self.GetChild("AP_1"),
+				"AP_2" : self.GetChild("AP_2"),
 			}
 
 			self.gameButtonDict["EXIT_OBSERVER"].SetEvent(ui.__mem_func__(self.__OnClickExitObserver))
-			self.gameButtonDict["ADMPANEL"].SetEvent(ui.__mem_func__(self.BlockChatWindow))
-			self.gameButtonDict["ADMPANEL2"].SetEvent(ui.__mem_func__(self.KickChatWindow))
-			self.gameButtonDict["ADMPANEL3"].SetEvent(ui.__mem_func__(self.OpenWhisperSystem))
+			self.gameButtonDict["AP_0"].SetEvent(ui.__mem_func__(self.OpenWhisperSystem))
+			self.gameButtonDict["AP_1"].SetEvent(ui.__mem_func__(self.BlockChatWindow))
+			self.gameButtonDict["AP_2"].SetEvent(ui.__mem_func__(self.OpenAdminTool))
 				
 		except Exception, msg:
 			import dbg
@@ -86,9 +83,9 @@ class GameButtonWindow(ui.ScriptWindow):
 
 		statusPlusButton=self.gameButtonDict["STATUS"]
 		skillPlusButton=self.gameButtonDict["SKILL"]
-		admpanel1=self.gameButtonDict["ADMPANEL"]
-		admpanel2=self.gameButtonDict["ADMPANEL2"]
-		admpanel3=self.gameButtonDict["ADMPANEL3"]
+		AP_0=self.gameButtonDict["AP_0"]
+		AP_1=self.gameButtonDict["AP_1"]
+		AP_2=self.gameButtonDict["AP_2"]
 		helpButton=self.gameButtonDict["HELP"]
 
 		if player.GetStatus(player.STAT) > 0:
@@ -102,13 +99,13 @@ class GameButtonWindow(ui.ScriptWindow):
 			skillPlusButton.Hide()
 			
 		if chr.IsGameMaster(player.GetMainCharacterIndex()):
-			admpanel1.Show()
-			admpanel2.Show()
-			admpanel3.Show()
+			AP_0.Show()
+			AP_1.Show()
+			AP_2.Show()
 		else:
-			admpanel1.Hide()
-			admpanel2.Hide()
-			admpanel3.Hide()
+			AP_0.Hide()
+			AP_1.Hide()
+			AP_2.Hide()
 
 		if 0 == player.GetPlayTime():
 			helpButton.Show()
@@ -152,12 +149,6 @@ class GameButtonWindow(ui.ScriptWindow):
 		else:
 			self.wndAdminTool.Show()			
 
-	if app.ENABLE_PVP_ADVANCED:
-		def __OnClickBlockEquipment(self):
-			if self.wndBlockEquip.IsShow():
-				self.wndBlockEquip.Hide()
-			else:
-				self.wndBlockEquip.Show()		
 		
 	def __HideAllGameButton(self):
 		for btn in self.gameButtonDict.values():

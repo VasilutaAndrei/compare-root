@@ -51,10 +51,10 @@ class SelectKey(ui.ImageBox):
 		self.SetPosition(x, y)
 		
 		listImage = {
-			0 : "d:/ymir work/ui/whisper_color_text/white.tga",
-			1 : "d:/ymir work/ui/whisper_color_text/red.tga",
-			2 : "d:/ymir work/ui/whisper_color_text/green.tga",
-			3 : "d:/ymir work/ui/whisper_color_text/blue.tga",
+			0 : "d:/ymir work/ui/game/whisper/white.tga",
+			1 : "d:/ymir work/ui/game/whisper/red.tga",
+			2 : "d:/ymir work/ui/game/whisper/green.tga",
+			3 : "d:/ymir work/ui/game/whisper/blue.tga",
 			4 : "d:/ymir work/ui/public/Parameter_Slot_01.sub"
 		}
 

@@ -1,5 +1,6 @@
 import uiScriptLocale
 import app
+import localeInfo
 
 ROOT_PATH = "d:/ymir work/ui/public/"
 
@@ -8,7 +9,7 @@ TEXT_TEMPORARY_X = -10
 BUTTON_TEMPORARY_X = 5
 PVP_X = -10
 
-if app.ENABLE_FOG_FIX:
+if app.ENABLE_ENVIRONMENT_EFFECT_OPTION and app.ENABLE_FOG_FIX:
 	window = {
 		"name" : "SystemOptionDialog",
 		"style" : ("movable", "float",),
@@ -17,7 +18,7 @@ if app.ENABLE_FOG_FIX:
 		"y" : 0,
 
 		"width" : 305,
-		"height" : 255,
+		"height" : 300,
 
 		"children" :
 		(
@@ -29,7 +30,7 @@ if app.ENABLE_FOG_FIX:
 				"y" : 0,
 
 				"width" : 305,
-				"height" : 255,
+				"height" : 300,
 
 				"children" :
 				(
@@ -248,11 +249,125 @@ if app.ENABLE_FOG_FIX:
 						"over_image" : ROOT_PATH + "middle_Button_02.sub",
 						"down_image" : ROOT_PATH + "middle_Button_03.sub",
 					},
+					# NIGHT MODE ON / OFF
+					{
+						"name" : "night_mode",
+						"type" : "text",
+
+						"x" : 40 + TEXT_TEMPORARY_X,
+						"y" : 210,
+
+						"text" : uiScriptLocale.OPTION_NIGHT_MODE,
+					},
+					
+					{
+						"name" : "night_mode_on",
+						"type" : "radio_button",
+
+						"x" : 110,
+						"y" : 210,
+
+						"text" : uiScriptLocale.OPTION_NIGHT_MODE_ON,
+
+						"default_image" : ROOT_PATH + "small_Button_01.sub",
+						"over_image" : ROOT_PATH + "small_Button_02.sub",
+						"down_image" : ROOT_PATH + "small_Button_03.sub",
+					},
+					
+					{
+						"name" : "night_mode_off",
+						"type" : "radio_button",
+
+						"x" : 110+50,
+						"y" : 210,
+
+						"text" : uiScriptLocale.OPTION_NIGHT_MODE_OFF,
+
+						"default_image" : ROOT_PATH + "small_Button_01.sub",
+						"over_image" : ROOT_PATH + "small_Button_02.sub",
+						"down_image" : ROOT_PATH + "small_Button_03.sub",
+					},
+					## SNOW MODE ON / OFF
+					{
+						"name" : "snow_mode",
+						"type" : "text",
+
+						"x" : 40 + TEXT_TEMPORARY_X,
+						"y" : 235,
+
+						"text" : uiScriptLocale.OPTION_SNOW_MODE,
+					},
+					
+					{
+						"name" : "snow_mode_on",
+						"type" : "radio_button",
+
+						"x" : 110,
+						"y" : 235,
+
+						"text" : uiScriptLocale.OPTION_SNOW_MODE_ON,
+
+						"default_image" : ROOT_PATH + "small_Button_01.sub",
+						"over_image" : ROOT_PATH + "small_Button_02.sub",
+						"down_image" : ROOT_PATH + "small_Button_03.sub",
+					},
+					
+					{
+						"name" : "snow_mode_off",
+						"type" : "radio_button",
+
+						"x" : 110+50,
+						"y" : 235,
+
+						"text" : uiScriptLocale.OPTION_SNOW_MODE_OFF,
+
+						"default_image" : ROOT_PATH + "small_Button_01.sub",
+						"over_image" : ROOT_PATH + "small_Button_02.sub",
+						"down_image" : ROOT_PATH + "small_Button_03.sub",
+					},
+					# WINTER TEXTURE ON / OFF
+					{
+						"name" : "snow_texture_mode",
+						"type" : "text",
+
+						"x" : 40 + TEXT_TEMPORARY_X,
+						"y" : 260,
+
+						"text" : uiScriptLocale.OPTION_SNOW_TEXTURE_MODE,
+					},
+					
+					{
+						"name" : "snow_texture_mode_on",
+						"type" : "radio_button",
+
+						"x" : 110,
+						"y" : 260,
+
+						"text" : uiScriptLocale.OPTION_SNOW_TEXTURE_MODE_ON,
+
+						"default_image" : ROOT_PATH + "small_Button_01.sub",
+						"over_image" : ROOT_PATH + "small_Button_02.sub",
+						"down_image" : ROOT_PATH + "small_Button_03.sub",
+					},
+					
+					{
+						"name" : "snow_texture_mode_off",
+						"type" : "radio_button",
+
+						"x" : 110+50,
+						"y" : 260,
+
+						"text" : uiScriptLocale.OPTION_SNOW_TEXTURE_MODE_OFF,
+
+						"default_image" : ROOT_PATH + "small_Button_01.sub",
+						"over_image" : ROOT_PATH + "small_Button_02.sub",
+						"down_image" : ROOT_PATH + "small_Button_03.sub",
+					},
 				),
 			},
 		),
 	}
-else:
+elif not app.ENABLE_ENVIRONMENT_EFFECT_OPTION and not app.ENABLE_FOG_FIX:
 	window = {
 		"name" : "SystemOptionDialog",
 		"style" : ("movable", "float",),

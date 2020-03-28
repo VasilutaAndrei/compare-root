@@ -84,6 +84,8 @@ class CMouseController(object):
 		self.DeattachObject()
 
 		self.callbackDict = {}
+		if app.ENABLE_FISH_EVENT:
+			self.IsAttachedIconRender = True
 
 	def __del__(self):
 		self.callbackDict = {}
@@ -92,21 +94,21 @@ class CMouseController(object):
 		self.IsSoftwareCursor = systemSetting.IsSoftwareCursor()
 
 		self.cursorDict = {
-			app.NORMAL			: CursorImage("specgame/cursor.sub"),
-			app.ATTACK			: CursorImage("specgame/cursor_attack.sub"),
-			app.TARGET			: CursorImage("specgame/cursor_attack.sub"),
-			app.TALK			: CursorImage("specgame/cursor_talk.sub"),
-			app.CANT_GO			: CursorImage("specgame/cursor_no.sub"),
-			app.PICK			: CursorImage("specgame/cursor_pick.sub"),
-			app.DOOR			: CursorImage("specgame/cursor_door.sub"),
-			app.CHAIR			: CursorImage("specgame/cursor_chair.sub"),
-			app.MAGIC			: CursorImage("specgame/cursor_chair.sub"),
-			app.BUY				: CursorImage("specgame/cursor_buy.sub"),
-			app.SELL			: CursorImage("specgame/cursor_sell.sub"),
-			app.CAMERA_ROTATE	: CursorImage("specgame/cursor_camera_rotate.sub"),
-			app.HSIZE			: CursorImage("specgame/cursor_hsize.sub"),
-			app.VSIZE			: CursorImage("specgame/cursor_vsize.sub"),
-			app.HVSIZE			: CursorImage("specgame/cursor_hvsize.sub"),
+			app.NORMAL			: CursorImage("D:/Ymir Work/UI/Cursor/cursor.sub"),
+			app.ATTACK			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_attack.sub"),
+			app.TARGET			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_attack.sub"),
+			app.TALK			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_talk.sub"),
+			app.CANT_GO			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_no.sub"),
+			app.PICK			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_pick.sub"),
+			app.DOOR			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_door.sub"),
+			app.CHAIR			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_chair.sub"),
+			app.MAGIC			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_chair.sub"),
+			app.BUY				: CursorImage("D:/Ymir Work/UI/Cursor/cursor_buy.sub"),
+			app.SELL			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_sell.sub"),
+			app.CAMERA_ROTATE	: CursorImage("D:/Ymir Work/UI/Cursor/cursor_camera_rotate.sub"),
+			app.HSIZE			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_hsize.sub"),
+			app.VSIZE			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_vsize.sub"),
+			app.HVSIZE			: CursorImage("D:/Ymir Work/UI/Cursor/cursor_hvsize.sub"),
 		}
 		self.cursorPosDict = {
 			app.NORMAL			: (0, 0),
@@ -298,16 +300,24 @@ class CMouseController(object):
 
 			elif self.AttachedType == player.SLOT_TYPE_EMOTION:
 				grpImage.Delete(self.AttachedIconHandle)
+			if app.ENABLE_FISH_EVENT:
+				if self.AttachedType == player.SLOT_TYPE_FISH_EVENT:
+					self.AttachedOwner.DropQuestionDialog()
+					return
 
-		self.AttachedFlag = False
-		self.AttachedType = -1
-		self.AttachedItemIndex = -1
-		self.AttachedSlotNumber = -1
-		self.AttachedIconHandle = 0
-		wndMgr.SetAttachingFlag(False)
-
-		if self.countNumberLine:
-			self.countNumberLine.Hide()
+		if app.ENABLE_FISH_EVENT:
+			self.DeattachObjectPostProcess()
+		else:		
+			self.AttachedFlag = False
+			self.AttachedType = -1
+			self.AttachedItemIndex = -1
+			self.AttachedSlotNumber = -1
+			self.RealAttachedSlotNumber = -1
+			self.AttachedIconHandle = 0
+			wndMgr.SetAttachingFlag(False)
+	
+			if self.countNumberLine:
+				self.countNumberLine.Hide()
 
 	def isAttached(self):
 		return self.AttachedFlag
@@ -359,7 +369,13 @@ class CMouseController(object):
 
 		if True == self.isAttached():
 			if 0 != self.AttachedIconHandle:
-				grpImage.SetDiffuseColor(self.AttachedIconHandle, 1.0, 1.0, 1.0, 0.5)
+				if app.ENABLE_FISH_EVENT:
+					if player.SLOT_TYPE_FISH_EVENT == self.GetAttachedType():
+						grpImage.SetDiffuseColor(self.AttachedIconHandle, 1.0, 1.0, 1.0, 1.0)
+					else:
+						grpImage.SetDiffuseColor(self.AttachedIconHandle, 1.0, 1.0, 1.0, 0.5)
+				else:
+					grpImage.SetDiffuseColor(self.AttachedIconHandle, 1.0, 1.0, 1.0, 0.5)
 				grpImage.SetPosition(self.AttachedIconHandle, self.x - self.AttachedIconHalfWidth, self.y - self.AttachedIconHalfHeight)
 				self.countNumberLine.SetPosition(self.x, self.y - self.AttachedIconHalfHeight - 3)
 
@@ -372,7 +388,11 @@ class CMouseController(object):
 
 		if True == self.isAttached():
 			if 0 != self.AttachedIconHandle:
-				grpImage.Render(self.AttachedIconHandle)
+				if app.ENABLE_FISH_EVENT:
+					if True == self.IsAttachedIconRender:
+						grpImage.Render(self.AttachedIconHandle)
+				else:
+					grpImage.Render(self.AttachedIconHandle)
 
 		if self.IsSoftwareCursor:
 			if True == app.IsShowCursor():
@@ -399,4 +419,43 @@ class CMouseController(object):
 	def ClearCallBack(self):
 		self.callbackDict = {}
 
+	if app.ENABLE_FISH_EVENT:
+		def AttachFishPiece(self, owner, shape, img_handle, adjust_x, adjust_y, width, height):
+			self.LastAttachedSlotNumber = self.AttachedSlotNumber
+			self.countNumberLine.SetNumber("")
+			self.countNumberLine.Hide()
+			
+			self.AttachedFlag = True
+			self.AttachedOwner = owner
+			self.AttachedType = player.SLOT_TYPE_FISH_EVENT
+			self.AttachedSlotNumber = -1
+			self.RealAttachedSlotNumber = -1
+			self.AttachedItemIndex = shape
+			self.AttachedCount = 0
+			self.AttachedIconHandle = img_handle
+			self.AttachedIconHalfWidth = grpImage.GetWidth(self.AttachedIconHandle) / 2 + adjust_x
+			self.AttachedIconHalfHeight = grpImage.GetHeight(self.AttachedIconHandle) / 2 + adjust_y
+			wndMgr.AttachIcon(self.AttachedType, self.AttachedItemIndex, self.AttachedSlotNumber, width, height)
+			
+		def DeattachObjectPostProcess(self):
+			self.AttachedOwner = 0
+			self.AttachedFlag = False
+			self.AttachedType = -1
+			self.AttachedItemIndex = -1
+			self.AttachedSlotNumber = -1
+			self.RealAttachedSlotNumber = -1
+			self.AttachedIconHandle = 0
+			wndMgr.SetAttachingFlag(False)
+
+			if self.countNumberLine:
+				self.countNumberLine.Hide()
+			
+			app.ShowCursor()
+			
+		def SetAttachedIconRender(self, flag):
+			self.IsAttachedIconRender = flag
+			
+		def GetAttachedIconRender(self):
+			return self.IsAttachedIconRender
+		
 mouseController = CMouseController()

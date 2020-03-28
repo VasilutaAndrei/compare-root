@@ -89,33 +89,26 @@ class LoadingWindow(ui.ScriptWindow):
 				3 : app.GetLocalePath() + "/ui/loading/loading3.sub",
 				4 : app.GetLocalePath() + "/ui/loading/loading4.sub",
 				5 : app.GetLocalePath() + "/ui/loading/loading5.sub",
-				6 : app.GetLocalePath() + "/ui/loading/loading6.sub",
-				7 : app.GetLocalePath() + "/ui/loading/loading7.sub",
-				8 : app.GetLocalePath() + "/ui/loading/loading8.sub"
+				6 : app.GetLocalePath() + "/ui/loading/loading6.sub"
 			}
 		elif localeInfo.IsCIBN10():
 			imgFileNameDict = {
-				0 : app.GetLocalePath() + "/ui/loading/loading0.sub",
-				1 : app.GetLocalePath() + "/ui/loading/loading1.sub",
-				2 : app.GetLocalePath() + "/ui/loading/loading2.sub",
-				3 : app.GetLocalePath() + "/ui/loading/loading3.sub",
-				4 : app.GetLocalePath() + "/ui/loading/loading4.sub",
-				5 : app.GetLocalePath() + "/ui/loading/loading5.sub",
-				6 : app.GetLocalePath() + "/ui/loading/loading6.sub",
-				7 : app.GetLocalePath() + "/ui/loading/loading7.sub",
-				8 : app.GetLocalePath() + "/ui/loading/loading8.sub"
+				0 : app.GetLocalePath() + "/ui/loading/loading0.jpg",
+				1 : app.GetLocalePath() + "/ui/loading/loading1.jpg",
+				2 : app.GetLocalePath() + "/ui/loading/loading2.jpg",
+				3 : app.GetLocalePath() + "/ui/loading/loading3.jpg",
+				4 : app.GetLocalePath() + "/ui/loading/loading4.jpg",
+				5 : app.GetLocalePath() + "/ui/loading/loading5.jpg",
+				6 : app.GetLocalePath() + "/ui/loading/loading6.jpg",
+				7 : app.GetLocalePath() + "/ui/loading/loading7.jpg",
 			}
 		elif localeInfo.IsYMIR() or localeInfo.IsWE_KOREA() or localeInfo.IsCANADA() or localeInfo.IsBRAZIL() or localeInfo.IsEUROPE() or localeInfo.IsJAPAN():
 			imgFileNameDict = {
-				0 : app.GetLocalePath() + "/ui/loading/loading0.sub",
-				1 : app.GetLocalePath() + "/ui/loading/loading1.sub",
-				2 : app.GetLocalePath() + "/ui/loading/loading2.sub",
-				3 : app.GetLocalePath() + "/ui/loading/loading3.sub",
-				4 : app.GetLocalePath() + "/ui/loading/loading4.sub",
-				5 : app.GetLocalePath() + "/ui/loading/loading5.sub",
-				6 : app.GetLocalePath() + "/ui/loading/loading6.sub",
-				7 : app.GetLocalePath() + "/ui/loading/loading7.sub",
-				8 : app.GetLocalePath() + "/ui/loading/loading8.sub"
+				0 : uiScriptLocale.LOCALE_UISCRIPT_PATH + "loading/loading0.sub",
+				1 : uiScriptLocale.LOCALE_UISCRIPT_PATH + "loading/loading1.sub",
+				2 : uiScriptLocale.LOCALE_UISCRIPT_PATH + "loading/loading2.sub",
+				3 : uiScriptLocale.LOCALE_UISCRIPT_PATH + "loading/loading3.sub",
+
 			}
 		elif constInfo.SUB2_LOADING_ENABLE:
 			imgFileNameDict = {
@@ -314,10 +307,6 @@ class LoadingWindow(ui.ScriptWindow):
 			chrmgr.NAMECOLOR_EMPIRE_PC+2 : colorInfo.CHR_NAME_RGB_EMPIRE_PC_B,
 			chrmgr.NAMECOLOR_EMPIRE_PC+3 : colorInfo.CHR_NAME_RGB_EMPIRE_PC_C,
 		}
-		if app.ENABLE_DEATHMATCH_SYSTEM:
-			NAME_COLOR_DICT.update({
-				chrmgr.NAMECOLOR_DEATHMATCH : colorInfo.CHR_NAME_DEATHMATCH,
-			})
 		for name, rgb in NAME_COLOR_DICT.items():
 			chrmgr.RegisterNameColor(name, rgb[0], rgb[1], rgb[2])
 

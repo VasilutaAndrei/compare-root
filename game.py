@@ -56,10 +56,7 @@ import serverInfo
 
 import musicInfo
 import debugInfo
-if app.ENABLE_PVP_ADVANCED:
-	import constInfo as pvp
-	import uiCommon as message
-	import uiduel
+
 import stringCommander
 
 from _weakref import proxy
@@ -165,9 +162,6 @@ class GameWindow(ui.ScriptWindow):
 		
 		self.mapNameShower = uiMapNameShower.MapNameShower()
 		self.affectShower = uiAffectShower.AffectShower()
-		if app.ENABLE_PVP_ADVANCED:
-			self.wndDuelGui = uiduel.Initializate()
-			self.wndDuelLive = uiduel.WindowLiveInformations()
 		self.wndMarbleShop = uimarbleshop.MarbleShopWindow()
 
 		self.playerGauge = uiPlayerGauge.PlayerGauge(self)
@@ -190,8 +184,7 @@ class GameWindow(ui.ScriptWindow):
 		player.SetGameWindow(0)
 		net.ClearPhaseWindow(net.PHASE_WINDOW_GAME, self)
 		ui.ScriptWindow.__del__(self)
-        
-
+			
 	def Open(self):
 		app.SetFrameSkip(1)
 
@@ -263,7 +256,7 @@ class GameWindow(ui.ScriptWindow):
 		# UNKNOWN_UPDATE
 		exchange.InitTrading()
 		# END_OF_UNKNOWN_UPDATE
-
+		self.itemDropQuestionDialog = None
 
 		## Sound
 		snd.SetMusicVolume(systemSetting.GetMusicVolume()*net.GetFieldMusicVolume())
@@ -292,20 +285,21 @@ class GameWindow(ui.ScriptWindow):
 			exception.Abort("GameWindow.Open")
 		# END_OF_START_GAME_ERROR_EXIT
 
-		# NPCÍ∞Ä ÌÅêÎ∏åÏãúÏä§ÌÖúÏúºÎ°ú ÎßåÎì§ Ïàò ÏûàÎäî ÏïÑÏù¥ÌÖúÎì§Ïùò Î™©Î°ùÏùÑ Ï∫êÏã±
-		# ex) cubeInformation[20383] = [ {"rewordVNUM": 72723, "rewordCount": 1, "materialInfo": "101,1&102,2", "price": 999 }, ... ]
 		self.cubeInformation = {}
 		self.currentCubeNPC = 0
+
 		if app.ENABLE_FOG_FIX:
 			if systemSetting.IsFogMode():
 				background.SetEnvironmentFog(True)
 			else:
 				background.SetEnvironmentFog(False)
-				
+
+
 		if systemSetting.IsShowOfflineShop() == 0:
 			net.SendChatPacket("/show_hide_shops 0")
 		else:
-			net.SendChatPacket("/show_hide_shops 0")
+			net.SendChatPacket("/show_hide_shops 1")
+
 
 	def Close(self):
 		self.Hide()
@@ -379,10 +373,6 @@ class GameWindow(ui.ScriptWindow):
 			self.console.Close()
 			self.console=None
 
-		if app.ENABLE_PVP_ADVANCED:
-			if self.wndDuelLive.IsShow():
-				self.wndDuelLive.Hide()			
-			
 		if self.targetBoard:
 			self.targetBoard.Destroy()
 			self.targetBoard = None
@@ -406,10 +396,10 @@ class GameWindow(ui.ScriptWindow):
 	def __BuildKeyDict(self):
 		onPressKeyDict = {}
 
-		##PressKey Îäî ÎàÑÎ•¥Í≥† ÏûàÎäî ÎèôÏïà Í≥ÑÏÜç Ï†ÅÏö©ÎêòÎäî ÌÇ§Ïù¥Îã§.
+		##PressKey ¥¬ ¥©∏£∞Ì ¿÷¥¬ µøæ» ∞Ëº” ¿˚øÎµ«¥¬ ≈∞¿Ã¥Ÿ.
 
-		## Ïà´Ïûê Îã®Ï∂ïÌÇ§ ÌÄµÏä¨Î°ØÏóê Ïù¥Ïö©ÎêúÎã§.(Ïù¥ÌõÑ Ïà´ÏûêÎì§ÎèÑ ÌÄµ Ïä¨Î°ØÏö© ÏòàÏïΩ)
-		## F12 Îäî ÌÅ¥Îùº ÎîîÎ≤ÑÍ∑∏Ïö© ÌÇ§Ïù¥ÎØÄÎ°ú Ïì∞ÏßÄ ÏïäÎäî Í≤å Ï¢ãÎã§.
+		## º˝¿⁄ ¥‹√‡≈∞ ƒ¸ΩΩ∑‘ø° ¿ÃøÎµ»¥Ÿ.(¿Ã»ƒ º˝¿⁄µÈµµ ƒ¸ ΩΩ∑‘øÎ øπæ‡)
+		## F12 ¥¬ ≈¨∂Û µπˆ±◊øÎ ≈∞¿Ãπ«∑Œ æ≤¡ˆ æ ¥¬ ∞‘ ¡¡¥Ÿ.
 		onPressKeyDict[app.DIK_1]	= lambda : self.__PressNumKey(1)
 		onPressKeyDict[app.DIK_2]	= lambda : self.__PressNumKey(2)
 		onPressKeyDict[app.DIK_3]	= lambda : self.__PressNumKey(3)
@@ -423,16 +413,19 @@ class GameWindow(ui.ScriptWindow):
 		onPressKeyDict[app.DIK_F2]	= lambda : self.__PressQuickSlot(5)
 		onPressKeyDict[app.DIK_F3]	= lambda : self.__PressQuickSlot(6)
 		onPressKeyDict[app.DIK_F4]	= lambda : self.__PressQuickSlot(7)
-		onPressKeyDict[app.DIK_F5]	= self.__toggleSwitchbot
-		onPressKeyDict[app.DIK_X]	= self.interface.ToggleDungeonInfoWindow
+		if app.ENABLE_DUNGEON_INFO_SYSTEM:
+			onPressKeyDict[app.DIK_F5]	= lambda : self.interface.ToggleDungeonInfoWindow()
+		# Mount_gui
+		# onPressKeyDict[app.DIK_K]	= lambda : self.WindowMount()	
+
 		
 		onPressKeyDict[app.DIK_LALT]		= lambda : self.ShowName()
 		onPressKeyDict[app.DIK_LCONTROL]	= lambda : self.ShowMouseImage()
 		onPressKeyDict[app.DIK_SYSRQ]		= lambda : self.SaveScreen()
 		onPressKeyDict[app.DIK_SPACE]		= lambda : self.StartAttack()
-		onPressKeyDict[app.DIK_F11]			= lambda : self.OpenMarbleShop()
+		# onPressKeyDict[app.DIK_F11]			= lambda : self.OpenMarbleShop()
 
-		#Ï∫êÎ¶≠ÌÑ∞ Ïù¥ÎèôÌÇ§
+		#ƒ≥∏Ø≈Õ ¿Ãµø≈∞
 		onPressKeyDict[app.DIK_UP]			= lambda : self.MoveUp()
 		onPressKeyDict[app.DIK_DOWN]		= lambda : self.MoveDown()
 		onPressKeyDict[app.DIK_LEFT]		= lambda : self.MoveLeft()
@@ -441,7 +434,6 @@ class GameWindow(ui.ScriptWindow):
 		onPressKeyDict[app.DIK_S]			= lambda : self.MoveDown()
 		onPressKeyDict[app.DIK_A]			= lambda : self.MoveLeft()
 		onPressKeyDict[app.DIK_D]			= lambda : self.MoveRight()
-		onPressKeyDict[app.DIK_U]			= lambda : self.interface.ToggleSpecialStorageWindow()
 
 		onPressKeyDict[app.DIK_E]			= lambda: app.RotateCamera(app.CAMERA_TO_POSITIVE)
 		onPressKeyDict[app.DIK_R]			= lambda: app.ZoomCamera(app.CAMERA_TO_NEGATIVE)
@@ -464,6 +456,7 @@ class GameWindow(ui.ScriptWindow):
 		#onPressKeyDict[app.DIK_B]			= lambda state = "EMOTICON": self.interface.ToggleCharacterWindow(state)
 		onPressKeyDict[app.DIK_N]			= lambda state = "QUEST": self.interface.ToggleCharacterWindow(state)
 		onPressKeyDict[app.DIK_I]			= lambda : self.interface.ToggleInventoryWindow()
+		onPressKeyDict[app.DIK_O]			= lambda : self.interface.ToggleDragonSoulWindowWithNoInfo()
 		onPressKeyDict[app.DIK_M]			= lambda : self.interface.PressMKey()
 		#onPressKeyDict[app.DIK_H]			= lambda : self.interface.OpenHelpWindow()
 		onPressKeyDict[app.DIK_ADD]			= lambda : self.interface.MiniMapScaleUp()
@@ -508,7 +501,8 @@ class GameWindow(ui.ScriptWindow):
 		onClickKeyDict[app.DIK_LALT] = lambda: self.HideName()
 		onClickKeyDict[app.DIK_LCONTROL] = lambda: self.HideMouseImage()
 		onClickKeyDict[app.DIK_LSHIFT] = lambda: self.__SetQuickSlotMode()
-		#onClickKeyDict[app.DIK_P] = lambda: self.OpenPetMainGui()
+		onClickKeyDict[app.DIK_P] = lambda: self.OpenPetMainGui()
+		onClickKeyDict[app.DIK_X] = lambda: self.OpenSupportGui()
 
 		#if constInfo.PVPMODE_ACCELKEY_ENABLE:
 		#	onClickKeyDict[app.DIK_B] = lambda: self.ChangePKMode()
@@ -595,12 +589,15 @@ class GameWindow(ui.ScriptWindow):
 
 	def __PressQKey(self):
 		if app.IsPressed(app.DIK_LCONTROL) or app.IsPressed(app.DIK_RCONTROL):
-			if 0==interfaceModule.IsQBHide:
-				interfaceModule.IsQBHide = 1
-				self.interface.HideAllQuestButton()
-			else:
-				interfaceModule.IsQBHide = 0
-				self.interface.ShowAllQuestButton()
+			# REDDEV_NEW_QUEST_LISTING
+			#if 0==interfaceModule.IsQBHide:
+			#	interfaceModule.IsQBHide = 1
+			#	self.interface.HideAllQuestButton()
+			#else:
+			#	interfaceModule.IsQBHide = 0
+			#	self.interface.ShowAllQuestButton()
+			self.interface.ToggleCharacterWindow("QUEST")
+			# ENDOF_REDDEV_NEW_QUEST_LISTING
 		else:
 			app.RotateCamera(app.CAMERA_TO_NEGATIVE)
 			
@@ -722,12 +719,12 @@ class GameWindow(ui.ScriptWindow):
 		self.TextureNum.SetFontName(localeInfo.UI_DEF_FONT)
 		self.TextureNum.SetPosition(wndMgr.GetScreenWidth() - 270, 100)
 
-		# Ïò§Î∏åÏ†ùÌä∏ Í∑∏Î¶¨Îäî Í∞úÏàò
+		# ø¿∫Í¡ß∆Æ ±◊∏Æ¥¬ ∞≥ºˆ
 		self.ObjectNum = ui.TextLine()
 		self.ObjectNum.SetFontName(localeInfo.UI_DEF_FONT)
 		self.ObjectNum.SetPosition(wndMgr.GetScreenWidth() - 270, 120)
 
-		# ÏãúÏïºÍ±∞Î¶¨
+		# Ω√æﬂ∞≈∏Æ
 		self.ViewDistance = ui.TextLine()
 		self.ViewDistance.SetFontName(localeInfo.UI_DEF_FONT)
 		self.ViewDistance.SetPosition(0, 0)
@@ -792,6 +789,15 @@ class GameWindow(ui.ScriptWindow):
 		self.RefreshCharacter()
 		self.RefreshSkill()
 
+		if app.ENABLE_ENVIRONMENT_EFFECT_OPTION:
+			systemSetting.SetNightModeOption(systemSetting.GetNightModeOption())
+			systemSetting.SetSnowModeOption(systemSetting.GetSnowModeOption())
+			systemSetting.SetSnowTextureModeOption(systemSetting.GetSnowTextureModeOption())
+
+	if app.ENABLE_ENVIRONMENT_EFFECT_OPTION:
+		def BINARY_Recv_Night_Mode(self, mode):
+			self.__DayMode_Update(mode)
+
 	# Refresh
 	def CheckGameButton(self):
 		if self.interface:
@@ -852,10 +858,9 @@ class GameWindow(ui.ScriptWindow):
 		self.interface.OnBlockMode(mode)
 
 	def OpenQuestWindow(self, skin, idx):
-		#if app.ENABLE_CYB_DUNGEON:
-		import constInfo2
-		if constInfo2.INPUT_IGNORE == 1:
+		if constInfo.INPUT_IGNORE == 1:
 			return
+			
 		self.interface.OpenQuestWindow(skin, idx)
 
 	def AskGuildName(self):
@@ -913,13 +918,16 @@ class GameWindow(ui.ScriptWindow):
 	# UNKNOWN_UPDATE
 	def BINARY_NEW_AddAffect(self, type, pointIdx, value, duration):
 		self.affectShower.BINARY_NEW_AddAffect(type, pointIdx, value, duration)
+
 		if chr.NEW_AFFECT_DRAGON_SOUL_DECK1 == type or chr.NEW_AFFECT_DRAGON_SOUL_DECK2 == type:
 			self.interface.DragonSoulActivate(type - chr.NEW_AFFECT_DRAGON_SOUL_DECK1)
+
 		elif chr.NEW_AFFECT_DRAGON_SOUL_QUALIFIED == type:
 			self.BINARY_DragonSoulGiveQuilification()
 
 	def BINARY_NEW_RemoveAffect(self, type, pointIdx):
 		self.affectShower.BINARY_NEW_RemoveAffect(type, pointIdx)
+
 		if chr.NEW_AFFECT_DRAGON_SOUL_DECK1 == type or chr.NEW_AFFECT_DRAGON_SOUL_DECK2 == type:
 			self.interface.DragonSoulDeactivate()
 
@@ -956,6 +964,10 @@ class GameWindow(ui.ScriptWindow):
 		self.interface.OnChangeCurrentSkill(skillSlotNumber)
 
 	## TargetBoard
+	#Offline Shop Target
+	def SetOfflineShopTargetBoard(self, vid, name):
+		self.targetBoard.OpenOffShopName(vid, name)
+
 	def SetPCTargetBoard(self, vid, name):
 		self.targetBoard.Open(vid, name)
 
@@ -982,22 +994,20 @@ class GameWindow(ui.ScriptWindow):
 		self.targetBoard.Refresh()
 
 	if app.ENABLE_VIEW_TARGET_DECIMAL_HP:
-		def SetHPTargetBoard(self, vid, hpPercentage, iMinHP, iMaxHP, bElement):
+		def SetHPTargetBoard(self, vid, hpPercentage, iMinHP, iMaxHP):
 			if vid != self.targetBoard.GetTargetVID():
 				self.targetBoard.ResetTargetBoard()
 				self.targetBoard.SetEnemyVID(vid)
 			
 			self.targetBoard.SetHP(hpPercentage, iMinHP, iMaxHP)
-			self.targetBoard.SetElementImage(bElement)
 			self.targetBoard.Show()
 	else:
-		def SetHPTargetBoard(self, vid, hpPercentage, bElement):
+		def SetHPTargetBoard(self, vid, hpPercentage):
 			if vid != self.targetBoard.GetTargetVID():
 				self.targetBoard.ResetTargetBoard()
 				self.targetBoard.SetEnemyVID(vid)
 			
 			self.targetBoard.SetHP(hpPercentage)
-			self.targetBoard.SetElementImage(bElement)
 			self.targetBoard.Show()
 
 	def CloseTargetBoardIfDifferent(self, vid):
@@ -1009,10 +1019,6 @@ class GameWindow(ui.ScriptWindow):
 
 	## View Equipment
 	def OpenEquipmentDialog(self, vid):
-		if app.ENABLE_PVP_ADVANCED:
-			pvp.DUEL_IS_SHOW_EQUIP = 0
-			pvp.DUEL_SAVE_VID = (int(vid))
-
 		self.interface.OpenEquipmentDialog(vid)
 
 	def SetEquipmentDialogItem(self, vid, slotIndex, vnum, count):
@@ -1091,11 +1097,12 @@ class GameWindow(ui.ScriptWindow):
 	def RecvWhisper(self, name):
 		self.interface.RecvWhisper(name)
 
+	# def OnPickMoney(self, money):
+		# chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.GAME_PICK_MONEY % (money))
+
+	# New Gold Dialog
 	def OnPickMoney(self, money):
-		if constInfo.Yang == 1:
-			chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.GAME_PICK_MONEY % (money))
-		else:
-			return
+		self.interface.OnPickMoneyNew(money)
 
 	if app.ENABLE_BATTLE_FIELD:
 		def OnPickBattlePoint(self, point):
@@ -1418,6 +1425,7 @@ class GameWindow(ui.ScriptWindow):
 
 	def PickUpItem(self):
 		player.PickCloseItemVector()
+		# player.PickCloseItem()
 
 	###############################################################################################
 	###############################################################################################
@@ -1536,16 +1544,13 @@ class GameWindow(ui.ScriptWindow):
 						self.stream.popupWindow.Open(localeInfo.EXCHANGE_FAILURE_EQUIP_ITEM, 0, localeInfo.UI_OK)
 					else:
 						if chr.IsNPC(dstChrID):
+							if app.ENABLE_REFINE_RENEWAL:
+								constInfo.AUTO_REFINE_TYPE = 2
+								constInfo.AUTO_REFINE_DATA["NPC"][0] = dstChrID
+								constInfo.AUTO_REFINE_DATA["NPC"][1] = attachedInvenType
+								constInfo.AUTO_REFINE_DATA["NPC"][2] = attachedItemSlotPos
+								constInfo.AUTO_REFINE_DATA["NPC"][3] = attachedItemCount
 							net.SendGiveItemPacket(dstChrID, attachedInvenType, attachedItemSlotPos, attachedItemCount)
-						else:
-							net.SendExchangeStartPacket(dstChrID)
-							net.SendExchangeItemAddPacket(attachedInvenType, attachedItemSlotPos, 0)
-						if app.ENABLE_MELEY_LAIR_DUNGEON:
-							if chr.IsStone(dstChrID):
-								net.SendGiveItemPacket(dstChrID, attachedInvenType, attachedItemSlotPos, attachedItemCount)
-							else:
-								net.SendExchangeStartPacket(dstChrID)
-								net.SendExchangeItemAddPacket(attachedInvenType, attachedItemSlotPos, 0)
 						else:
 							net.SendExchangeStartPacket(dstChrID)
 							net.SendExchangeItemAddPacket(attachedInvenType, attachedItemSlotPos, 0)
@@ -1560,6 +1565,12 @@ class GameWindow(ui.ScriptWindow):
 						self.stream.popupWindow.Open(localeInfo.EXCHANGE_FAILURE_EQUIP_ITEM, 0, localeInfo.UI_OK)
 					else:
 						if chr.IsNPC(dstChrID):
+							if app.ENABLE_REFINE_RENEWAL:
+								constInfo.AUTO_REFINE_TYPE = 2
+								constInfo.AUTO_REFINE_DATA["NPC"][0] = dstChrID
+								constInfo.AUTO_REFINE_DATA["NPC"][1] = attachedInvenType
+								constInfo.AUTO_REFINE_DATA["NPC"][2] = attachedItemSlotPos
+								constInfo.AUTO_REFINE_DATA["NPC"][3] = attachedItemCount
 							net.SendGiveItemPacket(dstChrID, attachedInvenType, attachedItemSlotPos, attachedItemCount)
 						else:
 							net.SendExchangeStartPacket(dstChrID)
@@ -1575,7 +1586,7 @@ class GameWindow(ui.ScriptWindow):
 			self.__DropMoney(attachedType, attachedMoney)
 
 	def __DropMoney(self, attachedType, attachedMoney):
-		# PRIVATESHOP_DISABLE_ITEM_DROP - Í∞úÏù∏ÏÉÅÏ†ê Ïó¥Í≥† ÏûàÎäî ÎèôÏïà ÏïÑÏù¥ÌÖú Î≤ÑÎ¶º Î∞©ÏßÄ
+		# PRIVATESHOP_DISABLE_ITEM_DROP - ∞≥¿ŒªÛ¡° ø≠∞Ì ¿÷¥¬ µøæ» æ∆¿Ã≈€ πˆ∏≤ πÊ¡ˆ
 		if uiPrivateShopBuilder.IsBuildingPrivateShop():
 			chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.DROP_ITEM_FAILURE_PRIVATE_SHOP)
 			return
@@ -1586,7 +1597,7 @@ class GameWindow(ui.ScriptWindow):
 			self.stream.popupWindow.Open(localeInfo.DROP_MONEY_FAILURE_1000_OVER, 0, localeInfo.UI_OK)
 			return
 
-		itemDropQuestionDialog = uiCommon.QuestionDialogItem()
+		itemDropQuestionDialog = uiCommon.QuestionDialog()
 		itemDropQuestionDialog.SetText(localeInfo.DO_YOU_DROP_MONEY % (attachedMoney))
 		itemDropQuestionDialog.SetAcceptEvent(lambda arg=True: self.RequestDropItem(arg))
 		itemDropQuestionDialog.SetDestroyEvent(lambda arg=TRUE: self.RequestDestroyItem(arg))
@@ -1598,7 +1609,7 @@ class GameWindow(ui.ScriptWindow):
 		self.itemDropQuestionDialog = itemDropQuestionDialog
 
 	def __DropItem(self, attachedType, attachedItemIndex, attachedItemSlotPos, attachedItemCount):
-		#snd.PlaySound PRIVATESHOP_DISABLE_ITEM_DROP - Í∞úÏù∏ÏÉÅÏ†ê Ïó¥Í≥† ÏûàÎäî ÎèôÏïà ÏïÑÏù¥ÌÖú Î≤ÑÎ¶º Î∞©ÏßÄ
+		#snd.PlaySound PRIVATESHOP_DISABLE_ITEM_DROP - ∞≥¿ŒªÛ¡° ø≠∞Ì ¿÷¥¬ µøæ» æ∆¿Ã≈€ πˆ∏≤ πÊ¡ˆ
 		if uiPrivateShopBuilder.IsBuildingPrivateShop():
 			chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.DROP_ITEM_FAILURE_PRIVATE_SHOP)
 			return
@@ -1619,15 +1630,15 @@ class GameWindow(ui.ScriptWindow):
 				questionText = localeInfo.HOW_MANY_ITEM_DO_YOU_DROP(dropItemName, attachedItemCount)
 
 				#snd.PlaySound#snd.PlaySound Dialog
-				itemDropQuestionDialog = uiCommon.QuestionDialogItem()
-				itemDropQuestionDialog.SetText(questionText)
+				itemDropQuestionDialog = uiCommon.QuestionDropDialog()
 				itemDropQuestionDialog.SetAcceptEvent(lambda arg=True: self.RequestDropItem(arg))
 				itemDropQuestionDialog.SetDestroyEvent(lambda arg=TRUE: self.RequestDestroyItem(arg))
 				itemDropQuestionDialog.SetCancelEvent(lambda arg=False: self.RequestDropItemStorage(arg))
-				itemDropQuestionDialog.Open(dropItemIndex,attachedItemSlotPos,0,questionText)
+				itemDropQuestionDialog.SetItemSlot(attachedItemSlotPos)
 				itemDropQuestionDialog.dropType = attachedType
 				itemDropQuestionDialog.dropNumber = attachedItemSlotPos
 				itemDropQuestionDialog.dropCount = attachedItemCount
+				itemDropQuestionDialog.Open()
 				self.itemDropQuestionDialog = itemDropQuestionDialog
 
 				constInfo.SET_ITEM_QUESTION_DIALOG_STATUS(1)
@@ -1641,11 +1652,10 @@ class GameWindow(ui.ScriptWindow):
 				questionText = localeInfo.HOW_MANY_ITEM_DO_YOU_DROP(dropItemName, attachedItemCount)
 
 				#snd.PlaySound#snd.PlaySound Dialog
-				itemDropQuestionDialog = uiCommon.QuestionDialogItem()
+				itemDropQuestionDialog = uiCommon.QuestionDialog()
 				itemDropQuestionDialog.SetText(questionText)
 				itemDropQuestionDialog.SetAcceptEvent(lambda arg=True: self.RequestDropItem(arg))
-				# itemDropQuestionDialog.SetDestroyEvent(lambda arg=TRUE: self.RequestDestroyItem(arg))
-				itemDropQuestionDialog.SetCancelEvent(lambda arg=False: self.RequestDropItemStorage(arg))
+				itemDropQuestionDialog.SetCancelEvent(lambda arg=False: self.RequestDropItem(arg))
 				itemDropQuestionDialog.Open()
 				itemDropQuestionDialog.dropType = attachedType
 				itemDropQuestionDialog.dropNumber = attachedItemSlotPos
@@ -1653,6 +1663,7 @@ class GameWindow(ui.ScriptWindow):
 				self.itemDropQuestionDialog = itemDropQuestionDialog
 
 				constInfo.SET_ITEM_QUESTION_DIALOG_STATUS(1)
+#
 			if app.ENABLE_SPECIAL_STORAGE:
 				if player.SLOT_TYPE_UPGRADE_INVENTORY == attachedType or\
 					player.SLOT_TYPE_BOOK_INVENTORY == attachedType or\
@@ -1668,8 +1679,8 @@ class GameWindow(ui.ScriptWindow):
 					## Dialog
 					itemDropQuestionDialog = uiCommon.QuestionDialog()
 					itemDropQuestionDialog.SetText(questionText)
-					itemDropQuestionDialog.SetAcceptEvent(lambda arg=True: self.RequestDropItemStorage(arg))
-					itemDropQuestionDialog.SetCancelEvent(lambda arg=False: self.RequestDropItemStorage(arg))
+					itemDropQuestionDialog.SetAcceptEvent(lambda arg=True: self.RequestDropItem(arg))
+					itemDropQuestionDialog.SetCancelEvent(lambda arg=False: self.RequestDropItem(arg))
 					itemDropQuestionDialog.Open()
 					itemDropQuestionDialog.dropType = attachedType
 					itemDropQuestionDialog.dropNumber = attachedItemSlotPos
@@ -1801,10 +1812,6 @@ class GameWindow(ui.ScriptWindow):
 
 	def OnUpdate(self):
 		app.UpdateGame()
-		if app.ENABLE_PVP_ADVANCED:
-			if pvp.DUEL_IS_SHOW_EQUIP == int(1):
-				self.interface.CloseEquipmentDialog(int(pvp.DUEL_SAVE_VID))
-				
 		if self.mapNameShower.IsShow():
 			self.mapNameShower.Update()
 
@@ -1819,7 +1826,7 @@ class GameWindow(ui.ScriptWindow):
 
 	def UpdateDebugInfo(self):
 		#
-		# Ï∫êÎ¶≠ÌÑ∞ Ï¢åÌëú Î∞è FPS Ï∂úÎ†•
+		# ƒ≥∏Ø≈Õ ¡¬«• π◊ FPS √‚∑¬
 		(x, y, z) = player.GetMainCharacterPosition()
 		nUpdateTime = app.GetUpdateTime()
 		nUpdateFPS = app.GetUpdateFPS()
@@ -2035,22 +2042,22 @@ class GameWindow(ui.ScriptWindow):
 	def BINARY_Cube_Close(self):
 		self.interface.CloseCubeWindow()
 
-	# Ï†úÏûëÏóê ÌïÑÏöîÌïú Í≥®Îìú, ÏòàÏÉÅÎêòÎäî ÏôÑÏÑ±ÌíàÏùò VNUMÍ≥º Í∞úÏàò Ï†ïÎ≥¥ update
+	# ¡¶¿€ø° « ø‰«— ∞ÒµÂ, øπªÛµ«¥¬ øœº∫«∞¿« VNUM∞˙ ∞≥ºˆ ¡§∫∏ update
 	def BINARY_Cube_UpdateInfo(self, gold, itemVnum, count):
 		self.interface.UpdateCubeInfo(gold, itemVnum, count)
 
 	def BINARY_Cube_Succeed(self, itemVnum, count):
-		print "ÌÅêÎ∏å Ï†úÏûë ÏÑ±Í≥µ"
+		print "≈•∫Í ¡¶¿€ º∫∞¯"
 		self.interface.SucceedCubeWork(itemVnum, count)
 		pass
 
 	def BINARY_Cube_Failed(self):
-		print "ÌÅêÎ∏å Ï†úÏûë Ïã§Ìå®"
+		print "≈•∫Í ¡¶¿€ Ω«∆–"
 		self.interface.FailedCubeWork()
 		pass
 
 	def BINARY_Cube_ResultList(self, npcVNUM, listText):
-		# ResultList Text Format : 72723,1/72725,1/72730.1/50001,5  Ïù¥Îü∞ÏãùÏúºÎ°ú "/" Î¨∏ÏûêÎ°ú Íµ¨Î∂ÑÎêú Î¶¨Ïä§Ìä∏Î•º Ï§å
+		# ResultList Text Format : 72723,1/72725,1/72730.1/50001,5  ¿Ã∑±Ωƒ¿∏∑Œ "/" πÆ¿⁄∑Œ ±∏∫–µ» ∏ÆΩ∫∆Æ∏¶ ¡‹
 		#print listText
 
 		if npcVNUM == 0:
@@ -2151,9 +2158,10 @@ class GameWindow(ui.ScriptWindow):
 
 	# END_OF_CUBE
 
-	# Ïö©ÌòºÏÑù
-	# def BINARY_Highlight_Item(self, inven_type, inven_pos):
-		# self.interface.Highligt_Item(inven_type, inven_pos)
+	def BINARY_Highlight_Item(self, inven_type, inven_pos):
+		# @fixme003 (+if self.interface:)
+		if self.interface:
+			self.interface.Highligt_Item(inven_type, inven_pos)
 
 	def __Cofres_Search(self,vnums,counts):
 		self.interface.ItemsCofres(vnums,counts)
@@ -2189,92 +2197,123 @@ class GameWindow(ui.ScriptWindow):
 
 	def BINARY_SetTipMessage(self, message):
 		self.interface.tipBoard.SetTip(message)
-	
-	def DungeonInfo(self, questindex):
-		dbg.TraceError("uidungeoninfo.py DungeonInfo")
-		import constInfo
-		constInfo.dungeonData["quest_index"] = questindex
 
-	def CleanDungeonInfo(self):
-		dbg.TraceError("uidungeoninfo.py CleanDungeonInfo")
-		import constInfo
-		constInfo.dungeonInfo = []
+	if app.ENABLE_DUNGEON_INFO_SYSTEM:
+		def DungeonInfo(self, questindex):
+			import constInfo
+			constInfo.dungeonData["quest_index"] = questindex
 
-	def CleanDungeonRanking(self):
-		dbg.TraceError("uidungeoninfo.py CleanDungeonRanking")
-		import constInfo
-		constInfo.dungeonRanking["ranking_list"] = []
+		def CleanDungeonInfo(self):
+			import constInfo
+			constInfo.dungeonInfo = []
 
-	def GetDungeonInfo(self, cmd):
-		dbg.TraceError("uidungeoninfo.py GetDungeonInfo")
-		import constInfo
-		cmd = cmd.split("#")
+		def CleanDungeonRanking(self):
+			import constInfo
+			constInfo.dungeonRanking["ranking_list"] = []
 
-		if cmd[0] == "INPUT":
-			constInfo.INPUT_IGNORE = int(cmd[1])
+		def GetDungeonInfo(self, cmd):
+			import constInfo
+			cmd = cmd.split("#")
 
-		elif cmd[0] == "CMD":
-			net.SendQuestInputStringPacket(constInfo.dungeonData["quest_cmd"])
-			constInfo.dungeonData["quest_cmd"] = ""
+			if cmd[0] == "INPUT":
+				constInfo.INPUT_IGNORE = int(cmd[1])
 
-		else:
-			pass
+			elif cmd[0] == "CMD":
+				net.SendQuestInputStringPacket(constInfo.dungeonData["quest_cmd"])
+				constInfo.dungeonData["quest_cmd"] = ""
 
-	def UpdateDungeonInfo(self, type, organization, levelLimit, partyMembers, mapName, mapIndex, mapCoordX, mapCoordY, cooldown, duration, entranceMapName, strengthBonusName, resistanceBonusName, itemVnum, finished, fastestTime, highestDamage):
-		dbg.TraceError("uidungeoninfo.py UpdateDungeonInfo mapName " + str(mapName))
-		type = int(type)
-		organization = int(organization)
-		levelLimit = int(levelLimit)
-		partyMembers = int(partyMembers)
-		mapName = str(mapName).replace("_", " ")
-		mapIndex = int(mapIndex)
-		mapCoordX = int(mapCoordX)
-		mapCoordY = int(mapCoordY)
-		cooldown = int(cooldown)
-		duration = int(duration)
-		entranceMapName = str(entranceMapName).replace("_", " ")
-		strengthBonusName = str(strengthBonusName).replace("_", " ")
-		resistanceBonusName = str(resistanceBonusName).replace("_", " ")
-		itemVnum = int(itemVnum)
-		finished = int(finished)
-		fastestTime = int(fastestTime)
-		highestDamage = int(highestDamage)
+			else:
+				pass
 
-		import constInfo
-		constInfo.dungeonInfo.append(\
-			{
-				"type" : type,\
-				"organization" : organization,\
-				"level_limit" : levelLimit,\
-				"party_members" : partyMembers,\
-				"map" : mapName,\
-				"map_index" : mapIndex,\
-				"map_coord_x" : mapCoordX,\
-				"map_coord_y" : mapCoordY,\
-				"cooldown" : cooldown,\
-				"duration" : duration,\
-				"entrance_map" : entranceMapName,\
-				"strength_bonus" : strengthBonusName,\
-				"resistance_bonus" : resistanceBonusName,\
-				"item_vnum" : itemVnum,
-				"finished" : finished,
-				"fastest_time" : fastestTime,
-				"highest_damage" : highestDamage,
-			},
-		)
+		def UpdateDungeonInfo(self, type, organization, levelLimit, partyMembers, mapName, mapIndex, mapCoordX, mapCoordY, cooldown, duration, entranceMapName, strengthBonusName, resistanceBonusName, itemVnum, finished, fastestTime, highestDamage):
+			type = int(type)
+			organization = int(organization)
+			levelLimit = int(levelLimit)
+			partyMembers = int(partyMembers)
+			mapName = str(mapName).replace("_", " ")
+			mapIndex = int(mapIndex)
+			mapCoordX = int(mapCoordX)
+			mapCoordY = int(mapCoordY)
+			cooldown = int(cooldown)
+			duration = int(duration)
+			entranceMapName = str(entranceMapName).replace("_", " ")
+			strengthBonusName = str(strengthBonusName).replace("_", " ")
+			resistanceBonusName = str(resistanceBonusName).replace("_", " ")
+			itemVnum = int(itemVnum)
+			finished = int(finished)
+			fastestTime = int(fastestTime)
+			highestDamage = int(highestDamage)
 
-	def UpdateDungeonRanking(self, name, level, pointType):
-		name = str(name)
-		level = int(level)
-		pointType = int(pointType)
+			import constInfo
+			constInfo.dungeonInfo.append(\
+				{
+					"type" : type,\
+					"organization" : organization,\
+					"level_limit" : levelLimit,\
+					"party_members" : partyMembers,\
+					"map" : mapName,\
+					"map_index" : mapIndex,\
+					"map_coord_x" : mapCoordX,\
+					"map_coord_y" : mapCoordY,\
+					"cooldown" : cooldown,\
+					"duration" : duration,\
+					"entrance_map" : entranceMapName,\
+					"strength_bonus" : strengthBonusName,\
+					"resistance_bonus" : resistanceBonusName,\
+					"item_vnum" : itemVnum,
+					"finished" : finished,
+					"fastest_time" : fastestTime,
+					"highest_damage" : highestDamage,
+				},
+			)
 
-		import constInfo
-		constInfo.dungeonRanking["ranking_list"].append([name, level, pointType],)
+		def UpdateDungeonRanking(self, name, level, pointType):
+			name = str(name)
+			level = int(level)
+			pointType = int(pointType)
 
-	def OpenDungeonRanking(self):
-		import uiDungeonInfo
-		self.DungeonRank = uiDungeonInfo.DungeonRank()
-		self.DungeonRank.Open()
+			import constInfo
+			constInfo.dungeonRanking["ranking_list"].append([name, level, pointType],)
+
+		def OpenDungeonRanking(self):
+			import uiDungeonInfo
+			self.DungeonRank = uiDungeonInfo.DungeonRank()
+			self.DungeonRank.Open()
+
+	def BINARY_AppendNotifyMessage(self, type):
+		if not type in localeInfo.NOTIFY_MESSAGE:
+			return
+		chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.NOTIFY_MESSAGE[type])
+
+	def BINARY_Guild_EnterGuildArea(self, areaID):
+		self.interface.BULID_EnterGuildArea(areaID)
+
+	def BINARY_Guild_ExitGuildArea(self, areaID):
+		self.interface.BULID_ExitGuildArea(areaID)
+
+	def BINARY_GuildWar_OnSendDeclare(self, guildID):
+		pass
+
+	def BINARY_GuildWar_OnRecvDeclare(self, guildID, warType):
+		mainCharacterName = player.GetMainCharacterName()
+		masterName = guild.GetGuildMasterName()
+		if mainCharacterName == masterName:
+			self.__GuildWar_OpenAskDialog(guildID, warType)
+
+	def BINARY_GuildWar_OnRecvPoint(self, gainGuildID, opponentGuildID, point):
+		self.interface.OnRecvGuildWarPoint(gainGuildID, opponentGuildID, point)
+
+	def BINARY_GuildWar_OnStart(self, guildSelf, guildOpp):
+		self.interface.OnStartGuildWar(guildSelf, guildOpp)
+
+	def BINARY_GuildWar_OnEnd(self, guildSelf, guildOpp):
+		self.interface.OnEndGuildWar(guildSelf, guildOpp)
+
+	def BINARY_BettingGuildWar_SetObserverMode(self, isEnable):
+		self.interface.BINARY_SetObserverMode(isEnable)
+
+	def BINARY_BettingGuildWar_UpdateObserverCount(self, observerCount):
+		self.interface.wndMiniMap.UpdateObserverCount(observerCount)
 
 	# PROFESSIONAL_BIOLOG_SYSTEM
 	if app.ENABLE_BIOLOG_SYSTEM:
@@ -2361,7 +2400,7 @@ class GameWindow(ui.ScriptWindow):
 	def __ServerCommand_Build(self):
 		serverCommandList={
 			"ConsoleEnable"			: self.__Console_Enable,
-			"DayMode"				: self.DayMode_Update,
+			"DayMode"				: self.__DayMode_Update,
 			"PRESERVE_DayMode"		: self.__PRESERVE_DayMode_Update,
 			"CloseRestartWindow"	: self.__RestartDialog_Close,
 			"OpenPrivateShop"		: self.__PrivateShop_Open,
@@ -2389,6 +2428,8 @@ class GameWindow(ui.ScriptWindow):
 			"item_mall"				: self.__ItemMall_Open,
 			# END_OF_ITEM_MALL
 
+			"rafinate"				: self.__MakeRefineButton,
+
 			"RefineSuceeded"		: self.RefineSuceededMessage,
 			"RefineFailed"			: self.RefineFailedMessage,
 			"xmas_snow"				: self.__XMasSnow_Enable,
@@ -2402,7 +2443,7 @@ class GameWindow(ui.ScriptWindow):
 			"hide_horse_state"		: self.__Horse_HideState,
 			"WarUC"					: self.__GuildWar_UpdateMemberCount,
 			"test_server"			: self.__EnableTestServerFlag,
-			"mall"			: self.__InGameShop_Show,
+			"mall"					: self.__InGameShop_Show,
 			"open_notice_info"		: self.__open_notice_info,
 			"write_notice_info"		: self.__write_notice_info,
 			##Sistem Realizari
@@ -2438,13 +2479,6 @@ class GameWindow(ui.ScriptWindow):
 			"lover_divorce"			: self.__LoverDivorce,
 			"PlayMusic"				: self.__PlayMusic,
 			#################################################
-			# Duel System						#
-			"BINARY_Duel_GetInfo"			: self.BINARY_Duel_GetInfo,
-			"BINARY_Duel_Request"			: self.BINARY_Duel_Request,
-			"BINARY_Duel_LiveInterface"			: self.BINARY_Duel_LiveInterface,
-			"BINARY_Duel_Delete"			: self.BINARY_Duel_Delete,
-			"BINARY_Duel_SendMessage"			: self.BINARY_Duel_SendMessage,
-			#################################################
 			# Biologu System						#
 			"BINARY_Biolog_Update"			: self.BINARY_Biolog_Update,
 			"BINARY_Biolog_SendMessage"			: self.BINARY_Biolog_SendMessage,
@@ -2452,13 +2486,11 @@ class GameWindow(ui.ScriptWindow):
 			"BINARY_Biolog_SelectReward"			: self.BINARY_Biolog_SelectReward,
 			#################################################
 			# END_OF_WEDDING
-			# "SupportLv"					: self.SetSupportLevel,
-			# "SupportName"				: self.SetSupportName,
-			# "SupportLeave"				: self.SupportLeave,
-			# "SupporInt"					: self.SupportInt,
-			# "SupportExp"				: self.SetSupportExp,
-			# "SupportIcon"				: self.SetSupportIcon,
-			# "SupportSpeciality"			: self.SetSupportSpeciality,
+
+			#START OF JOB
+			"SELECT_JOB" : self.SelectJob,
+			#END OF JOB
+
 			"SetCurentMount"	:	self.SetCurentMount,
 			"SetMountName"	:	self.SetMountName,
 			# PRIVATE_SHOP_PRICE_LIST
@@ -2467,18 +2499,18 @@ class GameWindow(ui.ScriptWindow):
 			"SetTeamOnline"	:	self.__TeamLogin,
 			"SetTeamOffline"	:	self.__TeamLogout,
 		}
-		
-		#if app.ENABLE_CYB_DUNGEON:
-		serverCommandList.update({
-			"DungeonInfo" : self.DungeonInfo,
-			"CleanDungeonInfo" : self.CleanDungeonInfo,
-			"CleanDungeonRanking" : self.CleanDungeonRanking,
-			"GetDungeonInfo" : self.GetDungeonInfo,
-			"UpdateDungeonInfo" : self.UpdateDungeonInfo,
-			"UpdateDungeonRanking" : self.UpdateDungeonRanking,
-			"OpenDungeonRanking" : self.OpenDungeonRanking,
-		})
-            
+
+		if app.ENABLE_DUNGEON_INFO_SYSTEM:
+			serverCommandList.update({
+				"DungeonInfo" : self.DungeonInfo,
+				"CleanDungeonInfo" : self.CleanDungeonInfo,
+				"CleanDungeonRanking" : self.CleanDungeonRanking,
+				"GetDungeonInfo" : self.GetDungeonInfo,
+				"UpdateDungeonInfo" : self.UpdateDungeonInfo,
+				"UpdateDungeonRanking" : self.UpdateDungeonRanking,
+				"OpenDungeonRanking" : self.OpenDungeonRanking,
+			})
+
 		if app.ENABLE_WHISPER_ADMIN_SYSTEM:
 			serverCommandList["OnRecvWhisperAdminSystem"] = self.OnRecvWhisperAdminSystem
 			
@@ -2492,6 +2524,9 @@ class GameWindow(ui.ScriptWindow):
 		if app.ENABLE_MELEY_LAIR_DUNGEON:
 			self.serverCommander.SAFE_RegisterCallBack("meley_open", self.OpenMeleyRanking)
 			self.serverCommander.SAFE_RegisterCallBack("meley_rank", self.AddRankMeleyRanking)
+
+	def __MakeRefineButton(self, qid):
+		constInfo.refineWindow = int(qid)
 
 	def BINARY_ServerCommand_Run(self, line):
 		#dbg.TraceError(line)
@@ -2543,11 +2578,25 @@ class GameWindow(ui.ScriptWindow):
 
 	def RefineSuceededMessage(self):
 		snd.PlaySound("sound/ui/make_soket.wav")
-		self.PopupMessage(localeInfo.REFINE_SUCCESS)
+		if app.ENABLE_REFINE_RENEWAL:
+			self.interface.CheckRefineDialog(False)
+			if constInfo.IS_AUTO_REFINE:
+				chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.REFINE_SUCCESS)
+			else:
+				self.PopupMessage(localeInfo.REFINE_SUCCESS)
+		else:
+			self.PopupMessage(localeInfo.REFINE_SUCCESS)
 
 	def RefineFailedMessage(self):
 		snd.PlaySound("sound/ui/jaeryun_fail.wav")
-		self.PopupMessage(localeInfo.REFINE_FAILURE)
+		if app.ENABLE_REFINE_RENEWAL:
+			self.interface.CheckRefineDialog(True)
+			if constInfo.IS_AUTO_REFINE:
+				chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.REFINE_FAILURE)
+			else:
+				self.PopupMessage(localeInfo.REFINE_FAILURE)
+		else:
+			self.PopupMessage(localeInfo.REFINE_FAILURE)
 
 	def CommandCloseSafebox(self):
 		self.interface.CommandCloseSafebox()
@@ -2642,32 +2691,6 @@ class GameWindow(ui.ScriptWindow):
 			self.petmain.Hide()
 			constInfo.PET_MAIN =0	
 	
-	if app.ENABLE_PVP_ADVANCED:
-		def BINARY_Duel_GetInfo(self, a, b, c, d, e, f, g, h):
-			self.wndDuelGui.OpenDialog(a, b, c, d, e, f, g, h)
-
-		def BINARY_Duel_Request(self, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q):
-			self.wndDuelGui.OpenDialog(a, b, c, d, e, f, g, h)
-			self.wndDuelGui.Selected([int(i), int(j), int(k), int(l), int(m), int(n), int(o), int(p), int(q)])
-
-		def BINARY_Duel_Delete(self):
-			self.wndDuelGui.Remove()
-
-			if self.wndDuelLive.IsShow():
-				self.wndDuelLive.Hide()
-
-		def BINARY_Duel_LiveInterface(self, a, b, c, d, e, f, g, h, i, j, k, l):
-			self.wndDuelLive.ShowInformations([str(a), int(b), int(c), int(d), int(e), int(f), int(g), int(h), int(i), int(j), int(k), int(l)])
-
-		def BINARY_Duel_SendMessage(self, textLine):
-			if str(textLine) != "":
-				self.wndMsg = message.PopupDialog()
-				self.wndMsg.SetWidth(550)
-				self.wndMsg.SetText((str(textLine).replace("$"," ")))
-				self.wndMsg.Show()
-			else:
-				chat.AppendChat(chat.CHAT_TYPE_INFO, "Error, i could not initialize message from server!")	
-	
 	def __Horse_HideState(self):
 		self.affectShower.SetHorseState(0, 0, 0)
 
@@ -2686,24 +2709,34 @@ class GameWindow(ui.ScriptWindow):
 		return True
 
 	def __XMasSnow_Enable(self, mode):
+
 		self.__XMasSong_Enable(mode)
-		
+
 		if "1"==mode:
+
+			if not self.__IsXMasMap():
+				return
+
 			print "XMAS_SNOW ON"
 			background.EnableSnow(1)
+
 		else:
 			print "XMAS_SNOW OFF"
 			background.EnableSnow(0)
 
 	def __XMasBoom_Enable(self, mode):
 		if "1"==mode:
+
+			if not self.__IsXMasMap():
+				return
+
 			print "XMAS_BOOM ON"
-			self.DayMode_Update("dark")
+			self.__DayMode_Update("dark")
 			self.enableXMasBoom = True
 			self.startTimeXMasBoom = app.GetTime()
 		else:
 			print "XMAS_BOOM OFF"
-			self.DayMode_Update("light")
+			self.__DayMode_Update("light")
 			self.enableXMasBoom = False
 
 	def __XMasTree_Enable(self, grade):
@@ -2759,15 +2792,22 @@ class GameWindow(ui.ScriptWindow):
 		if "light"==mode:
 			background.SetEnvironmentData(0)
 		elif "dark"==mode:
+
+			if not self.__IsXMasMap():
+				return
+
 			background.RegisterEnvironmentData(1, constInfo.ENVIRONMENT_NIGHT)
 			background.SetEnvironmentData(1)
 
-	def DayMode_Update(self, mode):
+	def __DayMode_Update(self, mode):
 		if "light"==mode:
-			background.SetEnvironmentData(0)
+			self.curtain.SAFE_FadeOut(self.__DayMode_OnCompleteChangeToLight)
 		elif "dark"==mode:
-			background.RegisterEnvironmentData(1, constInfo.ENVIRONMENT_NIGHT)
-			background.SetEnvironmentData(1)
+
+			if not self.__IsXMasMap():
+				return
+
+			self.curtain.SAFE_FadeOut(self.__DayMode_OnCompleteChangeToDark)
 
 	def __DayMode_OnCompleteChangeToLight(self):
 		background.SetEnvironmentData(0)
@@ -2839,11 +2879,11 @@ class GameWindow(ui.ScriptWindow):
 			self.interface.OpenWebWindow(url)
 
 	def __open_notice_info(self):
-		self.interface.RegisterGameMasterName("[UPDATE]")
-		self.interface.RecvWhisper("[UPDATE]")
+		self.interface.RegisterGameMasterName("Update Info")
+		self.interface.RecvWhisper("Update Info")
 		
 	def __write_notice_info(self,text):
-		chat.AppendWhisper(chat.WHISPER_TYPE_CHAT, "[UPDATE]", text.replace("_", " "))			
+		chat.AppendWhisper(chat.WHISPER_TYPE_CHAT, "Update Info", text.replace("_", " "))			
 			
 	# WEDDING
 	def __LoginLover(self):
@@ -2892,7 +2932,7 @@ class GameWindow(ui.ScriptWindow):
 			
 		def RefreshHitCount(self, vid):
 			if vid == self.targetBoard.GetTargetVID():
-				self.targetBoard.RefreshHitCount(vid)		
+				self.targetBoard.RefreshHitCount(vid)	
 		
 	def	OpenMarbleShop(self):
 		if self.wndMarbleShop.IsShow():
@@ -3130,7 +3170,23 @@ class GameWindow(ui.ScriptWindow):
 		def BINARY_RefreshChestDropInfo(self, chestVnum):
 			if self.interface:
 				self.interface.RefreshChestDropInfo(chestVnum)
+			
+	if app.ENABLE_FISH_EVENT:
+		def MiniGameFishEvent(self, isEnable, lasUseCount):
+			if self.interface:
+				self.interface.SetFishEventStatus(isEnable)
+				self.interface.MiniGameFishCount(lasUseCount)
+				self.interface.IntegrationEventBanner()
 
+		def MiniGameFishUse(self, shape, useCount):
+			self.interface.MiniGameFishUse(shape, useCount)
+			
+		def MiniGameFishAdd(self, pos, shape):
+			self.interface.MiniGameFishAdd(pos, shape)
+			
+		def MiniGameFishReward(self, vnum):
+			self.interface.MiniGameFishReward(vnum)
+			
 	if app.ENABLE_BATTLE_FIELD:
 		def BINARY_AddBattleRankingMember(self, position, type, name, empire, score):
 			if self.interface:
@@ -3155,4 +3211,21 @@ class GameWindow(ui.ScriptWindow):
 		if self.interface.wndMessenger:
 			self.interface.wndMessenger.OnLogout(2, name)
  #snd.PlaySound END_OF_TEAM_LIST
+ 
+ 	def SelectJob(self, cmd):
+		import uiselectjob
+		cmd = cmd.split('#')	
+		if cmd[0] == 'QID':
+			constInfo.SelectJob['QID'] = int(cmd[1])
+		elif cmd[0] == 'INPUT':
+			constInfo.INPUT_IGNORE = int(cmd[1])
+		elif cmd[0] == 'SEND':
+			net.SendQuestInputStringPacket(str(constInfo.SelectJob['QCMD']))
+			constInfo.SelectJob['QCMD'] = ''
+		elif cmd[0] == 'OPEN':
+			self.job_select = uiselectjob.JobSelectWindow()
+			self.job_select.Open()	
+		elif cmd[0] == 'CLOSE':
+			self.job_select = uiselectjob.JobSelectWindow()
+			self.job_select.RealClose()	
  

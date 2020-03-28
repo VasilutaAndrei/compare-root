@@ -714,24 +714,6 @@ Group HairData
 		SourceSkin			"hair/hair_50_1.dds"
 		TargetSkin			"hair/hair_50_2.dds"
 	}
-	Group HairData115
-	{
-		SpecialPath			"d:/ymir work/pc/plechito/respirator_mask/"
-		
-		HairIndex			900
-		Model				"assassin_w.GR2"
-		SourceSkin			"plechito_tex.dds"
-		TargetSkin			"plechito_tex.dds"
-	}
-	Group HairData312
-	{
-		SpecialPath			"d:/ymir work/pc/plechito/gold_dragon_costume/hair/"
-		
-		HairIndex			901
-		Model				"assassin_w.GR2"
-		SourceSkin			"plechito_tex2.dds"
-		TargetSkin			"plechito_tex2.dds"
-	}
 }
 
 Group AcceData
@@ -806,7 +788,7 @@ Group AcceData
 
 Group ShapeData
 {
-	PathName	"d:/ymir Work/pc2/assassin/"
+	PathName	"d:/ymir Work/pc/assassin/"
 
 	ShapeDataCount				999
 
@@ -1062,7 +1044,7 @@ Group ShapeData
 		ShapeIndex			40033
 		Model				"assassin_fencing1_Germany.GR2"
 		SourceSkin			"assassin_fencing1_Germany.dds"
-		TargetSkin			"assassin_fencing1_London_f.dds"
+		TargetSkin			"assassin_fencing1_London.dds"
 	}
 	Group ShapeData34
 	{
@@ -2115,15 +2097,7 @@ Group ShapeData
 		SourceSkin			"assassin_easter_day_2017_1.dds"
 		TargetSkin			"assassin_easter_day_2017_2.dds"
 	}
-	Group ShapeData193
-	{
-		SpecialPath			"d:/ymir work/pc/plechito/gold_dragon_costume/"
-		
-		ShapeIndex			41587
-		Model				"assassin_w.GR2"	
-		SourceSkin			"plechito_tex_w.dds"
-		TargetSkin			"plechito_tex_w.dds"
-	}
+	
 }
 
 Group AttachingData

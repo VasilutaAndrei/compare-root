@@ -898,6 +898,10 @@
 6311	lemures_boss2_2
 6390	lemures_boss_2
 6391	lemures_boss_2
+6392	lemures_boss2_2
+6393	ogre_boss
+6394	ogre_boss2
+6395	japanese_pirate
 6400	trent_officer
 6401	trent_soldier
 6402	trent_soldier2

@@ -70,7 +70,7 @@ class ShopDialog(ui.ScriptWindow):
 	def LoadDialog(self):
 		try:
 			PythonScriptLoader = ui.PythonScriptLoader()
-			PythonScriptLoader.LoadScriptFile(self, "UIScript/ShopDialog2.py")
+			PythonScriptLoader.LoadScriptFile(self, "UIScript/ShopDialog.py")
 		except:
 			import exception
 			exception.Abort("ShopDialog.LoadDialog.LoadObject")
@@ -84,7 +84,7 @@ class ShopDialog(ui.ScriptWindow):
 		try:
 			GetObject = self.GetChild
 			self.itemSlotWindow = GetObject("ItemSlot")
-			self.NameSlotWindow = GetObject("NameSlot")
+			#self.NameSlotWindow = GetObject("NameSlot")
 			self.btnBuy = GetObject("BuyButton")
 			self.btnSell = GetObject("SellButton")
 			self.btnClose = GetObject("CloseButton")
@@ -510,8 +510,12 @@ class ShopDialog(ui.ScriptWindow):
 		itemName = item.GetItemName()
 
 		itemBuyQuestionDialog = uiCommon.QuestionDialog()
-		itemBuyQuestionDialog.SetText(localeInfo.DO_YOU_BUY_ITEM(itemName, itemCount, localeInfo.NumberToMoneyString(itemPrice)))
-		itemBuyQuestionDialog.SetAcceptEvent(lambda arg=True: self.AnswerBuyItem(arg))
+		if app.__MULTI_SHOP__:
+			if shop.GetBuyWithItem(slotPos) != 0:
+				itemBuyQuestionDialog.SetText(localeInfo.DO_YOU_BUY_ITEM(itemName, itemCount, localeInfo.NumberToWithItemString(shop.GetBuyWithItemCount(slotPos), item.GetItemName())))
+			else:
+				itemBuyQuestionDialog.SetText(localeInfo.DO_YOU_BUY_ITEM(itemName, itemCount, localeInfo.NumberToMoneyString(itemPrice)))
+		itemBuyQuestionDialog.SetAcceptEvent(lambda arg=TRUE: self.AnswerBuyItem(arg))
 		itemBuyQuestionDialog.SetCancelEvent(lambda arg=False: self.AnswerBuyItem(arg))
 		itemBuyQuestionDialog.Open()
 		itemBuyQuestionDialog.pos = slotPos
@@ -588,12 +592,10 @@ class MallPageDialog(ui.ScriptWindow):
 		x+=10
 		y+=30
 
-		MALL_PAGE_WIDTH = 600
-		MALL_PAGE_HEIGHT = 480
+		MALL_PAGE_WIDTH = 1024
+		MALL_PAGE_HEIGHT = 600
 
-		app.ShowWebPage(
-			"http://metin2.co.kr/08_mall/game_mall/login_fail.htm",
-			(x, y, x+MALL_PAGE_WIDTH, y+MALL_PAGE_HEIGHT))
+		app.ShowWebPage("http://google.com/", (x+10, y+40, x+width-20, y+height-40))
 
 		self.Lock()
 		self.Show()

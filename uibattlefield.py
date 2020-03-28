@@ -2,7 +2,7 @@ import event, uiCommon, app, wndMgr, net, player, ui, uiToolTip, background, uiS
 #ranking
 class BattleFieldWindow(ui.ScriptWindow):
 	DEFAULT_DESC_Y = 7
-	DESCRIPTION_FILE_NAME = "locale/es/desc_battle_field.txt"
+	DESCRIPTION_FILE_NAME = "locale/ro/desc_battle_field.txt"
 	SHOW_LINE_COUNT_MAX = 18
 	
 	M2EMPIREICON = {

@@ -9,7 +9,7 @@ MAP_TREE2 = "MAP_TREE2"
 BLEND_POTION_NO_TIME = "BLEND_POTION_NO_TIME"
 BLEND_POTION_NO_INFO = "BLEND_POTION_NO_INFO"
 
-APP_TITLE = "Cybernetic"
+APP_TITLE = "Metin2 New"
 GUILD_HEADQUARTER = "Main Building"
 GUILD_FACILITY = "Facility"
 GUILD_OBJECT = "Object"
@@ -626,6 +626,12 @@ SHOP_ERROR_DICT = {
 	"INVALID_POS" : SHOP_INVALID_POS,
 	"NOT_ENOUGH_MONEY_EX" : SHOP_NOT_ENOUGH_MONEY_EX,
 }
+
+if app.__MULTI_SHOP__:
+	SHOP_ERROR_DICT.update({
+		"NOT_ENOUGH_ITEM" : SHOP_NOT_ENOUGH_ITEM,
+	})
+
 if app.ENABLE_BATTLE_FIELD:
 	SHOP_ERROR_DICT.update({
 		"NOT_ENOUGH_BP" : SHOP_NOT_ENOUGH_BATTLE_POINT,
@@ -645,11 +651,11 @@ if app.ENABLE_TITLE_SYSTEM:
 	TITLE_SYSTEM_LIST = (TITILE_NAME_1, TITILE_NAME_2, TITILE_NAME_3, TITILE_NAME_4, TITILE_NAME_5, TITILE_NAME_6, TITILE_NAME_7, TITILE_NAME_8, TITILE_NAME_9, TITILE_NAME_10, TITILE_NAME_11, TITILE_NAME_12, TITILE_NAME_13, TITILE_NAME_14, TITILE_NAME_15, TITILE_NAME_16, TITILE_NAME_17, TITILE_NAME_18, TITILE_NAME_19, TITILE_NAME_20)
 
 def GetLetterImageName():
-	return "locale/es/icon/scroll_close.tga"
+	return "locale/ro/icon/scroll_close.tga"
 def GetLetterOpenImageName():
-	return "locale/es/icon/scroll_open.tga"
+	return "locale/ro/icon/scroll_open.tga"
 def GetLetterCloseImageName():
-	return "locale/es/icon/scroll_close.tga"
+	return "locale/ro/icon/scroll_close.tga"
 
 if 949 == app.GetDefaultCodePage():
 	def EUL(name):
@@ -988,6 +994,13 @@ elif IsEUROPE() and not IsWE_KOREA() and not IsYMIR():
 			return "0"
 	
 		return "%s" % ('.'.join([ i-3<0 and str(n)[:i] or str(n)[i-3:i] for i in range(len(str(n))%3, len(str(n))+1, 3) if i ]))
+
+	if app.__MULTI_SHOP__:
+		def NumberToWithItemString(n,c):
+			if n <= 0:
+				return "0 %s" % (c)
+			return "%s %s" % ('.'.join([ i-3<0 and str(n)[:i] or str(n)[i-3:i] for i in range(len(str(n))%3, len(str(n))+1, 3) if i ]), c)
+
 	if app.ENABLE_BATTLE_FIELD:
 		import shop
 		def NumberToSecondaryCoinString(n, coinType):

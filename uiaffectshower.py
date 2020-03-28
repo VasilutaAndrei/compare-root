@@ -8,21 +8,6 @@ import player
 import uiToolTip
 import math
 
-if app.ENABLE_NEW_AFFECT_POTION:
-	mainAffectPotion = {
-		"affect" : [
-			chr.AFFECT_POTION_1, chr.AFFECT_POTION_2, chr.AFFECT_POTION_3, chr.AFFECT_POTION_4, chr.AFFECT_POTION_5, chr.AFFECT_POTION_6
-		],
-
-		"image" : [
-			("icon/item/5082%d.tga" % (i + 1)) for i in xrange(len("affect"))
-		],
-
-		"desc" : [
-			localeInfo.TOOLTIP_AFFECT_POTION_1, localeInfo.TOOLTIP_AFFECT_POTION_2, localeInfo.TOOLTIP_AFFECT_POTION_3, localeInfo.TOOLTIP_AFFECT_POTION_4, localeInfo.TOOLTIP_AFFECT_POTION_5, localeInfo.TOOLTIP_AFFECT_POTION_6
-		]
-	}
-
 # WEDDING
 class LovePointImage(ui.ExpandedImageBox):
 
@@ -279,8 +264,6 @@ class AffectImage(ui.ExpandedImageBox):
 		self.endTime = 0
 		self.affect = None
 		self.isClocked = True
-		if (app.ENABLE_AFFECT_POLYMORPH_REMOVE):
-			self.polymorphQuestionDialog = None
 
 	def SetAffect(self, affect):
 		self.affect = affect
@@ -344,11 +327,14 @@ class AffectImage(ui.ExpandedImageBox):
 
 		toolTip = self.description
 		if self.endTime > 0:
-			leftTime = localeInfo.SecondToDHM(self.endTime - app.GetGlobalTimeStamp())
-			toolTip += " (%s : %s)" % (localeInfo.LEFT_TIME, leftTime)
+			if self.endTime - app.GetGlobalTimeStamp() < 86400*365: #If time is less than a year, display
+				leftTime = localeInfo.SecondToDHM(self.endTime - app.GetGlobalTimeStamp())
+				toolTip += " (%s : %s)" % (localeInfo.LEFT_TIME, leftTime)
+			else:
+				toolTip += " (%s)" % localeInfo.NEVER_EXPIRES_DURATION
+			
 		self.SetToolTipText(toolTip, 0, 40)
 
-	#ï¿½ï¿½ï¿½Ï¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½
 	def __UpdateDescription2(self):
 		if not self.description:
 			return
@@ -362,38 +348,10 @@ class AffectImage(ui.ExpandedImageBox):
 	def IsSkillAffect(self):
 		return self.isSkillAffect
 
-	if (app.ENABLE_AFFECT_POLYMORPH_REMOVE):
-		def OnPolymorphQuestionDialog(self):
-			import uiCommon
-			self.polymorphQuestionDialog = uiCommon.QuestionDialog()
-			self.polymorphQuestionDialog.SetText(localeInfo.POLYMORPH_AFFECT_REMOVE_QUESTION)
-			self.polymorphQuestionDialog.SetWidth(350)
-			self.polymorphQuestionDialog.SetAcceptEvent(lambda arg = TRUE: self.OnClosePolymorphQuestionDialog(arg))
-			self.polymorphQuestionDialog.SetCancelEvent(lambda arg = FALSE: self.OnClosePolymorphQuestionDialog(arg))
-			self.polymorphQuestionDialog.Open()
-			
-		def OnClosePolymorphQuestionDialog(self, answer):
-			import net
-
-			if not self.polymorphQuestionDialog:
-				return
-
-			self.polymorphQuestionDialog.Close()
-			self.polymorphQuestionDialog = None
-					
-			if not answer:
-				return
-
-			net.SendChatPacket("/remove_polymorph")
-			return TRUE		
-		
 	def OnMouseOverIn(self):
 		if self.toolTipText:
 			self.toolTipText.Show()
-		if (app.ENABLE_AFFECT_POLYMORPH_REMOVE):	
-			if self.affect == chr.NEW_AFFECT_POLYMORPH:
-				self.OnPolymorphQuestionDialog()
-				
+
 	def OnMouseOverOut(self):
 		if self.toolTipText:
 			self.toolTipText.Hide()
@@ -406,6 +364,11 @@ class AffectShower(ui.Window):
 
 	INFINITE_AFFECT_DURATION = 0x1FFFFFFF
 
+	if app.ENABLE_SKILLS_LEVEL_OVER_P:
+		END_STRING = "_04"
+	else:
+		END_STRING = "_03"
+
 	AFFECT_DATA_DICT =	{
 			chr.AFFECT_POISON : (localeInfo.SKILL_TOXICDIE, "d:/ymir work/ui/skill/common/affect/poison.sub"),
 			chr.AFFECT_SLOW : (localeInfo.SKILL_SLOW, "d:/ymir work/ui/skill/common/affect/slow.sub"),
@@ -415,31 +378,27 @@ class AffectShower(ui.Window):
 			chr.AFFECT_MOV_SPEED_POTION : (localeInfo.SKILL_INC_MOVSPD, "d:/ymir work/ui/skill/common/affect/Increase_Move_Speed.sub"),
 			chr.AFFECT_FISH_MIND : (localeInfo.SKILL_FISHMIND, "d:/ymir work/ui/skill/common/affect/fishmind.sub"),
 
-			chr.AFFECT_JEONGWI : (localeInfo.SKILL_JEONGWI, "d:/ymir work/ui/skill/warrior/jeongwi_03.sub",),
-			chr.AFFECT_GEOMGYEONG : (localeInfo.SKILL_GEOMGYEONG, "d:/ymir work/ui/skill/warrior/geomgyeong_03.sub",),
-			chr.AFFECT_CHEONGEUN : (localeInfo.SKILL_CHEONGEUN, "d:/ymir work/ui/skill/warrior/cheongeun_03.sub",),
-			chr.AFFECT_GYEONGGONG : (localeInfo.SKILL_GYEONGGONG, "d:/ymir work/ui/skill/assassin/gyeonggong_03.sub",),
-			chr.AFFECT_EUNHYEONG : (localeInfo.SKILL_EUNHYEONG, "d:/ymir work/ui/skill/assassin/eunhyeong_03.sub",),
-			chr.AFFECT_GWIGEOM : (localeInfo.SKILL_GWIGEOM, "d:/ymir work/ui/skill/sura/gwigeom_03.sub",),
-			chr.AFFECT_GONGPO : (localeInfo.SKILL_GONGPO, "d:/ymir work/ui/skill/sura/gongpo_03.sub",),
-			chr.AFFECT_JUMAGAP : (localeInfo.SKILL_JUMAGAP, "d:/ymir work/ui/skill/sura/jumagap_03.sub"),
-			chr.AFFECT_HOSIN : (localeInfo.SKILL_HOSIN, "d:/ymir work/ui/skill/shaman/hosin_03.sub",),
-			chr.AFFECT_BOHO : (localeInfo.SKILL_BOHO, "d:/ymir work/ui/skill/shaman/boho_03.sub",),
-			chr.AFFECT_KWAESOK : (localeInfo.SKILL_KWAESOK, "d:/ymir work/ui/skill/shaman/kwaesok_03.sub",),
-			chr.AFFECT_HEUKSIN : (localeInfo.SKILL_HEUKSIN, "d:/ymir work/ui/skill/sura/heuksin_03.sub",),
-			chr.AFFECT_MUYEONG : (localeInfo.SKILL_MUYEONG, "d:/ymir work/ui/skill/sura/muyeong_03.sub",),
-			chr.AFFECT_GICHEON : (localeInfo.SKILL_GICHEON, "d:/ymir work/ui/skill/shaman/gicheon_03.sub",),
-			chr.AFFECT_JEUNGRYEOK : (localeInfo.SKILL_JEUNGRYEOK, "d:/ymir work/ui/skill/shaman/jeungryeok_03.sub",),
-			chr.AFFECT_PABEOP : (localeInfo.SKILL_PABEOP, "d:/ymir work/ui/skill/sura/pabeop_03.sub",),
-			chr.AFFECT_FALLEN_CHEONGEUN : (localeInfo.SKILL_CHEONGEUN, "d:/ymir work/ui/skill/warrior/cheongeun_03.sub",),
-			28 : (localeInfo.SKILL_FIRE, "d:/ymir work/ui/skill/sura/hwayeom_03.sub",),
+			chr.AFFECT_JEONGWI : (localeInfo.SKILL_JEONGWI, "d:/ymir work/ui/skill/warrior/jeongwi" + END_STRING + ".sub",),
+			chr.AFFECT_GEOMGYEONG : (localeInfo.SKILL_GEOMGYEONG, "d:/ymir work/ui/skill/warrior/geomgyeong" + END_STRING + ".sub",),
+			chr.AFFECT_CHEONGEUN : (localeInfo.SKILL_CHEONGEUN, "d:/ymir work/ui/skill/warrior/cheongeun" + END_STRING + ".sub",),
+			chr.AFFECT_GYEONGGONG : (localeInfo.SKILL_GYEONGGONG, "d:/ymir work/ui/skill/assassin/gyeonggong" + END_STRING + ".sub",),
+			chr.AFFECT_EUNHYEONG : (localeInfo.SKILL_EUNHYEONG, "d:/ymir work/ui/skill/assassin/eunhyeong" + END_STRING + ".sub",),
+			chr.AFFECT_GWIGEOM : (localeInfo.SKILL_GWIGEOM, "d:/ymir work/ui/skill/sura/gwigeom" + END_STRING + ".sub",),
+			chr.AFFECT_GONGPO : (localeInfo.SKILL_GONGPO, "d:/ymir work/ui/skill/sura/gongpo" + END_STRING + ".sub",),
+			chr.AFFECT_JUMAGAP : (localeInfo.SKILL_JUMAGAP, "d:/ymir work/ui/skill/sura/jumagap" + END_STRING + ".sub"),
+			chr.AFFECT_HOSIN : (localeInfo.SKILL_HOSIN, "d:/ymir work/ui/skill/shaman/hosin" + END_STRING + ".sub",),
+			chr.AFFECT_BOHO : (localeInfo.SKILL_BOHO, "d:/ymir work/ui/skill/shaman/boho" + END_STRING + ".sub",),
+			chr.AFFECT_KWAESOK : (localeInfo.SKILL_KWAESOK, "d:/ymir work/ui/skill/shaman/kwaesok" + END_STRING + ".sub",),
+			chr.AFFECT_HEUKSIN : (localeInfo.SKILL_HEUKSIN, "d:/ymir work/ui/skill/sura/heuksin" + END_STRING + ".sub",),
+			chr.AFFECT_MUYEONG : (localeInfo.SKILL_MUYEONG, "d:/ymir work/ui/skill/sura/muyeong" + END_STRING + ".sub",),
+			chr.AFFECT_GICHEON : (localeInfo.SKILL_GICHEON, "d:/ymir work/ui/skill/shaman/gicheon" + END_STRING + ".sub",),
+			chr.AFFECT_JEUNGRYEOK : (localeInfo.SKILL_JEUNGRYEOK, "d:/ymir work/ui/skill/shaman/jeungryeok" + END_STRING + ".sub",),
+			chr.AFFECT_PABEOP : (localeInfo.SKILL_PABEOP, "d:/ymir work/ui/skill/sura/pabeop" + END_STRING + ".sub",),
+			chr.AFFECT_FALLEN_CHEONGEUN : (localeInfo.SKILL_CHEONGEUN, "d:/ymir work/ui/skill/warrior/cheongeun" + END_STRING + ".sub",),
+			28 : (localeInfo.SKILL_FIRE, "d:/ymir work/ui/skill/sura/hwayeom" + END_STRING + ".sub",),
 			chr.AFFECT_CHINA_FIREWORK : (localeInfo.SKILL_POWERFUL_STRIKE, "d:/ymir work/ui/skill/common/affect/powerfulstrike.sub",),
 
 			#64 - END
-			42: ("Blessing from item buff", "d:/ymir work/ui/skill/shaman/hosin_03.sub",),
-			43: ("Dragon's Strength from item buff", "d:/ymir work/ui/skill/shaman/gicheon_03.sub",),
-			44: ("Reflection from item buff", "d:/ymir work/ui/skill/shaman/boho_03.sub",),
-
 			chr.NEW_AFFECT_EXP_BONUS : (localeInfo.TOOLTIP_MALL_EXPBONUS_STATIC, "d:/ymir work/ui/skill/common/affect/exp_bonus.sub",),
 
 			chr.NEW_AFFECT_ITEM_BONUS : (localeInfo.TOOLTIP_MALL_ITEMBONUS_STATIC, "d:/ymir work/ui/skill/common/affect/item_bonus.sub",),
@@ -453,7 +412,7 @@ class AffectShower(ui.Window):
 			chr.NEW_AFFECT_SKILL_BOOK_BONUS : (localeInfo.TOOLTIP_APPLY_SKILL_BOOK_BONUS, "d:/ymir work/ui/skill/common/affect/gold_premium.sub"),
 			chr.NEW_AFFECT_SKILL_BOOK_NO_DELAY : (localeInfo.TOOLTIP_APPLY_SKILL_BOOK_NO_DELAY, "d:/ymir work/ui/skill/common/affect/gold_premium.sub"),
 
-			# ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ hp, sp
+			# ÀÚµ¿¹°¾à hp, sp
 			chr.NEW_AFFECT_AUTO_HP_RECOVERY : (localeInfo.TOOLTIP_AUTO_POTION_REST, "d:/ymir work/ui/pattern/auto_hpgauge/05.dds"),
 			chr.NEW_AFFECT_AUTO_SP_RECOVERY : (localeInfo.TOOLTIP_AUTO_POTION_REST, "d:/ymir work/ui/pattern/auto_spgauge/05.dds"),
 			#chr.NEW_AFFECT_AUTO_HP_RECOVERY : (localeInfo.TOOLTIP_AUTO_POTION_REST, "d:/ymir work/ui/skill/common/affect/gold_premium.sub"),
@@ -472,35 +431,17 @@ class AffectShower(ui.Window):
 			MALL_DESC_IDX_START+player.POINT_PC_BANG_EXP_BONUS : (localeInfo.TOOLTIP_MALL_EXPBONUS_P_STATIC, "d:/ymir work/ui/skill/common/affect/EXP_Bonus_p_on.sub",),
 			MALL_DESC_IDX_START+player.POINT_PC_BANG_DROP_BONUS: (localeInfo.TOOLTIP_MALL_ITEMBONUS_P_STATIC, "d:/ymir work/ui/skill/common/affect/Item_Bonus_p_on.sub",),
 	}
-	if app.ENABLE_MELEY_LAIR_DUNGEON:
-		AFFECT_DATA_DICT[chr.AFFECT_STATUE1] = ("1", "d:/ymir work/effect/monster2/redd_moojuk.mse")
-		AFFECT_DATA_DICT[chr.AFFECT_STATUE2] = ("2", "d:/ymir work/effect/monster2/redd_moojuk.mse")
-		AFFECT_DATA_DICT[chr.AFFECT_STATUE3] = ("3", "d:/ymir work/effect/monster2/redd_moojuk_blue.mse")
-		AFFECT_DATA_DICT[chr.AFFECT_STATUE4] = ("4", "d:/ymir work/effect/monster2/redd_moojuk_green.mse")
 	if app.ENABLE_DRAGON_SOUL_SYSTEM:
-		# ï¿½ï¿½È¥ï¿½ï¿½ Ãµ, ï¿½ï¿½ ï¿½ï¿½.
+		# ¿ëÈ¥¼® Ãµ, Áö µ¦.
 		AFFECT_DATA_DICT[chr.NEW_AFFECT_DRAGON_SOUL_DECK1] = (localeInfo.TOOLTIP_DRAGON_SOUL_DECK1, "d:/ymir work/ui/dragonsoul/buff_ds_sky1.tga")
 		AFFECT_DATA_DICT[chr.NEW_AFFECT_DRAGON_SOUL_DECK2] = (localeInfo.TOOLTIP_DRAGON_SOUL_DECK2, "d:/ymir work/ui/dragonsoul/buff_ds_land1.tga")
-	if (app.ENABLE_AFFECT_POLYMORPH_REMOVE):
-		AFFECT_DATA_DICT[chr.NEW_AFFECT_POLYMORPH] = (localeInfo.POLYMORPH_AFFECT_TOOLTIP, "d:/ymir work/ui/polymorph_marble_icon.tga")
 	if app.ENABLE_BATTLE_FIELD:
 		AFFECT_DATA_DICT[chr.NEW_AFFECT_BATTLE_POTION] = (localeInfo.TOOLTIP_BATTLE_POTION, "d:/ymir work/ui/public/battle/buff_battle_potion.sub")
 	if app.ENABLE_ATTENDANCE_EVENT:
 		AFFECT_DATA_DICT[chr.NEW_AFFECT_EXP_BONUS_EVENT] = (localeInfo.TOOLTIP_EXP_BONUS_EVENT, "d:/ymir work/ui/skill/common/affect/exp_bonus.sub")
 		AFFECT_DATA_DICT[chr.NEW_AFFECT_ATT_SPEED_SLOW] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "d:/ymir work/ui/skill/common/affect/att_slow.sub")
-	if app.PERMANENT_POTIONS_SYSTEM:
-		AFFECT_DATA_DICT[chr.NEW_AFFECT_POTION_1] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW,"icon/item/71044.tga")
-		AFFECT_DATA_DICT[chr.NEW_AFFECT_POTION_2] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "icon/item/71045.tga")
-		AFFECT_DATA_DICT[chr.NEW_AFFECT_POTION_3] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "icon/item/71027.tga")
-		AFFECT_DATA_DICT[chr.NEW_AFFECT_POTION_4] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "d:/ymir work/ui/skill/common/affect/att_bonus.sub")
-		AFFECT_DATA_DICT[chr.NEW_AFFECT_POTION_5] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "icon/item/71029.tga")
-		AFFECT_DATA_DICT[chr.NEW_AFFECT_POTION_6] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "d:/ymir work/ui/skill/common/affect/def_bonus.sub")
-		AFFECT_DATA_DICT[chr.NEW_SEBNEM_POTION_1] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW,"icon/item/50822.tga")
-		AFFECT_DATA_DICT[chr.NEW_SEBNEM_POTION_2] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "icon/item/50821.tga")
-		AFFECT_DATA_DICT[chr.NEW_SEBNEM_POTION_3] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "icon/item/50825.tga")
-		AFFECT_DATA_DICT[chr.NEW_SEBNEM_POTION_4] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "icon/item/50826.tga")
-		AFFECT_DATA_DICT[chr.NEW_SEBNEM_POTION_5] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "icon/item/50824.tga")
-		AFFECT_DATA_DICT[chr.NEW_SEBNEM_POTION_6] = (localeInfo.TOOLTIP_ATT_SPEED_SLOW, "icon/item/50823.tga")
+	if app.ENABLE_ANTIEXP_RENEWAL:
+		AFFECT_DATA_DICT[chr.AFFECT_ANTIEXP] = (localeInfo.TOOLTIP_ANTIEXP_CURSE, "icon/item/xp.tga")
 
 	AFFECT_PET_DATA_DICT ={
 		5401 : ("Rezistenta (Razboinic)", "d:/ymir work/ui/skill/pet/jijoong.sub"),
@@ -544,7 +485,7 @@ class AffectShower(ui.Window):
 		self.affectImageDict={}
 		self.__ArrangeImageList()
 
-	def ClearAffects(self): ## ï¿½ï¿½Å³ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½Û´Ï´ï¿½.
+	def ClearAffects(self): ## ½ºÅ³ ÀÌÆåÆ®¸¸ ¾ø¾Û´Ï´Ù.
 		self.living_affectImageDict={}
 		for key, image in self.affectImageDict.items():
 			if not image.IsSkillAffect():
@@ -556,12 +497,8 @@ class AffectShower(ui.Window):
 
 		print "BINARY_NEW_AddAffect", type, pointIdx, value, duration
 
-		if (app.ENABLE_AFFECT_POLYMORPH_REMOVE):
-			if type < 500 and type != chr.NEW_AFFECT_POLYMORPH:
-				return
-		else:
-			if type < 500:
-				return
+		if type < 500:
+			return
 
 		if type == chr.NEW_AFFECT_MALL:
 			affect = self.MALL_DESC_IDX_START + pointIdx
@@ -574,7 +511,7 @@ class AffectShower(ui.Window):
 		if not self.AFFECT_DATA_DICT.has_key(affect) and not self.AFFECT_PET_DATA_DICT.has_key(affect):
 			return
 
-		## ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Duration ï¿½ï¿½ 0 ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+		## ¿ë½ÅÀÇ °¡È£, ¼±ÀÎÀÇ ±³ÈÆÀº Duration À» 0 À¸·Î ¼³Á¤ÇÑ´Ù.
 		if affect == chr.NEW_AFFECT_NO_DEATH_PENALTY or\
 		   affect == chr.NEW_AFFECT_SKILL_BOOK_BONUS or\
 		   affect == chr.NEW_AFFECT_AUTO_SP_RECOVERY or\
@@ -641,6 +578,9 @@ class AffectShower(ui.Window):
 				elif app.ENABLE_ATTENDANCE_EVENT and affect == chr.NEW_AFFECT_ATT_SPEED_SLOW:
 					image.SetClock(FALSE)
 					image.UpdateDescription()
+				# elif app.ENABLE_ANTIEXP_RENEWAL and affect == chr.AFFECT_ANTIEXP:
+					# image.SetClock(FALSE)
+					# image.UpdateDescription()
 				elif affect == chr.NEW_AFFECT_AUTO_SP_RECOVERY or affect == chr.NEW_AFFECT_AUTO_HP_RECOVERY:
 					image.UpdateAutoPotionDescription()
 				else:
@@ -775,30 +715,56 @@ class AffectShower(ui.Window):
 
 		self.__ArrangeImageList()
 
+	# def __ArrangeImageList(self):
+
+		# width = len(self.affectImageDict) * self.IMAGE_STEP
+		# if self.lovePointImage:
+			# width+=self.IMAGE_STEP
+		# if self.horseImage:
+			# width+=self.IMAGE_STEP
+
+		# self.SetSize(width, 26)
+
+		# xPos = 0
+
+		# if self.lovePointImage:
+			# if self.lovePointImage.IsShow():
+				# self.lovePointImage.SetPosition(xPos, 0)
+				# xPos += self.IMAGE_STEP
+
+		# if self.horseImage:
+			# self.horseImage.SetPosition(xPos, 0)
+			# xPos += self.IMAGE_STEP
+
+		# for image in self.affectImageDict.values():
+			# image.SetPosition(xPos, 0)
+			# xPos += self.IMAGE_STEP
 	def __ArrangeImageList(self):
 
-		width = len(self.affectImageDict) * self.IMAGE_STEP
-		if self.lovePointImage:
-			width+=self.IMAGE_STEP
-		if self.horseImage:
-			width+=self.IMAGE_STEP
-
-		self.SetSize(width, 26)
-
 		xPos = 0
+		yPos = 0
+		AffectCount = 0
 
 		if self.lovePointImage:
 			if self.lovePointImage.IsShow():
 				self.lovePointImage.SetPosition(xPos, 0)
 				xPos += self.IMAGE_STEP
+				AffectCount += 1
 
 		if self.horseImage:
 			self.horseImage.SetPosition(xPos, 0)
 			xPos += self.IMAGE_STEP
+			AffectCount += 1
 
 		for image in self.affectImageDict.values():
-			image.SetPosition(xPos, 0)
+			image.SetPosition(xPos, yPos)
 			xPos += self.IMAGE_STEP
+			AffectCount += 1
+			if AffectCount % 8 == 0:
+				yPos += self.IMAGE_STEP
+				xPos = 0
+
+		self.SetSize(8 * self.IMAGE_STEP, yPos + self.IMAGE_STEP)
 
 	def OnUpdate(self):
 		try:

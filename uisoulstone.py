@@ -424,9 +424,9 @@ class SoulStoneBoard(ui.ScriptWindow):
 			self.rapidTextLine.SetLastLineColor(0.8, 0.1, 0.1)
 
 		if int(result) != 0:
-			data = open("locale/es/soulstone_win.txt", "r").readlines()
+			data = open("locale/ro/soulstone_win.txt", "r").readlines()
 		else:
-			data = open("locale/es/soulstone_loss.txt", "r").readlines()
+			data = open("locale/ro/soulstone_loss.txt", "r").readlines()
 
 		for line in data:
 			if line.replace("\n", "") != "":

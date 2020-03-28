@@ -12,7 +12,6 @@ import uiScriptLocale
 import app
 import uiToolTip
 import background
-import webbrowser
 
 MOUSE_SETTINGS = [0, 0]
 
@@ -160,7 +159,7 @@ class EnergyBar(ui.ScriptWindow):
 	def RefreshStatus(self):
 		pointEnergy = player.GetStatus (player.ENERGY)
 		leftTimeEnergy = player.GetStatus (player.ENERGY_END_TIME) - app.GetGlobalTimeStamp()
-		# ï¿½ï¿½ï¿½È¯ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ = 2ï¿½Ã°ï¿½.
+		# Ãæ±âÈ¯ Áö¼Ó ½Ã°£ = 2½Ã°£.
 		self.SetEnergy (pointEnergy, leftTimeEnergy, 7200)
 
 	def SetEnergy (self, point, leftTime, maxTime):
@@ -248,10 +247,10 @@ class ExpandedMoneyTaskBar(ui.ScriptWindow):
 		
 		try:
 			self.wndMoney = self.GetChild("Money")
-			#self.wndGem = self.GetChild("Gem")
+			self.wndGem = self.GetChild("Gem")
 			
 			self.wndMoneyIcon = self.GetChild("Money_Icon")
-			#self.wndGemIcon = self.GetChild("Gem_Icon")
+			self.wndGemIcon = self.GetChild("Gem_Icon")
 		except:
 			import exception
 			exception.Abort("expandedmoneytaskbar.LoadWindow.BindObject")
@@ -262,6 +261,8 @@ class ExpandedMoneyTaskBar(ui.ScriptWindow):
 		
 		self.wndMoney = None
 		self.wndMoneyIcon = None
+		self.wndGem = None
+		self.wndGemIcon = None
 
 	def SetTop(self):
 		super(ExpandedMoneyTaskBar, self).SetTop()
@@ -277,13 +278,15 @@ class ExpandedMoneyTaskBar(ui.ScriptWindow):
 	def OnUpdate(self):
 		if self.wndMoneyIcon.IsIn():
 			self.OnMouseOverIn("Yang")
+		elif self.wndGemIcon.IsIn():
+			self.OnMouseOverIn(localeInfo.GEM_SYSTEM_NAME)
 		else:
 			self.OnMouseOverOut()
 		
 	def RefreshStatus(self):
 		money = player.GetElk()
 		self.wndMoney.SetText(localeInfo.AddPointToNumberString(money))
-		#self.wndGem.SetText(localeInfo.AddPointToNumberString(player.GetGem()))
+		self.wndGem.SetText(localeInfo.AddPointToNumberString(player.GetGem()))
 
 	def Show(self):
 		ui.ScriptWindow.Show(self)
@@ -305,10 +308,6 @@ class TaskBar(ui.ScriptWindow):
 	BUTTON_CHAT = 4
 	BUTTON_EXPAND = 4
 	BUTTON_EXPAND_MONEY = 5
-	BUTTON_SPECIAL_STORAGE = 6
-	BUTTON_PRIVATE_SHOP = 7
-	BUTTON_SWITCH_BOT = 8
-	BUTTON_BLOCK_EQUIPMENT = 9
 	IS_EXPANDED = False
 
 	MOUSE_BUTTON_LEFT = 0
@@ -416,7 +415,7 @@ class TaskBar(ui.ScriptWindow):
 				(coolTime, elapsedTime) = player.GetSkillCoolTime(skillSlotNumber)
 				self.SetSlotCoolTime(slotNumber, coolTime, elapsedTime)
 
-			## NOTE : Activate ï¿½Ç¾ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+			## NOTE : Activate µÇ¾î ÀÖ´Ù¸é ¾ÆÀÌÄÜµµ ¾÷µ¥ÀÌÆ®
 			if player.IsSkillActive(skillSlotNumber):
 				self.ActivateSlotOld(slotNumber)
 
@@ -518,18 +517,16 @@ class TaskBar(ui.ScriptWindow):
 		toggleButtonDict[TaskBar.BUTTON_INVENTORY]=self.GetChild("InventoryButton")
 		toggleButtonDict[TaskBar.BUTTON_MESSENGER]=self.GetChild("MessengerButton")
 		toggleButtonDict[TaskBar.BUTTON_SYSTEM]=self.GetChild("SystemButton")
+		# toggleButtonDict[TaskBar.BUTTON_INV]=self.GetChild("InvButton")
 		toggleButtonDict[TaskBar.BUTTON_EXPAND_MONEY]=self.GetChild("ExpandMoneyButton")
-		toggleButtonDict[TaskBar.BUTTON_SPECIAL_STORAGE]=self.GetChild("SpecialStorageButton")
-		toggleButtonDict[TaskBar.BUTTON_PRIVATE_SHOP]=self.GetChild("PrivateShopButton")
-		toggleButtonDict[TaskBar.BUTTON_SWITCH_BOT]=self.GetChild("SwitchBotButton")
-		toggleButtonDict[TaskBar.BUTTON_BLOCK_EQUIPMENT]=self.GetChild("BlockEquipmentButton")
 
-		# ChatButton, ExpandButton
+		# ChatButton, ExpandButton µÑ Áß ÇÏ³ª´Â ¹Ýµå½Ã Á¸ÀçÇÑ´Ù.
 		try:
 			toggleButtonDict[TaskBar.BUTTON_CHAT]=self.GetChild("ChatButton")
 		except:
 			toggleButtonDict[TaskBar.BUTTON_EXPAND]=self.GetChild("ExpandButton")
 			TaskBar.IS_EXPANDED = True
+
 
 		if localeInfo.IsARABIC():
 			systemButton = toggleButtonDict[TaskBar.BUTTON_SYSTEM]
@@ -637,7 +634,10 @@ class TaskBar(ui.ScriptWindow):
 		self.rampageGauge1.Show()
 
 	def __RampageGauge_Click(self):
-		webbrowser.open_new("https://www.cybernetic2.com/ishop/index.php")
+		print "rampage_up"
+		net.SendChatPacket("/in_game_mall")
+		# gift icon hide when click mall icon
+		self.wndGiftBox.Hide()
 
 	def __LoadMouseSettings(self):
 		try:
@@ -846,9 +846,9 @@ class TaskBar(ui.ScriptWindow):
 					if itemCount <= 1:
 						itemCount = 0
 
-					## ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ (#72723, #72724) Æ¯ï¿½ï¿½Ã³ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ô¿ï¿½ È°ï¿½ï¿½È­/ï¿½ï¿½È°ï¿½ï¿½È­ Ç¥ï¿½Ã¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Û¾ï¿½ï¿½ï¿½ - [hyo]
+					## ÀÚµ¿¹°¾à (#72723, #72724) Æ¯¼öÃ³¸® - ¾ÆÀÌÅÛÀÎµ¥µµ ½½·Ô¿¡ È°¼ºÈ­/ºñÈ°¼ºÈ­ Ç¥½Ã¸¦ À§ÇÑ ÀÛ¾÷ÀÓ - [hyo]
 					if constInfo.IS_AUTO_POTION(itemIndex):
-						# metinSocket - [0] : È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½, [1] : ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, [2] : ï¿½Ö´ï¿½ ï¿½ë·®
+						# metinSocket - [0] : È°¼ºÈ­ ¿©ºÎ, [1] : »ç¿ëÇÑ ¾ç, [2] : ÃÖ´ë ¿ë·®
 						metinSocket = [player.GetItemMetinSocket(Position, j) for j in xrange(player.METIN_SOCKET_MAX_NUM)]
 
 						if 0 != int(metinSocket[0]):
@@ -884,7 +884,7 @@ class TaskBar(ui.ScriptWindow):
 						(coolTime, elapsedTime) = player.GetSkillCoolTime(Position)
 						slot.SetSlotCoolTime(slotNumber, coolTime, elapsedTime)
 
-					## NOTE : Activate ï¿½Ç¾ï¿½ ï¿½Ö´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Üµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+					## NOTE : Activate µÇ¾î ÀÖ´Ù¸é ¾ÆÀÌÄÜµµ ¾÷µ¥ÀÌÆ®
 					if player.IsSkillActive(Position):
 						slot.ActivateSlotOld(slotNumber)
 
@@ -1128,8 +1128,8 @@ class TaskBar(ui.ScriptWindow):
 				if skill.IsStandingSkill(skillIndex):
 					continue
 
-				## FIXME : ï¿½ï¿½Å³ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½ï¿½Ï´Â°ï¿½ ï¿½Æ¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï°ï¿½ Å©ï¿½ï¿½.
-				##		 ï¿½ï¿½ ï¿½Îºï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½. - [levites]
+				## FIXME : ½ºÅ³ ÇÏ³ª´ç ½½·Ô ÇÏ³ª¾¿ ÇÒ´çÇÏ´Â°Ç ¾Æ¹«¸® ºÁµµ ºÎÇÏ°¡ Å©´Ù.
+				##		 ÀÌ ºÎºÐÀº ½Ã°£À» ³ª¸é °íÄ¡µµ·Ï. - [levites]
 				skillButton = self.SkillButton()
 				skillButton.SetSkill(startNumber+i)
 				skillButton.SetPosition(x, y)

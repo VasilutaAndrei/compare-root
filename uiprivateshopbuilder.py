@@ -18,7 +18,7 @@ import os
 ##### DISABLE/ENABLE SHOP VISIT COLOR ###
 SHOP_VISIT=True
 ##### SHOP VISIT COLOR #####
-SHOP_VISIT_COLOR=0xFF00C8FF
+SHOP_VISIT_COLOR=0xFFFC670C
 ###########################
 g_isBuildingPrivateShop = False
 
@@ -27,6 +27,11 @@ g_itemPriceDict={}
 g_privateShopAdvertisementBoardDict={}
 def GetShopNamesRange():
 	val=1.000
+	try:
+		with open("shop.cfg", 'r') as f:
+			val=float(f.read().replace('\n', ''))
+	except IOError:
+		pass
 	return float(val)
 def SetShopNamesRange(pos):
 	with open("shop.cfg", 'w+') as f:

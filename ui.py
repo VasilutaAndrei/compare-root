@@ -95,7 +95,9 @@ class Window(object):
 		self.hWnd = None
 		self.parentWindow = 0
 		self.onMouseLeftButtonUpEvent = None
+		#REDDEV_NEW_QUEST_LISTING
 		self.propertyList = {}
+		#ENDOF_REDDEV_NEW_QUEST_LISTING
 		self.RegisterWindow(layer)
 		self.SetWindowName(self.__class__.__name__)
 		self.Hide()
@@ -384,6 +386,7 @@ class Window(object):
 			if self.renderEvent:
 				apply(self.renderEvent, self.renderArgs)
 	
+	#REDDEV_NEW_QUEST_LISTING
 	def SetProperty(self, propName, propValue):
 		self.propertyList[propName] = propValue
 
@@ -392,6 +395,7 @@ class Window(object):
 			return self.propertyList[propName]
 
 		return None
+	#ENDOF_REDDEV_NEW_QUEST_LISTING
 		
 		def OnMouseLeftButtonDown(self):
 			if self.mouseLeftButtonDownEvent:
@@ -829,10 +833,13 @@ class CandidateListBox(ListBoxEx):
 
 
 class TextLine(Window):
-	def __init__(self):
+	def __init__(self, font = None):
 		Window.__init__(self)
 		self.max = 0
-		self.SetFontName(localeInfo.UI_DEF_FONT)
+		if font == None:
+			self.SetFontName(localeInfo.UI_DEF_FONT)
+		else:
+			self.SetFontName(font)
 
 	def __del__(self):
 		Window.__del__(self)
@@ -1621,8 +1628,18 @@ class AniImageBox(Window):
 	def __init__(self, layer = "UI"):
 		Window.__init__(self, layer)
 
+		self.endFrameEvent = None
+		self.endFrameArgs = None
+		
+		self.keyFrameEvent = None
+
 	def __del__(self):
 		Window.__del__(self)
+		
+		self.endFrameEvent = None
+		self.endFrameArgs = None
+		
+		self.keyFrameEvent = None
 
 	def RegisterWindow(self, layer):
 		self.hWnd = wndMgr.RegisterAniImageBox(self, layer)
@@ -1632,6 +1649,7 @@ class AniImageBox(Window):
 
 	def AppendImage(self, filename):
 		wndMgr.AppendImage(self.hWnd, filename)
+
 	def AppendImageScale(self, filename, scale_x, scale_y):
 		wndMgr.AppendImageScale(self.hWnd, filename, scale_x, scale_y)
 
@@ -1641,9 +1659,108 @@ class AniImageBox(Window):
 	def ResetFrame(self):
 		wndMgr.ResetFrame(self.hWnd)		
 		
+	def SetEndFrameEvent(self, event, *args):
+		self.endFrameEvent = event
+		self.endFrameArgs = args
+	
 	def OnEndFrame(self):
-		pass
+		if self.endFrameEvent:
+			apply(self.endFrameEvent, self.endFrameArgs)
+			
+	def SetKeyFrameEvent(self, event):
+		self.keyFrameEvent = event
+	
+	def OnKeyFrame(self, curFrame):
+		if self.keyFrameEvent:
+			self.keyFrameEvent(curFrame)
+
+	def SetScale(self, xScale, yScale):
+		wndMgr.SetAniImgScale(self.hWnd, xScale, yScale)
+			
+	def SetPercentageWithScale(self, curValue, maxValue):
+		wndMgr.SetRenderingRectWithScale(self.hWnd, 0.0, 0.0, -1.0 + float(curValue) / float(maxValue), 0.0)
+
+class CheckBox(Window):
+	def __init__(self):
+		Window.__init__(self)
 		
+		self.backgroundImage = None
+		self.checkImage = None
+
+		self.eventFunc = { "ON_CHECK" : None, "ON_UNCKECK" : None, }
+		self.eventArgs = { "ON_CHECK" : None, "ON_UNCKECK" : None, }
+	
+		self.CreateElements()
+		
+	def __del__(self):
+		Window.__del__(self)
+		
+		self.backgroundImage = None
+		self.checkImage = None
+		
+		self.eventFunc = { "ON_CHECK" : None, "ON_UNCKECK" : None, }
+		self.eventArgs = { "ON_CHECK" : None, "ON_UNCKECK" : None, }
+		
+	def CreateElements(self):
+		self.backgroundImage = ImageBox()
+		self.backgroundImage.SetParent(self)
+		self.backgroundImage.AddFlag("not_pick")
+		self.backgroundImage.LoadImage("d:/ymir work/ui/game/refine/checkbox.tga")
+		self.backgroundImage.Show()
+		
+		self.checkImage = ImageBox()
+		self.checkImage.SetParent(self)
+		self.checkImage.AddFlag("not_pick")
+		self.checkImage.SetPosition(0, -4)
+		self.checkImage.LoadImage("d:/ymir work/ui/game/refine/checked.tga")
+		self.checkImage.Hide()
+		
+		self.textInfo = TextLine()
+		self.textInfo.SetParent(self)
+		self.textInfo.SetPosition(20, -2)
+		self.textInfo.Show()
+		
+		self.SetSize(self.backgroundImage.GetWidth() + self.textInfo.GetTextSize()[0], self.backgroundImage.GetHeight() + self.textInfo.GetTextSize()[1])
+		
+	def SetTextInfo(self, info):
+		if self.textInfo:
+			self.textInfo.SetText(info)
+			
+		self.SetSize(self.backgroundImage.GetWidth() + self.textInfo.GetTextSize()[0], self.backgroundImage.GetHeight() + self.textInfo.GetTextSize()[1])
+		
+	def SetCheckStatus(self, flag):
+		if flag:
+			self.checkImage.Show()
+		else:
+			self.checkImage.Hide()
+	
+	def GetCheckStatus(self):
+		if self.checkImage:
+			return self.checkImage.IsShow()
+			
+		return False
+		
+	def SetEvent(self, func, *args) :
+		result = self.eventFunc.has_key(args[0])		
+		if result :
+			self.eventFunc[args[0]] = func
+			self.eventArgs[args[0]] = args
+		else :
+			print "[ERROR] ui.py SetEvent, Can`t Find has_key : %s" % args[0]
+		
+	def OnMouseLeftButtonUp(self):
+		if self.checkImage:
+			if self.checkImage.IsShow():
+				self.checkImage.Hide()
+
+				if self.eventFunc["ON_UNCKECK"]:
+					apply(self.eventFunc["ON_UNCKECK"], self.eventArgs["ON_UNCKECK"])
+			else:
+				self.checkImage.Show()
+
+				if self.eventFunc["ON_CHECK"]:
+					apply(self.eventFunc["ON_CHECK"], self.eventArgs["ON_CHECK"])
+
 class Button(Window):
 	def __init__(self, layer = "UI"):
 		Window.__init__(self, layer)
@@ -1741,6 +1858,25 @@ class Button(Window):
 			if not self.ButtonText:
 				return ""
 			return self.ButtonText.GetText()
+
+	# REDDEV_NEW_QUEST_LISTING
+	def SetTextAlignLeft(self, text, height = 4):
+
+		if not self.ButtonText:
+			textLine = TextLine()
+			textLine.SetParent(self)
+			textLine.SetPosition(27, self.GetHeight()/2)
+			textLine.SetVerticalAlignCenter()
+			textLine.SetHorizontalAlignLeft()
+			textLine.Show()
+			self.ButtonText = textLine
+
+		#퀘스트 리스트 UI에 맞춰 위치 잡음
+		self.ButtonText.SetText(text)
+		self.ButtonText.SetPosition(27, self.GetHeight()/2)
+		self.ButtonText.SetVerticalAlignCenter()
+		self.ButtonText.SetHorizontalAlignLeft()
+	#ENDOF_REDDEV_NEW_QUEST_LISTING
 
 	def SetFormToolTipText(self, type, text, x, y):
 		if not self.ToolTipText:
@@ -1992,6 +2128,11 @@ class SlotWindow(Window):
 		self.eventOverInItem = None
 		self.eventOverOutItem = None
 		self.eventPressedSlotButton = None
+		if app.ENABLE_FISH_EVENT:
+			self.eventSelectEmptySlotWindow = None
+			self.eventSelectItemSlotWindow = None
+			self.eventUnselectItemSlotWindow = None
+			self.eventOverInItemWindow = None
 		self.eventOverInItem2 = None
 		self.eventOverInItem3 = None
 
@@ -2000,6 +2141,11 @@ class SlotWindow(Window):
 
 		self.eventSelectEmptySlot = None
 		self.eventSelectItemSlot = None
+		if app.ENABLE_FISH_EVENT:
+			self.eventSelectEmptySlotWindow = None
+			self.eventSelectItemSlotWindow = None
+			self.eventUnselectItemSlotWindow = None
+			self.eventOverInItemWindow = None
 		self.eventUnselectEmptySlot = None
 		self.eventUnselectItemSlot = None
 		self.eventUseSlot = None
@@ -2044,6 +2190,10 @@ class SlotWindow(Window):
 
 	def DisableCoverButton(self, slotIndex):
 		wndMgr.DisableCoverButton(self.hWnd, slotIndex)
+		
+	if app.ENABLE_FISH_EVENT:
+		def DeleteCoverButton(self, slotIndex):
+			wndMgr.DeleteCoverButton(self.hWnd, slotIndex)
 
 	def SetAlwaysRenderCoverButton(self, slotIndex, bAlwaysRender = True):
 		wndMgr.SetAlwaysRenderCoverButton(self.hWnd, slotIndex, bAlwaysRender)
@@ -2109,23 +2259,42 @@ class SlotWindow(Window):
 				self.eventUnselectEmptySlot=__mem_func__(event)
 				self.eventUnselectItemSlot=__mem_func__(event)
 
-	def SetSelectEmptySlotEvent(self, empty):
-		self.eventSelectEmptySlot = empty
-
-	def SetSelectItemSlotEvent(self, item):
-		self.eventSelectItemSlot = item
+	if app.ENABLE_FISH_EVENT:
+		def SetSelectEmptySlotEvent(self, empty, window = None):
+			self.eventSelectEmptySlot = empty
+			self.eventSelectEmptySlotWindow = window
+	
+		def SetSelectItemSlotEvent(self, item, window = None):
+			self.eventSelectItemSlot = item
+			self.eventSelectItemSlotWindow = window
+	else:
+		def SetSelectEmptySlotEvent(self, empty):
+			self.eventSelectEmptySlot = empty
+	
+		def SetSelectItemSlotEvent(self, item):
+			self.eventSelectItemSlot = item
 
 	def SetUnselectEmptySlotEvent(self, empty):
 		self.eventUnselectEmptySlot = empty
 
-	def SetUnselectItemSlotEvent(self, item):
-		self.eventUnselectItemSlot = item
+	if app.ENABLE_FISH_EVENT:
+		def SetUnselectItemSlotEvent(self, item, window = None):
+			self.eventUnselectItemSlot = item
+			self.eventUnselectItemSlotWindow = window
+	else:	
+		def SetUnselectItemSlotEvent(self, item):
+			self.eventUnselectItemSlot = item
 
 	def SetUseSlotEvent(self, use):
 		self.eventUseSlot = use
 
-	def SetOverInItemEvent(self, event):
-		self.eventOverInItem = event
+	if app.ENABLE_FISH_EVENT:
+		def SetOverInItemEvent(self, event, window = None):
+			self.eventOverInItem = event
+			self.eventOverInItemWindow = window
+	else:
+		def SetOverInItemEvent(self, event):
+			self.eventOverInItem = event
 
 	def SetOverOutItemEvent(self, event):
 		self.eventOverOutItem = event
@@ -2257,34 +2426,72 @@ class SlotWindow(Window):
 
 		wndMgr.SetSlot(self.hWnd, renderingSlotNumber, emotionIndex, 1, 1, icon)
 
-	## Event
-	def OnSelectEmptySlot(self, slotNumber):
-		if self.eventSelectEmptySlot:
-			self.eventSelectEmptySlot(slotNumber)
+	if app.ENABLE_FISH_EVENT:
+		def OnSelectEmptySlot(self, slotNumber):
+			if self.eventSelectEmptySlot:
+				if self.eventSelectEmptySlotWindow:
+					self.eventSelectEmptySlot(slotNumber, self.eventSelectEmptySlotWindow)
+				else:
+					self.eventSelectEmptySlot(slotNumber)
 
-	def OnSelectItemSlot(self, slotNumber):
-		if self.eventSelectItemSlot:
-			self.eventSelectItemSlot(slotNumber)
+		def OnSelectItemSlot(self, slotNumber):
+			if self.eventSelectItemSlot:
+				if self.eventSelectItemSlotWindow:
+					self.eventSelectItemSlot(slotNumber, self.eventSelectItemSlotWindow)
+				else:
+					self.eventSelectItemSlot(slotNumber)
+	else:
+		def OnSelectEmptySlot(self, slotNumber):
+			if self.eventSelectEmptySlot:
+				self.eventSelectEmptySlot(slotNumber)
+	
+		def OnSelectItemSlot(self, slotNumber):
+			if self.eventSelectItemSlot:
+				self.eventSelectItemSlot(slotNumber)
 
 	def OnUnselectEmptySlot(self, slotNumber):
 		if self.eventUnselectEmptySlot:
 			self.eventUnselectEmptySlot(slotNumber)
 
-	def OnUnselectItemSlot(self, slotNumber):
-		if self.eventUnselectItemSlot:
-			self.eventUnselectItemSlot(slotNumber)
+	if app.ENABLE_FISH_EVENT:
+		def OnUnselectItemSlot(self, slotNumber):
+			if self.eventUnselectItemSlot:
+				if self.eventUnselectItemSlotWindow:
+					self.eventUnselectItemSlot(slotNumber, self.eventUnselectItemSlotWindow)
+				else:
+					self.eventUnselectItemSlot(slotNumber)
+	else:
+		def OnUnselectItemSlot(self, slotNumber):
+			if self.eventUnselectItemSlot:
+				self.eventUnselectItemSlot(slotNumber)
 
 	def OnUseSlot(self, slotNumber):
 		if self.eventUseSlot:
 			self.eventUseSlot(slotNumber)
 
-	def OnOverInItem(self, slotNumber,vnum=0,itemID=0):
-		if self.eventOverInItem:
-			self.eventOverInItem(slotNumber)
-		if self.eventOverInItem2 and vnum>0:
-			self.eventOverInItem2(vnum)
-		if self.eventOverInItem3 and itemID>0:
-			self.eventOverInItem3(itemID)
+			
+			
+			
+			
+	if app.ENABLE_FISH_EVENT:
+		def OnOverInItem(self, slotNumber, vnum=0, itemID=0):
+			if self.eventOverInItem:
+				if self.eventOverInItemWindow:
+					self.eventOverInItem(slotNumber, self.eventOverInItemWindow)
+				else:
+					self.eventOverInItem(slotNumber)
+			if self.eventOverInItem2 and vnum>0:
+				self.eventOverInItem2(vnum)
+			if self.eventOverInItem3 and itemID>0:
+				self.eventOverInItem3(itemID)
+	else:
+		def OnOverInItem(self, slotNumber, vnum=0, itemID=0):
+			if self.eventOverInItem:
+				self.eventOverInItem(slotNumber)
+			if self.eventOverInItem2 and vnum>0:
+				self.eventOverInItem2(vnum)
+			if self.eventOverInItem3 and itemID>0:
+				self.eventOverInItem3(itemID)
 
 	def OnOverOutItem(self):
 		if self.eventOverOutItem:
@@ -2319,6 +2526,10 @@ class GridSlotWindow(SlotWindow):
 
 	def GetStartIndex(self):
 		return self.startIndex
+		
+	if app.ENABLE_FISH_EVENT:
+		def SetPickedAreaRender(self, flag):
+			wndMgr.SetPickedAreaRender(self.hWnd, flag)
 
 class TitleBar(Window):
 
@@ -2390,6 +2601,167 @@ class TitleBar(Window):
 
 	def SetCloseEvent(self, event):
 		self.btnClose.SetEvent(event)
+
+# REDDEV_NEW_QUEST_LISTING		
+class SubTitleBar(Button):
+	def __init__(self):
+		Button.__init__(self)
+
+	def __del__(self):
+		Button.__del__(self)
+
+	def MakeSubTitleBar(self, width, color):
+		import quest
+		
+		## 현재 Color는 사용하고 있지 않음
+
+		width = max(64, width)
+
+		self.SetUpVisual("d:/ymir work/ui/game/quest/quest_category.tga")
+		self.SetOverVisual("d:/ymir work/ui/game/quest/quest_category.tga")
+		self.SetDownVisual("d:/ymir work/ui/game/quest/quest_category.tga")
+		self.Show()
+		
+		#네이밍 ㅈㅅ
+		isOpenImage = ImageBox()
+		isOpenImage.SetParent(self)
+		isOpenImage.LoadImage("d:/ymir work/ui/game/quest/quest_category_open.tga")
+		isOpenImage.SetPosition(8,5)
+		isOpenImage.AddFlag("not_pick")
+		isOpenImage.Show()
+		
+		self.isOpenImage = isOpenImage
+		
+		self.SetWidth(width)
+		self.isOpen = []
+		for i in xrange(1):
+			self.isOpen.append(FALSE)
+
+	def SetWidth(self, width):
+		self.SetPosition(32, 0)
+		
+		#if localeInfo.IsARABIC():
+		#	self.btnImage.SetPosition(width - self.btnClose.GetWidth() - 3, 3)
+		#else:
+		#    self.btnImage.SetPosition(0, 3)
+		
+		self.SetSize(width, 23)
+
+	def OnClickEvent(self):
+		#self.ToggleSubImage()
+		pass
+
+	def ToggleSubImage(self):
+		import uiCharacter
+		self.wndCharacter = uiCharacter.CharacterWindow()
+		backup_category = -1
+		isSameFlag = FALSE
+		backup_isOpenImage = ImageBox()
+		
+		now_selected_category = int(self.GetWindowName()[16:17])
+		if backup_category > 0 and backup_category == now_selected_category:
+			isSameFlag = TRUE
+
+		#print "=ToggleSubImage Test= backup_category, backup_isOpenImage, now_selected_category, self.isOpen[now_selected_category], isSameFlag",backup_category, backup_isOpenImage, now_selected_category, self.isOpen[now_selected_category], isSameFlag
+
+		if self.isOpen[now_selected_category]:
+			# 열려있으니 닫아줌.
+			self.isOpenImage.LoadImage("d:/ymir work/ui/game/quest/quest_category_close.tga")
+			self.isOpenImage.SetWindowName('category_close')
+			self.isOpen[now_selected_category] = FALSE
+		elif self.wndCharacter.CanOpenQuestCategory(now_selected_category) == TRUE and self.isOpen[now_selected_category] == FALSE:
+			self.isOpenImage.LoadImage("d:/ymir work/ui/game/quest/quest_category_open.tga")
+			self.isOpenImage.SetWindowName('category_open')
+			self.isOpen[now_selected_category] = TRUE
+		self.isOpenImage.SetPosition(8,5)
+		self.isOpenImage.AddFlag("not_pick")
+		self.isOpenImage.Show()
+		
+		#저장해놓기
+		backup_category = now_selected_category
+		backup_isOpenImage = self.isOpenImage
+
+	def OpenSubImage(self):		
+		now_selected_category = int(self.GetWindowName()[16:17])	
+ 
+		self.isOpenImage.LoadImage("d:/ymir work/ui/game/quest/quest_category_open.tga")
+		self.isOpenImage.SetWindowName('category_open')
+		self.isOpen[now_selected_category] = True
+
+		self.isOpenImage.SetPosition(8,5)
+		self.isOpenImage.AddFlag("not_pick")
+		self.isOpenImage.Show()
+
+	def CloseSubImage(self):		
+		now_selected_category = int(self.GetWindowName()[16:17])
+		
+		self.isOpenImage.LoadImage("d:/ymir work/ui/game/quest/quest_category_close.tga")
+		self.isOpenImage.SetWindowName('category_close')
+		self.isOpen[now_selected_category] = False
+
+		self.isOpenImage.SetPosition(8,5)
+		self.isOpenImage.AddFlag("not_pick")
+		self.isOpenImage.Show()
+
+
+class ListBar(Button):
+
+	def __init__(self):
+		Button.__init__(self)
+
+	def __del__(self):
+		Button.__del__(self)
+
+	def MakeListBar(self, width, color):
+
+		## 현재 Color는 사용하고 있지 않음
+
+		width = max(64, width)
+
+		self.Show()
+		
+		checkbox = ImageBox()
+		checkbox.SetParent(self)
+		checkbox.LoadImage("d:/ymir work/ui/game/quest/quest_checkbox.tga")
+		checkbox.SetPosition(10,5)
+		checkbox.AddFlag("not_pick")
+		checkbox.Show()
+        		
+		self.checkbox = checkbox
+		
+		self.SetWidth(width)
+		self.isChecked = FALSE
+
+	def SetWidth(self, width):
+		self.SetPosition(32, 0)
+		
+		#if localeInfo.IsARABIC():
+		#	self.btnImage.SetPosition(width - self.btnClose.GetWidth() - 3, 3)
+		#else:
+		#    self.btnImage.SetPosition(0, 3)
+		
+		self.SetSize(width, 23)
+
+	def CallEvent(self):
+		self.OnClickEvent()
+		super(ListBar, self).CallEvent()
+
+	def OnClickEvent(self):
+		print "========================OnClickEvent========================",self.isChecked
+		checked_image = ImageBox()
+		checked_image.SetParent(self)
+		checked_image.LoadImage("d:/ymir work/ui/game/quest/quest_checked.tga")
+		checked_image.SetPosition(10,1)
+		checked_image.AddFlag("not_pick")
+
+		checked_image.Show()
+		
+		self.isChecked = TRUE
+		self.checked_image = checked_image
+
+	def SetSlot(self, slotIndex, itemIndex, width, height, icon, diffuseColor = (1.0, 1.0, 1.0, 1.0)):
+		wndMgr.SetSlot(self.hWnd, slotIndex, itemIndex, width, height, icon, diffuseColor)
+# ENDOF_REDDEV_NEW_QUEST_LISTING
 
 class HorizontalBar(Window):
 
@@ -2599,6 +2971,111 @@ class Board(Window):
 		if self.Base:
 			self.Base.SetRenderingRect(0, 0, horizontalShowingPercentage, verticalShowingPercentage)
 
+class BorderA(Board):
+	CORNER_WIDTH = 16
+	CORNER_HEIGHT = 16
+	LINE_WIDTH = 16
+	LINE_HEIGHT = 16
+	
+	BASE_PATH = "d:/ymir work/ui/pattern"
+	IMAGES = {
+		'CORNER' : {
+			0 : "border_a_left_top",
+			1 : "border_a_left_bottom",
+			2 : "border_a_right_top",
+			3 : "border_a_right_bottom"
+		},
+		'BAR' : {
+			0 : "border_a_left",
+			1 : "border_a_right",
+			2 : "border_a_top",
+			3 : "border_a_bottom"
+		},
+		'FILL' : "border_a_center"
+	}
+	
+	def __init__(self, layer = "UI"):
+		Board.__init__(self, layer)
+
+	def __del__(self):
+		Board.__del__(self)
+
+	def SetSize(self, width, height):
+		Board.SetSize(self, width, height)
+
+class BorderB(Board):
+	CORNER_WIDTH = 16
+	CORNER_HEIGHT = 16
+	LINE_WIDTH = 16
+	LINE_HEIGHT = 16
+	
+	BASE_PATH = "d:/ymir work/ui/pattern"
+	IMAGES = {
+		'CORNER' : {
+			0 : "border_b_left_top",
+			1 : "border_b_left_bottom",
+			2 : "border_b_right_top",
+			3 : "border_b_right_bottom"
+		},
+		'BAR' : {
+			0 : "border_b_left",
+			1 : "border_b_right",
+			2 : "border_b_top",
+			3 : "border_b_bottom"
+		},
+		'FILL' : "border_b_center"
+	}
+	
+	def __init__(self):
+		Board.__init__(self)
+
+	def __del__(self):
+		Board.__del__(self)
+
+	def SetSize(self, width, height):
+		Board.SetSize(self, width, height)
+		
+class AlphaBoard(Board):
+	def __init__(self):
+		Board.__init__(self)
+		titleBar = TitleBar()
+		titleBar.SetParent(self)
+		titleBar.MakeTitleBar(0, "red")
+		titleBar.SetPosition(8, 7)
+		titleBar.Show()
+
+		titleName = TextLine()
+		titleName.SetParent(titleBar)
+		titleName.SetPosition(0, 4)
+		titleName.SetWindowHorizontalAlignCenter()
+		titleName.SetHorizontalAlignCenter()
+		titleName.Show()
+		
+		self.titleBar = titleBar
+		self.titleName = titleName
+
+		self.SetCloseEvent(self.Hide)
+
+	def __del__(self):
+		Board.__del__(self)
+		self.titleBar = None
+		self.titleName = None
+
+	def SetSize(self, width, height):
+		self.titleBar.SetWidth(width - 15)
+		#self.pickRestrictWindow.SetSize(width, height - 30)
+		Board.SetSize(self, width, height)
+		self.titleName.UpdateRect()
+
+	def SetTitleColor(self, color):
+		self.titleName.SetPackedFontColor(color)
+
+	def SetTitleName(self, name):
+		self.titleName.SetText(name)
+
+	def SetCloseEvent(self, event):
+		self.titleBar.SetCloseEvent(event)
+
 class BoardWithTitleBar(Board):
 	def __init__(self):
 		Board.__init__(self)
@@ -2752,98 +3229,6 @@ class ThinBoard(Window):
 		for wnd in self.Corners:
 			wnd.Hide()
 			
-class ThinBoardDungeon(Window):
-	CORNER_WIDTH = 16
-	CORNER_HEIGHT = 16
-	LINE_WIDTH = 16
-	LINE_HEIGHT = 16
-	BOARD_COLOR = grp.GenerateColor(0.0, 0.0, 0.0, 0.51)
-
-	LT = 0
-	LB = 1
-	RT = 2
-	RB = 3
-	L = 0
-	R = 1
-	T = 2
-	B = 3
-
-	def __init__(self, layer = "UI"):
-		Window.__init__(self, layer)
-		CornerFileNames = [ "d:/ymir work/ui/pattern/thinboarddungeon/ThinBoard_Corner_"+dir+".tga" for dir in ["LeftTop_gold", "LeftBottom_gold","RightTop_gold", "RightBottom_gold"]]
-		LineFileNames = [ "d:/ymir work/ui/pattern/thinboarddungeon/ThinBoard_Line_"+dir+".tga" for dir in ["Left_gold", "Right_gold", "Top_gold", "Bottom_gold"]]
-		
-		self.Corners = []
-		for fileName in CornerFileNames:
-			Corner = ExpandedImageBox()
-			Corner.AddFlag("attach")
-			Corner.AddFlag("not_pick")
-			Corner.LoadImage(fileName)
-			Corner.SetParent(self)
-			Corner.SetPosition(0, 0)
-			Corner.Show()
-			self.Corners.append(Corner)
-
-		self.Lines = []
-		for fileName in LineFileNames:
-			Line = ExpandedImageBox()
-			Line.AddFlag("attach")
-			Line.AddFlag("not_pick")
-			Line.LoadImage(fileName)
-			Line.SetParent(self)
-			Line.SetPosition(0, 0)
-			Line.Show()
-			self.Lines.append(Line)
-
-		Base = ExpandedImageBox()
-		Base.SetParent(self)
-		Base.AddFlag("attach")
-		Base.AddFlag("not_pick")
-		Base.LoadImage("d:/ymir work/ui/pattern/thinboarddungeon/thinboard_bg_gold.tga")
-		Base.SetPosition(self.CORNER_WIDTH, self.CORNER_HEIGHT)
-		Base.Show()
-		self.Base = Base
-
-		self.Lines[self.L].SetPosition(0, self.CORNER_HEIGHT)
-		self.Lines[self.T].SetPosition(self.CORNER_WIDTH, 0)
-
-	def __del__(self):
-		Window.__del__(self)
-
-	def SetSize(self, width, height):
-
-		width = max(self.CORNER_WIDTH*2, width)
-		height = max(self.CORNER_HEIGHT*2, height)
-		Window.SetSize(self, width, height)
-
-		self.Corners[self.LB].SetPosition(0, height - self.CORNER_HEIGHT)
-		self.Corners[self.RT].SetPosition(width - self.CORNER_WIDTH, 0)
-		self.Corners[self.RB].SetPosition(width - self.CORNER_WIDTH, height - self.CORNER_HEIGHT)
-		self.Lines[self.R].SetPosition(width - self.CORNER_WIDTH, self.CORNER_HEIGHT)
-		self.Lines[self.B].SetPosition(self.CORNER_HEIGHT, height - self.CORNER_HEIGHT)
-
-		verticalShowingPercentage = float((height - self.CORNER_HEIGHT*2) - self.LINE_HEIGHT) / self.LINE_HEIGHT
-		horizontalShowingPercentage = float((width - self.CORNER_WIDTH*2) - self.LINE_WIDTH) / self.LINE_WIDTH
-		self.Lines[self.L].SetRenderingRect(0, 0, 0, verticalShowingPercentage)
-		self.Lines[self.R].SetRenderingRect(0, 0, 0, verticalShowingPercentage)
-		self.Lines[self.T].SetRenderingRect(0, 0, horizontalShowingPercentage, 0)
-		self.Lines[self.B].SetRenderingRect(0, 0, horizontalShowingPercentage, 0)
-		if self.Base:
-			self.Base.SetRenderingRect(0, 0, horizontalShowingPercentage, verticalShowingPercentage)
-
-	def ShowInternal(self):
-		self.Base.Show()
-		for wnd in self.Lines:
-			wnd.Show()
-		for wnd in self.Corners:
-			wnd.Show()
-
-	def HideInternal(self):
-		self.Base.Hide()
-		for wnd in self.Lines:
-			wnd.Hide()
-		for wnd in self.Corners:
-			wnd.Hide()
 
 class NewBoard(Window):
 
@@ -3761,8 +4146,10 @@ class PythonScriptLoader(object):
 	EDIT_LINE_KEY_LIST = ( "width", "height", "input_limit", )
 	COMBO_BOX_KEY_LIST = ( "width", "height", "item", )
 	TITLE_BAR_KEY_LIST = ( "width", )
+	# REDDEV_NEW_QUEST_LISTING
 	SUB_TITLE_BAR_KEY_LIST = ( "width", )
 	LIST_BAR_KEY_LIST = ( "width", )
+	# ENDOF_REDDEV_NEW_QUEST_LISTING
 	HORIZONTAL_BAR_KEY_LIST = ( "width", )
 	BOARD_KEY_LIST = ( "width", "height", )
 	BOARD_WITH_TITLEBAR_KEY_LIST = ( "width", "height", "title", )
@@ -3963,6 +4350,18 @@ class PythonScriptLoader(object):
 				parent.Children[Index] = TitleBar()
 				parent.Children[Index].SetParent(parent)
 				self.LoadElementTitleBar(parent.Children[Index], ElementValue, parent)
+			
+			#REDDEV_NEW_QUEST_LISTING
+			elif Type == "subtitlebar":
+				parent.Children[Index] = SubTitleBar()
+				parent.Children[Index].SetParent(parent)
+				self.LoadElementSubTitleBar(parent.Children[Index], ElementValue, parent)
+			
+			elif Type == "listbar":
+				parent.Children[Index] = ListBar()
+				parent.Children[Index].SetParent(parent)
+				self.LoadElementListBar(parent.Children[Index], ElementValue, parent)	
+			#ENDOF_REDDEV_NEW_QUEST_LISTING
 
 			elif Type == "horizontalbar":
 				parent.Children[Index] = HorizontalBar()
@@ -4440,6 +4839,31 @@ class PythonScriptLoader(object):
 		self.LoadDefaultData(window, value, parentWindow)
 
 		return True
+	
+	# REDDEV_NEW_QUEST_LISTING
+	## SubTitleBar
+	def LoadElementSubTitleBar(self, window, value, parentWindow):
+		if FALSE == self.CheckKeyList(value["name"], value, self.SUB_TITLE_BAR_KEY_LIST):
+			return FALSE
+
+		window.MakeSubTitleBar(int(value["width"]), value.get("color", "red"))
+		#self.LoadDefaultData(window, value, parentWindow)
+		self.LoadElementButton(window, value, parentWindow)
+		#test
+		window.Show()
+		return TRUE
+
+	## ListBar
+	def LoadElementListBar(self, window, value, parentWindow):
+		if FALSE == self.CheckKeyList(value["name"], value, self.LIST_BAR_KEY_LIST):
+			return FALSE
+
+		window.MakeListBar(int(value["width"]), value.get("color", "red"))
+		#self.LoadDefaultData(window, value, parentWindow)
+		self.LoadElementButton(window, value, parentWindow)
+
+		return TRUE
+	# ENDOF_REDDEV_NEW_QUEST_LISTING
 
 	## HorizontalBar
 	def LoadElementHorizontalBar(self, window, value, parentWindow):
@@ -4682,6 +5106,7 @@ def MakeTextLine(parent, horizontalAlign = True, verticalAlgin = True):
 	textLine.SetVerticalAlignCenter()
 	textLine.Show()
 	return textLine
+
 def MakeButton(parent, x, y, tooltipText, path, up, over, down):
 	button = Button()
 	button.SetParent(parent)

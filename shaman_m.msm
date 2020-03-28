@@ -624,24 +624,6 @@ Group HairData
 		SourceSkin			"hair/hair_50_1.dds"
 		TargetSkin			"hair/hair_50_2.dds"
 	}
-	Group HairData115
-	{
-		SpecialPath			"d:/ymir work/pc/plechito/respirator_mask/"
-		
-		HairIndex			900
-		Model				"shaman_m.GR2"
-		SourceSkin			"plechito_tex.dds"
-		TargetSkin			"plechito_tex.dds"
-	}
-	Group HairData116
-	{
-		SpecialPath			"d:/ymir work/pc/plechito/gold_dragon_costume/hair/"
-		
-		HairIndex			901
-		Model				"shaman_m.GR2"
-		SourceSkin			"plechito_tex2.dds"
-		TargetSkin			"plechito_tex2.dds"
-	}
 }
 
 Group AcceData
@@ -2096,15 +2078,6 @@ Group ShapeData
 		Model				"shaman_easter_day_2017.GR2"
 		SourceSkin			"shaman_easter_day_2017_1.dds"
 		TargetSkin			"shaman_easter_day_2017_2.dds"
-	}
-	Group ShapeData193
-	{
-		SpecialPath			"d:/ymir work/pc/plechito/gold_dragon_costume/"
-		
-		ShapeIndex			41586
-		Model				"shaman_m.GR2"	
-		SourceSkin			"plechito_tex_su.dds"
-		TargetSkin			"plechito_tex_su.dds"
 	}
 }
 

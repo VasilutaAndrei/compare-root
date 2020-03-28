@@ -4,8 +4,8 @@ import uiScriptLocale
 
 window = {
 	"name" : "Sash_CombineWindow",
-	"x" : 0,
-	"y" : 0,
+	"x" : 400,
+	"y" : 280,
 	"style" : ("movable", "float",),
 	"width" : 215,
 	"height" : 270,

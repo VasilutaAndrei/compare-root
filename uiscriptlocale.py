@@ -89,6 +89,7 @@ if app.ENABLE_ATTENDANCE_EVENT:
 	EMPIREDESC_A = "%s/empiredesc_a.txt" % (name)
 	EMPIREDESC_B = "%s/empiredesc_b.txt" % (name)
 	EMPIREDESC_C = "%s/empiredesc_c.txt" % (name)
+	FISH_EVENT_DESC_FILE_NAME = "%s/fish_event_desc.txt" % (name)
 
 	LOCALE_INTERFACE_FILE_NAME = "%s/locale_interface.txt" % (name)
 

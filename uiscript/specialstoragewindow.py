@@ -1,15 +1,16 @@
 import uiScriptLocale
+import app
 
 window = {
 	"name" : "SpecialStorageWindow",
 
-	"x" : SCREEN_WIDTH - 358,
-	"y" : SCREEN_HEIGHT - 450,
+	"x" : SCREEN_WIDTH - 400,
+	"y" : 10,
 
 	"style" : ("movable", "float",),
 
 	"width" : 184,
-	"height" : 328+32+30,
+	"height" : 328+32+35,
 
 	"children" :
 	(
@@ -22,7 +23,7 @@ window = {
 			"y" : 0,
 
 			"width" : 184,
-			"height" : 328+32+30,
+			"height" : 328+32+35,
 
 			"children" :
 			(
@@ -32,18 +33,30 @@ window = {
 					"type" : "titlebar",
 					"style" : ("attach",),
 
-					"x" : 8,
+					"x" : 46,
 					"y" : 8,
 
-					"width" : 169,
+					"width" : 130,
 					"color" : "gray",
 
 					"children" :
 					(
-						{ "name":"TitleName", "type":"text", "x":84, "y":4, "text":"Inventar special", "text_horizontal_align":"center" },
+						{ "name":"TitleName", "type":"text", "x":66, "y":4, "text":"Magazie", "text_horizontal_align":"center" },
 					),
 				},
 
+				{
+					"name":"SetItemsStorage",
+					"type":"button",
+					"x":7,
+					"y":8,
+					"tooltip_text" : "Aranjare Iteme",
+					"horizontal_align":"left",
+					"default_image" : "d:/ymir work/ui/public/button_refresh_02.sub",
+					"over_image" : "d:/ymir work/ui/public/button_refresh_01.sub",
+					"down_image" : "d:/ymir work/ui/public/button_refresh_03.sub",
+				},
+				
 				## Item Slot
 				{
 					"name" : "ItemSlot",
@@ -68,62 +81,59 @@ window = {
 					"x" : 14,
 					"y" : 295+32,
 
-					"default_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_01.sub",
-					"over_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_02.sub",
-					"down_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_03.sub",
-
+					"default_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_01.sub",
+					"over_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_02.sub",
+					"down_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_03.sub",
 					"children" :
 					(
 						{
-							"name" : "Inventory_Tab_01_Print",
+							"name" : "Inventory_Tab_01_Print_2",
 							"type" : "text",
 
 							"x" : 0,
 							"y" : 0,
 
 							"all_align" : "center",
-
 							"text" : "I",
 						},
 					),
 				},
+				
 				{
 					"name" : "Inventory_Tab_02",
 					"type" : "radio_button",
 
-					"x" : 14 + 32,
+					"x" : 14 + 40,
 					"y" : 295+32,
 
-					"default_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_01.sub",
-					"over_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_02.sub",
-					"down_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_03.sub",
+					"default_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_01.sub",
+					"over_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_02.sub",
+					"down_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_03.sub",
 
 					"children" :
 					(
 						{
-							"name" : "Inventory_Tab_02_Print",
+							"name" : "Inventory_Tab_02_Print_2",
 							"type" : "text",
 
 							"x" : 0,
 							"y" : 0,
 
 							"all_align" : "center",
-
 							"text" : "II",
 						},
 					),
 				},
-		
 				{
 					"name" : "Inventory_Tab_03",
 					"type" : "radio_button",
 
-					"x" : 35 + 32 + 32,
+					"x" : 14 + 80,
 					"y" : 295+32,
 
-					"default_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_01.sub",
-					"over_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_02.sub",
-					"down_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_03.sub",
+					"default_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_01.sub",
+					"over_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_02.sub",
+					"down_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_03.sub",
 
 					"children" :
 					(
@@ -135,24 +145,20 @@ window = {
 							"y" : 0,
 
 							"all_align" : "center",
-
 							"text" : "III",
 						},
 					),
 				},
-				
-				
-		
 				{
 					"name" : "Inventory_Tab_04",
 					"type" : "radio_button",
 
-					"x" : 35 + 32 +32 +32,
+					"x" : 14 + 120,
 					"y" : 295+32,
 
-					"default_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_01.sub",
-					"over_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_02.sub",
-					"down_image" : "d:/ymir work/ui/game/windows/tab_button_large_half_03.sub",
+					"default_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_01.sub",
+					"over_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_02.sub",
+					"down_image" : "d:/ymir work/ui/game/special_storage/tab_button_large_03.sub",
 
 					"children" :
 					(
@@ -164,7 +170,6 @@ window = {
 							"y" : 0,
 
 							"all_align" : "center",
-
 							"text" : "IV",
 						},
 					),
@@ -174,81 +179,35 @@ window = {
 					"name" : "Category_Tab_01",
 					"type" : "radio_button",
 
-					"x" : 14,
+					"x" : 30,
 					"y" : 295+32+30,
 
-					"default_image" : "d:/ymir work/ui/game/windows/tab_button_middle_01.sub",
-					"over_image" : "d:/ymir work/ui/game/windows/tab_button_middle_02.sub",
-					"down_image" : "d:/ymir work/ui/game/windows/tab_button_middle_03.sub",
-
-					"children" :
-					(
-						{
-							"name" : "Category_Tab_01_Print",
-							"type" : "text",
-
-							"x" : 0,
-							"y" : 0,
-
-							"all_align" : "center",
-
-							"text" : "Upgrade",
-						},
-					),
+					"default_image" : "d:/ymir work/ui/game/special_storage/tab_upgrade_button_middle_01.sub",
+					"over_image" : "d:/ymir work/ui/game/special_storage/tab_upgrade_button_middle_02.sub",
+					"down_image" : "d:/ymir work/ui/game/special_storage/tab_upgrade_button_middle_03.sub",
 				},
 					
 				{
 					"name" : "Category_Tab_02",
 					"type" : "radio_button",
 
-					"x" : 14+52,
+					"x" : 30+41,
 					"y" : 295+32+30,
-
-					"default_image" : "d:/ymir work/ui/game/windows/tab_button_middle_01.sub",
-					"over_image" : "d:/ymir work/ui/game/windows/tab_button_middle_02.sub",
-					"down_image" : "d:/ymir work/ui/game/windows/tab_button_middle_03.sub",
-
-					"children" :
-					(
-						{
-							"name" : "Category_Tab_02_Print",
-							"type" : "text",
-
-							"x" : 0,
-							"y" : 0,
-
-							"all_align" : "center",
-
-							"text" : "Bonusuri",
-						},
-					),
+					"default_image" : "d:/ymir work/ui/game/special_storage/tab_book_button_middle_01.sub",
+					"over_image" : "d:/ymir work/ui/game/special_storage/tab_book_button_middle_02.sub",
+					"down_image" : "d:/ymir work/ui/game/special_storage/tab_book_button_middle_03.sub",
 				},
 				
 				{
 					"name" : "Category_Tab_03",
 					"type" : "radio_button",
 
-					"x" : 14+52+52,
+					"x" : 30+41+41,
 					"y" : 295+32+30,
 
-					"default_image" : "d:/ymir work/ui/game/windows/tab_button_middle_01.sub",
-					"over_image" : "d:/ymir work/ui/game/windows/tab_button_middle_02.sub",
-					"down_image" : "d:/ymir work/ui/game/windows/tab_button_middle_03.sub",
-
-					"children" :
-					(
-						{
-							"name" : "Category_Tab_03_Print",
-							"type" : "text",
-
-							"x" : 0,
-							"y" : 0,
-
-							"all_align" : "center",
-
-							"text" : "Pietre",
-						},
-					),
+					"default_image" : "d:/ymir work/ui/game/special_storage/tab_stone_button_middle_01.sub",
+					"over_image" : "d:/ymir work/ui/game/special_storage/tab_stone_button_middle_02.sub",
+					"down_image" : "d:/ymir work/ui/game/special_storage/tab_stone_button_middle_03.sub",
 				},
 			),
 		},

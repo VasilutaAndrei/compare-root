@@ -11,7 +11,7 @@ if app.ENABLE_BATTLE_FIELD:
 		"style" : ("movable", "float",),
 
 		"width" : 184,
-		"height" : 328+40+32+20,
+		"height" : 328+40+32,
 
 		"children" :
 		(

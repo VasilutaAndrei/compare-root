@@ -11,7 +11,7 @@ class ServerCommandParser(object):
 
 	def __ServerCommand_Build(self):
 		serverCommandList={
-			"DayMode"				: self.DayMode_Update,
+			"DayMode"				: self.__DayMode_Update,
 			"xmas_snow"				: self.__XMasSnow_Enable,
 			"xmas_boom"				: self.__XMasBoom_Enable,
 			"xmas_tree"				: self.__XMasTree_Enable,
@@ -22,7 +22,6 @@ class ServerCommandParser(object):
 
 		self.serverCommander=stringCommander.Analyzer()
 		for serverCommandItem in serverCommandList.items():
-			chat.AppendChat(1, serverCommandItem[0] + serverCommandItem[1])
 			self.serverCommander.SAFE_RegisterCallBack(
 				serverCommandItem[0], serverCommandItem[1]
 			)
@@ -39,7 +38,7 @@ class ServerCommandParser(object):
 	def __PreserveCommand(self, line):
 		net.PreserveServerCommand(line)
 
-	def DayMode_Update(self, mode):
+	def __DayMode_Update(self, mode):
 		self.__PreserveCommand("PRESERVE_DayMode " + mode)
 
 	def __ItemMall_Open(self):

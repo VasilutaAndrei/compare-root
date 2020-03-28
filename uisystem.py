@@ -11,7 +11,6 @@ import localeInfo
 import game
 import switchbot
 import serverInfo
-import webbrowser
 from switchbot import Bot
 if app.ENABLE_MOVE_CHANNEL:
 	import chat,serverInfo,ServerStateChecker
@@ -59,8 +58,8 @@ class SystemDialog(ui.ScriptWindow):
 		# self.GetChild("help_button").SAFE_SetEvent(self.__ClickHelpButton)
 		self.GetChild("cancel_button").SAFE_SetEvent(self.Close)
 
-		if constInfo.IN_GAME_SHOP_ENABLE:
-			self.GetChild("mall_button").SAFE_SetEvent(self.__ClickInGameShopButton)
+		# if constInfo.IN_GAME_SHOP_ENABLE:
+			# self.GetChild("mall_button").SAFE_SetEvent(self.__ClickInGameShopButton)
 		if app.ENABLE_MOVE_CHANNEL:
 			self.GetChild("movechannel_button").SAFE_SetEvent(self.__ClickMoveChannel)
 
@@ -164,7 +163,7 @@ class SystemDialog(ui.ScriptWindow):
 
 	def __ClickInGameShopButton(self):
 		self.Close()
-		webbrowser.open("https://cybernetic2.com/ishop")
+		net.SendChatPacket("/in_game_mall")
 
 	def Close(self):
 		self.Hide()

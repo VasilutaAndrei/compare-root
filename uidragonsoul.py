@@ -63,32 +63,10 @@ class DragonSoulWindow(ui.ScriptWindow):
 			import exception
 			exception.Abort("dragonsoulwindow.LoadWindow.LoadObject")
 		try:
-			if localeInfo.IsARABIC():
-				self.board = self.GetChild("Equipment_Base")
-				self.board.SetScale(-1.0, 1.0)
-				self.board.SetRenderingRect(-1.0, 0.0, 1.0, 0.0)
-				self.board = self.GetChild("Tab_01")
-				self.board.SetScale(-1.0, 1.0)
-				self.board.SetRenderingRect(-1.0, 0.0, 1.0, 0.0)
-				self.board = self.GetChild("Tab_02")
-				self.board.SetScale(-1.0, 1.0)
-				self.board.SetRenderingRect(-1.0, 0.0, 1.0, 0.0)
-				self.board = self.GetChild("Tab_03")
-				self.board.SetScale(-1.0, 1.0)
-				self.board.SetRenderingRect(-1.0, 0.0, 1.0, 0.0)
-				self.board = self.GetChild("Tab_04")
-				self.board.SetScale(-1.0, 1.0)
-				self.board.SetRenderingRect(-1.0, 0.0, 1.0, 0.0)
-				self.board = self.GetChild("Tab_05")
-				self.board.SetScale(-1.0, 1.0)
-				self.board.SetRenderingRect(-1.0, 0.0, 1.0, 0.0)
-				self.board = self.GetChild("Tab_06")
-				self.board.SetScale(-1.0, 1.0)
-				self.board.SetRenderingRect(-1.0, 0.0, 1.0, 0.0)
-
 			wndItem = self.GetChild("ItemSlot")
 			wndEquip = self.GetChild("EquipmentSlot")
 			self.activateButton = self.GetChild("activate")
+			self.rafinateButton = self.GetChild("rafinate")
 			self.deckTab = []
 			self.deckTab.append(self.GetChild("deck1"))
 			self.deckTab.append(self.GetChild("deck2"))
@@ -160,6 +138,7 @@ class DragonSoulWindow(ui.ScriptWindow):
 
 		self.activateButton.SetToggleDownEvent(ui.__mem_func__(self.ActivateButtonClick))
 		self.activateButton.SetToggleUpEvent(ui.__mem_func__(self.ActivateButtonClick))
+		self.rafinateButton.SetEvent(ui.__mem_func__(self.ToggleRefineWindow))
 		self.wndPopupDialog = uiCommon.PopupDialog()
 
 		##
@@ -241,15 +220,40 @@ class DragonSoulWindow(ui.ScriptWindow):
 						break
 
 		self.wndEquip.RefreshSlot()
+		
+	def ActivateEquipSlotWindow(self, deck):
+		for i in xrange(6):
+			if deck == 2:
+				plusCount = 6
+			else:
+				plusCount = 0
+						
+			self.wndEquip.ActivateSlot(player.DRAGON_SOUL_EQUIPMENT_SLOT_START + i + plusCount)
+	
+	def DeactivateEquipSlotWindow(self):
+		for i in xrange(12):
+			self.wndEquip.DeactivateSlot(player.DRAGON_SOUL_EQUIPMENT_SLOT_START + i)
 
 	def RefreshStatus(self):
 		self.RefreshItemSlot()
+		
+	def ToggleRefineWindow(self):
+		import event
+		qid = constInfo.refineWindow
+		event.QuestButtonClick(qid)
+			# if self.wndDragonSoulRefine.IsShow():
+			# self.wndDragonSoulRefine.Hide()
+		# else:
+			# self.wndDragonSoulRefine.Show()
 
 	def __InventoryLocalSlotPosToGlobalSlotPos(self, window_type, local_slot_pos):
 		if player.INVENTORY == window_type:
 			return self.deckPageIndex * player.DRAGON_SOUL_EQUIPMENT_FIRST_SIZE + local_slot_pos
 
 		return (self.DSKindIndex * 5 * player.DRAGON_SOUL_PAGE_SIZE) + self.inventoryPageIndex * player.DRAGON_SOUL_PAGE_SIZE + local_slot_pos
+#NEW
+	# def InventoryLocalSlotPosToGlobalSlotPos(self, window_type, local_slot_pos):
+		# return self.__InventoryLocalSlotPosToGlobalSlotPos(window_type, local_slot_pos)
 
 	def RefreshBagSlotWindow(self):
 		getItemVNum=player.GetItemIndex
@@ -367,15 +371,16 @@ class DragonSoulWindow(ui.ScriptWindow):
 				self.__SellItem(itemSlotIndex)
 			elif app.BUY == curCursorNum:
 				chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.SHOP_BUY_INFO)
+			elif app.IsPressed(app.DIK_LALT):
+				link = player.GetItemLink(player.DRAGON_SOUL_INVENTORY, itemSlotIndex)
+				ime.PasteString(link)
 			else:
 				selectedItemVNum = player.GetItemIndex(player.DRAGON_SOUL_INVENTORY, itemSlotIndex)
 				itemCount = player.GetItemCount(player.DRAGON_SOUL_INVENTORY, itemSlotIndex)
 				mouseModule.mouseController.AttachObject(self, player.SLOT_TYPE_DRAGON_SOUL_INVENTORY, itemSlotIndex, selectedItemVNum, itemCount)
 				self.wndItem.SetUseMode(False)
-				snd.PlaySound("sound/ui/pick.wav")
+				#snd.PlaySound("sound/ui/pick.wav")
 
-	## 상점에 팔기
-	## 2014.02.20 추가
 	def __SellItem(self, itemSlotPos):
 		if not player.IsDSEquipmentSlot(player.DRAGON_SOUL_INVENTORY, itemSlotPos):
 			self.sellingSlotNumber = itemSlotPos
@@ -393,11 +398,7 @@ class DragonSoulWindow(ui.ScriptWindow):
 				return
 
 			itemPrice = item.GetISellItemPrice()
-
-			if item.Is1GoldItem():
-				itemPrice = itemCount / itemPrice / 5
-			else:
-				itemPrice = itemPrice * itemCount / 5
+			itemPrice = itemPrice * max(1, itemCount)
 
 			item.GetItemName(itemIndex)
 			itemName = item.GetItemName()
@@ -413,7 +414,7 @@ class DragonSoulWindow(ui.ScriptWindow):
 	def SellItem(self):
 
 		net.SendShopSellPacketNew(self.sellingSlotNumber, self.questionDialog.count, player.DRAGON_SOUL_INVENTORY)
-		snd.PlaySound("sound/ui/money.wav")
+		#snd.PlaySound("sound/ui/money.wav")
 		self.OnCloseQuestionDialog()
 
 	## 상점에 팔기
@@ -449,7 +450,7 @@ class DragonSoulWindow(ui.ScriptWindow):
 			elif player.SLOT_TYPE_SAFEBOX == attachedSlotType:
 				if player.ITEM_MONEY == attachedItemIndex:
 					net.SendSafeboxWithdrawMoneyPacket(mouseModule.mouseController.GetAttachedItemCount())
-					snd.PlaySound("sound/ui/money.wav")
+					#snd.PlaySound("sound/ui/money.wav")
 
 				else:
 					net.SendSafeboxCheckoutPacket(attachedSlotPos, player.DRAGON_SOUL_INVENTORY, selectedSlotPos)
@@ -473,6 +474,8 @@ class DragonSoulWindow(ui.ScriptWindow):
 	def UseItemSlot(self, slotIndex):
 		if constInfo.GET_ITEM_QUESTION_DIALOG_STATUS():
 			return
+		alreadyUsed = []
+		alreadyUsed.append(slotIndex)
 		slotIndex = self.__InventoryLocalSlotPosToGlobalSlotPos(player.DRAGON_SOUL_INVENTORY, slotIndex)
 		try:
 			# 용혼석 강화창이 열려있으면, 아이템 우클릭 시 자동으로 강화창으로 들어감.
@@ -481,6 +484,17 @@ class DragonSoulWindow(ui.ScriptWindow):
 					chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.MOVE_ITEM_FAILURE_PRIVATE_SHOP)
 					return
 				self.wndDragonSoulRefine.AutoSetItem((player.DRAGON_SOUL_INVENTORY, slotIndex), 1)
+				
+				for i in range(player.DRAGON_SOUL_PAGE_SIZE):
+					if i in alreadyUsed:
+						continue
+
+					slotNumber = self.__InventoryLocalSlotPosToGlobalSlotPos(player.DRAGON_SOUL_INVENTORY, i)
+		
+					if player.GetItemIndex(player.DRAGON_SOUL_INVENTORY, slotNumber) == player.GetItemIndex(player.DRAGON_SOUL_INVENTORY, slotIndex):
+						self.wndDragonSoulRefine.AutoSetItem((player.DRAGON_SOUL_INVENTORY, slotNumber), 1)
+						alreadyUsed.append(i)
+				
 				return
 		except:
 			pass
@@ -533,6 +547,10 @@ class DragonSoulWindow(ui.ScriptWindow):
 		elif app.BUY == curCursorNum:
 			chat.AppendChat(chat.CHAT_TYPE_INFO, localeInfo.SHOP_BUY_INFO)
 			return
+		elif app.IsPressed(app.DIK_LALT):
+			link = player.GetItemLink(player.DRAGON_SOUL_INVENTORY, itemSlotIndex)
+			ime.PasteString(link)
+			return
 
 		if constInfo.GET_ITEM_QUESTION_DIALOG_STATUS() == 1:
 			return
@@ -558,7 +576,7 @@ class DragonSoulWindow(ui.ScriptWindow):
 			itemCount = player.GetItemCount(player.INVENTORY, itemSlotIndex)
 			mouseModule.mouseController.AttachObject(self, player.SLOT_TYPE_INVENTORY, itemSlotIndex, selectedItemVNum, itemCount)
 			self.wndItem.SetUseMode(False)
-			snd.PlaySound("sound/ui/pick.wav")
+			#snd.PlaySound("sound/ui/pick.wav")
 
 	def SelectEmptyEquipSlot(self, selectedSlot):
 		if constInfo.GET_ITEM_QUESTION_DIALOG_STATUS() == 1:
@@ -661,11 +679,13 @@ class DragonSoulWindow(ui.ScriptWindow):
 		self.deckTab[deck].Down()
 		self.deckTab[(deck+1)%2].SetUp()
 		self.RefreshEquipSlotWindow()
+		self.ActivateEquipSlotWindow(deck)
 
 	def DeactivateDragonSoul(self):
 		self.isActivated = False
 		self.activateButton.SetUp()
-
+		self.DeactivateEquipSlotWindow()
+		
 	def ActivateButtonClick(self):
 		self.isActivated = self.isActivated ^ True
 		if self.isActivated:
@@ -775,11 +795,6 @@ class DragonSoulRefineWindow(ui.ScriptWindow):
 			import exception
 			exception.Abort("dragonsoulrefinewindow.LoadWindow.LoadObject")
 		try:
-			if localeInfo.IsARABIC():
-				self.board = self.GetChild("DragonSoulRefineWindowBaseImage")
-				self.board.SetScale(-1.0, 1.0)
-				self.board.SetRenderingRect(-1.0, 0.0, 1.0, 0.0)
-
 			wndRefineSlot = self.GetChild("RefineSlot")
 			wndResultSlot = self.GetChild("ResultSlot")
 			self.GetChild("TitleBar").SetCloseEvent(ui.__mem_func__(self.Close))

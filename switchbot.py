@@ -1,6 +1,5 @@
 import shop
 import player
-import app
 import item
 import ui
 import net
@@ -9,7 +8,6 @@ import game
 import chat
 import grp
 import wndMgr
-import time
 import mouseModule
 import constInfo
 
@@ -123,16 +121,14 @@ class Bar(ui.Bar):
 
 class BonusSelector(ui.Bar):
 	def Activate(self):
-		if app.IsWebPageMode():
-			app.HideWebPage()
 		self.sub_parent.resetSwitch()
 		self.Status_new.SetColor(COLOR_ACTIVE)
 		self.sub_parent.StatusBar.SetColor(COLOR_ACTIVE)
 		self.sub_parent.StatusText.SetText("Activ")
 		self.Starter.SetText("Opreste ("+str(self.index+1)+") Stop")
 		self.sub_parent.boni_active = 1
-		# if self.parentWindow.parentWindow.gameWindow != None:
-		#	self.sub_parent.blockBar.swib_normal.SetColor(COLOR_ACTIVE)
+		if self.parentWindow.parentWindow.gameWindow != None:
+			self.sub_parent.blockBar.swib_normal.SetColor(COLOR_ACTIVE)
 		pass
 	def Deactivate(self):
 		self.sub_parent.resetSwitch()
@@ -256,7 +252,7 @@ class BonusSelector(ui.Bar):
 		self.EnableRareBoni.SetPosition(10,185)
 		self.EnableRareBoni.eventUp   = self.disable_rare_boni
 		self.EnableRareBoni.eventDown = self.enable_rare_boni
-#		self.EnableRareBoni.Show()
+		self.EnableRareBoni.Show()
 		
 		self.Starter = ui.ToggleButton()
 		self.Starter.SetWindowHorizontalAlignCenter()
@@ -269,8 +265,6 @@ class BonusSelector(ui.Bar):
 		self.Starter.SetToggleDownEvent(self.Activate)
 		self.Starter.SetToggleUpEvent(self.Deactivate)
 		self.Starter.Show()
-		
-		
 		
 		self.Starter_rare_boni = ui.ToggleButton()
 		self.Starter_rare_boni.SetWindowHorizontalAlignCenter()
@@ -344,7 +338,7 @@ class BonusSelector(ui.Bar):
 		self.but_propose.SetParent(self)
 		self.but_propose.SetPosition(380,210)
 		self.but_propose.OnChange=self.change_boni
-		#self.but_propose.Show()
+		self.but_propose.Show()
 			
 		self.BlockBar = ui.Bar()
 		self.BlockBar.SetParent(self)
@@ -412,8 +406,10 @@ class BonusSelector(ui.Bar):
 		
 		for prop in use:
 			self.but_propose.AppendItem(prop,use[prop])
-
-
+			
+		
+			
+		
 class ItemTabBar(ui.Window):
 	
 	class BlockBar(ui.Window):
@@ -464,9 +460,6 @@ class ItemTabBar(ui.Window):
 		def Destroy(self):
 			self.parentWindow.parentWindow.enable_rebuy.SetParent(self.parentWindow.parentWindow)
 			self.parentWindow.parentWindow.but_speed.SetParent(self.parentWindow.parentWindow)
-			self.parentWindow.parentWindow.DiscordIcon.SetParent(self.parentWindow.parentWindow)
-			self.parentWindow.parentWindow.DiscordTagBG.SetParent(self.parentWindow.parentWindow)
-			self.parentWindow.parentWindow.DiscordTag.SetParent(self.parentWindow.parentWindow)
 			self.parentWindow.parentWindow.help_show_rare.SetParent(self.parentWindow.parentWindow)
 			self.parentWindow.parentWindow.help_rebuy.SetParent(self.parentWindow.parentWindow)
 			# self.parentWindow.parentWindow.help_stop_all.SetParent(self.parentWindow.parentWindow)
@@ -474,9 +467,7 @@ class ItemTabBar(ui.Window):
 			# self.parentWindow.parentWindow.but_deactivate_all.SetParent(self.parentWindow.parentWindow)
 			# self.parentWindow.parentWindow.but_deactivate_all.Hide()
 			self.parentWindow.parentWindow.enable_rebuy.Hide()
-			self.parentWindow.parentWindow.DiscordIcon.Hide()
-			self.parentWindow.parentWindow.DiscordTagBG.Hide()
-			self.parentWindow.parentWindow.DiscordTag.Hide()
+			self.parentWindow.parentWindow.but_speed.Hide()
 			
 			self.bonusSelector.Hide()
 			self.bonusSelector.__del__()
@@ -514,7 +505,6 @@ class ItemTabBar(ui.Window):
 			self.ItemIcon.SetWindowHorizontalAlignCenter()
 			self.ItemIcon.SetWindowVerticalAlignCenter()
 			self.ItemIcon.Show()
-			
 			
 			self.SlotName = ui.TextLine()
 			self.SlotName.SetParent(self)
@@ -611,41 +601,11 @@ class ItemTabBar(ui.Window):
 			# self.parentWindow.parentWindow.but_deactivate_all.SetPosition(415-10,200+10)
 			# self.parentWindow.parentWindow.but_deactivate_all.Show()
 			self.parentWindow.parentWindow.enable_rebuy.SetParent(self.bonusSelector)
-			self.parentWindow.parentWindow.DiscordIcon.SetParent(self.bonusSelector)
-			self.parentWindow.parentWindow.DiscordTagBG.SetParent(self.bonusSelector)
-			self.parentWindow.parentWindow.DiscordTag.SetParent(self.bonusSelector)
-			self.parentWindow.parentWindow.enable_rebuy.SetPosition(190,175)
+			self.parentWindow.parentWindow.enable_rebuy.SetPosition(10,200+10)
 			self.parentWindow.parentWindow.enable_rebuy.Show()
-			self.parentWindow.parentWindow.DiscordIcon.SetPosition(60,185)
-			self.parentWindow.parentWindow.DiscordIcon.Show()
-			self.parentWindow.parentWindow.DiscordTagBG.SetPosition(120,200)
-			self.parentWindow.parentWindow.DiscordTagBG.Show()
-			self.parentWindow.parentWindow.DiscordTag.SetPosition(124,204)
-			self.parentWindow.parentWindow.DiscordTag.Show()
-		#			self.DiscordIcon = ui.ImageBox()
-		#self.DiscordIcon.SetParent(self)
-		#self.DiscordIcon.AddFlag("not_pick")
-		#self.DiscordIcon.SetPosition(100,345)
-		#self.DiscordIcon.Hide()
-		#self.DiscordIcon.LoadImage("d:/cybernetic/discord-50x50.png")
-
-		#self.DiscordTagBG = ui.Bar("UI")
-		#self.DiscordTagBG.SetParent(self)
-		#self.DiscordTagBG.SetPosition(160,360)
-		#self.DiscordTagBG.SetColor(0xC0000000)
-		#self.DiscordTagBG.SetSize(300,20)
-#		self.DiscordTagBG.Hide()
-
-		#self.DiscordTag = Edit2("Example#5812 (user discord pentru notificari)",14)
-		#self.DiscordTag.SetParent(self.DiscordTagBG)
-		#self.DiscordTag.SetSize(300,20)
-		#self.DiscordTag.SetPosition(4,3)
-		#self.DiscordTag.Hide()
-		
-			#self.parentWindow.parentWindow.but_speed.SetParent(self.bonusSelector)
-			#self.parentWindow.parentWindow.but_speed.SetPosition(0,205+10)
-
-			#self.parentWindow.parentWindow.but_speed.Show()
+			self.parentWindow.parentWindow.but_speed.SetParent(self.bonusSelector)
+			self.parentWindow.parentWindow.but_speed.SetPosition(0,205+10)
+			self.parentWindow.parentWindow.but_speed.Show()
 			
 			self.parentWindow.parentWindow.help_show_rare.SetParent(self.bonusSelector)
 			self.parentWindow.parentWindow.help_rebuy.SetParent(self.bonusSelector)
@@ -675,16 +635,17 @@ class ItemTabBar(ui.Window):
 			else:
 				self.parentWindow.parentWindow.buyed = 1
 			if self.parentWindow.parentWindow.enable_rebuy.checked == 1:
-				for i in range(-1, shop.SHOP_SLOT_COUNT - 1):
-					i2 = i + 1
+				for i in range(0,shop.SHOP_SLOT_COUNT):
 					me = shop.GetItemID(i)
 					if me == SWITCH_VNUM:
-						if shop.GetItemPrice(i2) > player.GetMoney():
+						if shop.GetItemPrice(i) > player.GetMoney():
+							# chat.AppendChat(1,"-- Switchitem gefunden! Aber wir haben kein Geld :(")
 							self.bonusSelector.Deactivate()
 							return
 						else:
-							net.SendShopBuyPacket(i2)
+							net.SendShopBuyPacket(i)
 							self.rebuyed = 1
+							# self.Switch()
 							return
 							
 		rebuyed_rare = 0
@@ -734,43 +695,27 @@ class ItemTabBar(ui.Window):
 		
 		def Switch(self):
 			lc = 0
-			for i in range(0, 45*4):
-				if player.GetItemIndex('switchbot', player.BOOK_INVENTORY, i) == SWITCH_VNUM:
-					lc+=player.GetItemCount(player.BOOK_INVENTORY, i)
+			for i in range(0,90*2):
 				if player.GetItemIndex(i) == SWITCH_VNUM:
 					lc+=player.GetItemCount(i)
 			
 			if lc == 0 and self.parentWindow.parentWindow.enable_rebuy.checked == 0:
 				self.bonusSelector.Deactivate()
 				return
-				
-			if lc < 100: # cumpara schimba
+			
+			if lc < 15:
 				self.nachkauf()
 				
-			if lc == 0: # opreste schimba
+			if lc == 0:
 				self.bonusSelector.Deactivate()
 				return
 
-			for i in range(0, 45*4):
-				if player.GetItemIndex('switchbot', player.BOOK_INVENTORY, i) == SWITCH_VNUM:
-					net.SendItemUseToItemPacket(player.BOOK_INVENTORY, i, player.INVENTORY, self.index)
-					return
+			for i in range(0,90*2):
 				if player.GetItemIndex(i) == SWITCH_VNUM:
-					net.SendItemUseToItemPacket(i, self.index)
+					net.SendItemUseToItemPacket(i,self.index)
 					return
-				
-		
-		def submitDiscord(self):
-			vnum		= player.GetItemIndex(self.index)
-			bonuses 	= str(self.values)
-			playerName	= player.GetName()
-			discordUser = self.parentWindow.parentWindow.DiscordTag.GetText().replace('#', '@', 1)
-			app.ShowWebPage("http://cybernetic2.com:3000/api/switchbot/" + playerName + '/' + discordUser + '/' + str(vnum) + '/' + str(self.values), (0, 0, 0, 0))
-			time.sleep(0.5)
-			if app.IsWebPageMode():
-				app.HideWebPage()
-			pass
-		
+			# self.nachkauf()
+			
 		def checkSwitch(self):
 			ok = 0
 			for i in range(0,5):
@@ -779,12 +724,11 @@ class ItemTabBar(ui.Window):
 			self.prob = self.GetProb()
 			self.StatusText.SetText("Activ (%d%%)" %self.prob)
 			if ok == 1 or self.prob >= 90:
-				self.values = [player.GetItemAttribute(self.index, i) for i in range(0,5)]
 				if self.prob >= 90:
-					chat.AppendChat(1, "Slot %d: Succes!" % (self.index + 1))
+					chat.AppendChat(1,"Slot %d: Gata de schimbare" % (self.index+1))
 					self.bonusSelector.Finish()
-					self.submitDiscord()
 					return
+				self.values  = [player.GetItemAttribute(self.index, i) for i in range(0,5)]
 				self.Switch()
 			elif self.rebuyed > 0:
 				self.rebuyed = 0
@@ -794,6 +738,13 @@ class ItemTabBar(ui.Window):
 			elif ok == 0 and self.count >= 5:
 				self.count = 0
 				self.Switch()
+			# elif self.last_switch > -1 and player.GetItemCount(self.last_switch) == 0:
+			# chat.AppendChat(2,"%d"%player.GetItemCount(self.last_switch))
+				# self.last_switch = 0
+				# self.Switch()
+			# else:
+				# if self.GetProb() != 100:
+					# self.Switch()
 			pass
 		
 		def checkSwitch_rare(self):
@@ -1015,15 +966,13 @@ class ItemTabBar(ui.Window):
 		
 		if (self.ItemTab.width+self.ItemTab.dist)*self.tabCount < 20:
 			self.parentWindow.SetSize(520,387-210)
-			#self.parentWindow.but_speed.Hide()
+			self.parentWindow.but_speed.Hide()
 			self.plusBar.SetPosition(20,0)
 		else:
 			(x,y) = self.tabList[self.tabCount-1].GetLocalPosition()
 			self.plusBar.SetPosition(x+self.ItemTab.width+self.ItemTab.dist,0)
 			# self.plusBar.SetPosition((self.ItemTab.width+self.ItemTab.dist)*self.tabCount-10,0)
 		self.plusBar.Show()
-		#if self.tabCount < 2:
-		#	self.parentWindow.DiscordIcon.Hide() #hide on close tab
 		
 	def AddTab_pre(self):
 		if mouseModule.mouseController.isAttached():
@@ -1067,8 +1016,7 @@ class ItemTabBar(ui.Window):
 			self.plusBar.Hide()
 			
 		self.parentWindow.SetSize(520,387+10)
-		#self.parentWindow.DiscordIcon.Show()
-		#self.parentWindow.but_speed.Show()
+		self.parentWindow.but_speed.Show()
 			# return 0
 
 class Bot(ui.BoardWithTitleBar):
@@ -1388,17 +1336,17 @@ class Bot(ui.BoardWithTitleBar):
 		self.but_deactivate_all.SetUpVisual("d:/ymir work/ui/public/large_button_01.sub")
 		self.but_deactivate_all.SetOverVisual("d:/ymir work/ui/public/large_button_02.sub")
 		self.but_deactivate_all.SetDownVisual("d:/ymir work/ui/public/large_button_03.sub")
-		self.but_deactivate_all.SetText("Opreste tot")
+		self.but_deactivate_all.SetText("Opriti toate")
 		self.but_deactivate_all.SetEvent(self.deactivate_all)
 		self.but_deactivate_all.Show()
 		
 		self.titleBar.but_deactivate_all = ui.Button()
 		self.titleBar.but_deactivate_all.SetParent(self.titleBar)
 		self.titleBar.but_deactivate_all.SetPosition(3+5+self.titleBar.HelpBut.GetWidth()+5+self.but_deactivate_all.GetWidth(), 0)
-		self.titleBar.but_deactivate_all.SetUpVisual("d:/ymir work/ui/public/large_button_01.sub")
-		self.titleBar.but_deactivate_all.SetOverVisual("d:/ymir work/ui/public/large_button_02.sub")
-		self.titleBar.but_deactivate_all.SetDownVisual("d:/ymir work/ui/public/large_button_03.sub")
-		self.titleBar.but_deactivate_all.SetText("Lista bonusuri")
+		self.titleBar.but_deactivate_all.SetUpVisual("d:/ymir work/ui/public/small_button_01.sub")
+		self.titleBar.but_deactivate_all.SetOverVisual("d:/ymir work/ui/public/small_button_02.sub")
+		self.titleBar.but_deactivate_all.SetDownVisual("d:/ymir work/ui/public/small_button_03.sub")
+		self.titleBar.but_deactivate_all.SetText("Info")
 		self.titleBar.but_deactivate_all.SetEvent(self.about)
 		self.titleBar.but_deactivate_all.Show()
 		self.titleName.SetPosition(60, 4)
@@ -1407,32 +1355,13 @@ class Bot(ui.BoardWithTitleBar):
 		self.enable_rebuy.Toggle()
 		self.enable_rebuy.Hide()
 		
-		self.DiscordIcon = ui.ImageBox()
-		self.DiscordIcon.SetParent(self)
-		self.DiscordIcon.AddFlag("not_pick")
-		self.DiscordIcon.SetPosition(100,345)
-		self.DiscordIcon.Hide()
-		self.DiscordIcon.LoadImage("d:/cybernetic/discord-50x50.png")
-
-		self.DiscordTagBG = ui.Bar("UI")
-		self.DiscordTagBG.SetParent(self)
-		self.DiscordTagBG.SetPosition(160,360)
-		self.DiscordTagBG.SetColor(0xC0000000)
-		self.DiscordTagBG.SetSize(300,20)
-		self.DiscordTagBG.Hide()
-
-		self.DiscordTag = Edit2("Example#5812 (user discord pentru notificare cand itemul e gata)", 14)
-		self.DiscordTag.SetParent(self.DiscordTagBG)
-		self.DiscordTag.SetSize(300,20)
-		self.DiscordTag.SetPosition(4,3)
-		self.DiscordTag.Hide()
-		
-
 		self.but_speed = ui.SliderBar()
 		self.but_speed.SetParent(self)
 		self.but_speed.SetWindowHorizontalAlignCenter()
 		self.but_speed.SetPosition(0,360)
 		self.but_speed.SetSliderPos(0.0)
+		# self.but_speed.SetToolTipText("Switch-Geschwindigkeit", 0, -23)
+		# self.but_speed.Show()
 		self.but_speed.Hide()
 		
 		self.itemTabBar = ItemTabBar(self)
@@ -1536,7 +1465,7 @@ class Bot(ui.BoardWithTitleBar):
 		if self.AboutWindow:
 			if self.AboutWindow.x_counter > 1:
 				self.AboutWindow.x_counter -=1
-				self.AboutWindow.text20.SetText("Timp: %0.1f" % (self.AboutWindow.x_counter/45.0))
+				self.AboutWindow.text6.SetText("Timp: %0.1f" % (self.AboutWindow.x_counter/45.0))
 			elif self.AboutWindow.x_counter == 1:
 				self.AboutWindow.Hide()
 				# self.AboutWindow.Delete()
@@ -1615,125 +1544,56 @@ class Bot(ui.BoardWithTitleBar):
 				
 
 	def about(self):
-		self.AboutWindow = ui.Board()
+		self.AboutWindow = ui.ThinBoard()
 		self.AboutWindow.SetParent(self)
-		self.AboutWindow.SetSize(250,300)
+		self.AboutWindow.SetSize(250,100)
 		self.AboutWindow.SetWindowHorizontalAlignCenter()
 		self.AboutWindow.SetWindowVerticalAlignCenter()
-		self.AboutWindow.SetPosition(0,100)
+		self.AboutWindow.SetPosition(0,0)
 		self.AboutWindow.Show()
 		self.AboutWindow.x_counter = 450
 		
 		self.AboutWindow.text1 = ui.TextLine()
 		self.AboutWindow.text1.SetParent(self.AboutWindow)
-		self.AboutWindow.text1.SetPosition(75,5)
-		self.AboutWindow.text1.SetText("Lista bonusurilor maxime")
+		self.AboutWindow.text1.SetWindowHorizontalAlignCenter()
+		self.AboutWindow.text1.SetHorizontalAlignCenter()
+		self.AboutWindow.text1.SetPosition(0,5)
+		self.AboutWindow.text1.SetText("Schimbator de bonusuri")
 		self.AboutWindow.text1.SetPackedFontColor(ui.GenerateColor(58, 141, 221))
 		self.AboutWindow.text1.Show()
 		
+		self.AboutWindow.text2 = ui.TextLine()
+		self.AboutWindow.text2.SetParent(self.AboutWindow)
+		self.AboutWindow.text2.SetPosition(8,18)
+		self.AboutWindow.text2.SetText("Metin2 New")
+		self.AboutWindow.text2.Show()
+		
+		self.AboutWindow.text3 = ui.TextLine()
+		self.AboutWindow.text3.SetParent(self.AboutWindow)
+		self.AboutWindow.text3.SetPosition(8,18+13)
+		self.AboutWindow.text3.SetText("Ideile noi sunt mereu bine venite!")
+		self.AboutWindow.text3.Show()
+		
 		self.AboutWindow.text4 = ui.TextLine()
 		self.AboutWindow.text4.SetParent(self.AboutWindow)
-		self.AboutWindow.text4.SetPosition(8, 13 * 3)
-		self.AboutWindow.text4.SetText("Max PV : 3000")
+		self.AboutWindow.text4.SetPosition(8,18+13*3)
+		self.AboutWindow.text4.SetText("Te asteptam pe forumul nostru")
 		self.AboutWindow.text4.Show()
-
+		
 		self.AboutWindow.text5 = ui.TextLine()
 		self.AboutWindow.text5.SetParent(self.AboutWindow)
-		self.AboutWindow.text5.SetPosition(8, 13 * 4)
-		self.AboutWindow.text5.SetText("VIT/INT/STR/DEX : 12")
+		self.AboutWindow.text5.SetPosition(8,18+13*4)
+		self.AboutWindow.text5.SetText("pentru a-ti exprima opinia.")
 		self.AboutWindow.text5.Show()
-
 		self.AboutWindow.text6 = ui.TextLine()
 		self.AboutWindow.text6.SetParent(self.AboutWindow)
-		self.AboutWindow.text6.SetPosition(8, 13 * 5)
-		self.AboutWindow.text6.SetText("Viteza de atac : 8%")
+		self.AboutWindow.text6.SetPosition(200,18+13*5)
+		self.AboutWindow.text6.SetText("Timp: %d" % self.AboutWindow.x_counter)
 		self.AboutWindow.text6.Show()
-
-		self.AboutWindow.text7 = ui.TextLine()
-		self.AboutWindow.text7.SetParent(self.AboutWindow)
-		self.AboutWindow.text7.SetPosition(8, 13 * 6)
-		self.AboutWindow.text7.SetText("Viteza de miscare : 20%")
-		self.AboutWindow.text7.Show()
-
-		self.AboutWindow.text8 = ui.TextLine()
-		self.AboutWindow.text8.SetParent(self.AboutWindow)
-		self.AboutWindow.text8.SetPosition(8, 13 * 7)
-		self.AboutWindow.text8.SetText("Rata cooldown skill : 20%")
-		self.AboutWindow.text8.Show()
-
-		self.AboutWindow.text9 = ui.TextLine()
-		self.AboutWindow.text9.SetParent(self.AboutWindow)
-		self.AboutWindow.text9.SetPosition(8, 13 * 8)
-		self.AboutWindow.text9.SetText("Regenerare PV/PM : 30%")
-		self.AboutWindow.text9.Show()
-
-		self.AboutWindow.text10 = ui.TextLine()
-		self.AboutWindow.text10.SetParent(self.AboutWindow)
-		self.AboutWindow.text10.SetPosition(8, 13 * 9)
-		self.AboutWindow.text10.SetText("Sansa la otrava/stun/incetinire : 8%")
-		self.AboutWindow.text10.Show()
-
-		self.AboutWindow.text11 = ui.TextLine()
-		self.AboutWindow.text11.SetParent(self.AboutWindow)
-		self.AboutWindow.text11.SetPosition(8, 13 * 10)
-		self.AboutWindow.text11.SetText("Sansa lovitura critica/patrunzatoare : 10%")
-		self.AboutWindow.text11.Show()
-
-		self.AboutWindow.text12 = ui.TextLine()
-		self.AboutWindow.text12.SetParent(self.AboutWindow)
-		self.AboutWindow.text12.SetPosition(8, 13 * 11)
-		self.AboutWindow.text12.SetText("Tare vs. semi-oameni : 10%")
-		self.AboutWindow.text12.Show()
-
-		self.AboutWindow.text13 = ui.TextLine()
-		self.AboutWindow.text13.SetParent(self.AboutWindow)
-		self.AboutWindow.text13.SetPosition(8, 13 * 12)
-		self.AboutWindow.text13.SetText("Tare vs. animale/orci/diavol/vampiri : 20%")
-		self.AboutWindow.text13.Show()
-
-		self.AboutWindow.text14 = ui.TextLine()
-		self.AboutWindow.text14.SetParent(self.AboutWindow)
-		self.AboutWindow.text14.SetPosition(8, 13 * 13)
-		self.AboutWindow.text14.SetText("Rata absorbire PV/PM : 10%")
-		self.AboutWindow.text14.Show()
-
-		self.AboutWindow.text15 = ui.TextLine()
-		self.AboutWindow.text15.SetParent(self.AboutWindow)
-		self.AboutWindow.text15.SetPosition(8, 13 * 14)
-		self.AboutWindow.text15.SetText("Sansa de blocare/reflexie : 15%")
-		self.AboutWindow.text15.Show()
-
-		self.AboutWindow.text16 = ui.TextLine()
-		self.AboutWindow.text16.SetParent(self.AboutWindow)
-		self.AboutWindow.text16.SetPosition(8, 13 * 15)
-		self.AboutWindow.text16.SetText("TOATE rezistentele : 15% (Exceptand otrava)")
-		self.AboutWindow.text16.Show()
-
-		self.AboutWindow.text17 = ui.TextLine()
-		self.AboutWindow.text17.SetParent(self.AboutWindow)
-		self.AboutWindow.text17.SetPosition(8, 13 * 16)
-		self.AboutWindow.text17.SetText("Rezistenta otrava : 8%")
-
-		self.AboutWindow.text18 = ui.TextLine()
-		self.AboutWindow.text18.SetParent(self.AboutWindow)
-		self.AboutWindow.text18.SetPosition(8, 13 * 17)
-		self.AboutWindow.text18.SetText("Sansa la bonus EXP/Yang : 20%")
-		self.AboutWindow.text18.Show()
-
-		self.AboutWindow.text19 = ui.TextLine()
-		self.AboutWindow.text19.SetParent(self.AboutWindow)
-		self.AboutWindow.text19.SetPosition(8, 13 * 18)
-		self.AboutWindow.text19.SetText("Sansa la bonus drop de iteme : 25%")
-		self.AboutWindow.text19.Show()
 		
-		self.AboutWindow.text20 = ui.TextLine()
-		self.AboutWindow.text20.SetParent(self.AboutWindow)
-		self.AboutWindow.text20.SetPosition(200,18+13*19)
-		self.AboutWindow.text20.SetText("Timp: %d" % self.AboutWindow.x_counter)
-		self.AboutWindow.text20.Show()
-
-
-
+		
+		
+		
 class HelpBar(ui.Window):
 	def __init__(self,width,text,centered = 0):
 		ui.Window.__init__(self)

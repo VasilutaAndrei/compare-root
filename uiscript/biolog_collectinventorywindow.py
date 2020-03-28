@@ -13,14 +13,14 @@ window = {
 	"children" :
 	(
 		{
-			"name" : "ExpandBtn", "type" : "button", "x" : 3, "y" : 25, "default_image" : "d:/ymir work/ui/game/biolog_system_vegas/btn_expand_normal.tga", "over_image" : "d:/ymir work/ui/game/biolog_system_vegas/btn_expand_over.tga", "down_image" : "d:/ymir work/ui/game/biolog_system_vegas/btn_expand_down.tga", "disable_image" : "d:/ymir work/ui/game/biolog_system_vegas/btn_expand_disabled.tga",
+			"name" : "ExpandBtn", "type" : "button", "x" : 2+4, "y" : 25, "default_image" : "d:/ymir work/ui/game/biolog_system/btn_expand_normal.tga", "over_image" : "d:/ymir work/ui/game/biolog_system/btn_expand_over.tga", "down_image" : "d:/ymir work/ui/game/biolog_system/btn_expand_down.tga", "disable_image" : "d:/ymir work/ui/game/biolog_system/btn_expand_disabled.tga",
 		},
 		{
 			"name" : "BeltInventoryLayer", "x" : 5, "y" : 0, "width" : 148, "height" : 86,
 			"children" :
 			(
 				{
-					"name" : "MinimizeBtn", "type" : "button", "x" : 2, "y" : 10, "width" : 10, "default_image" : "d:/ymir work/ui/zerant_interface/btn_minimize_normal.tga", "over_image" : "d:/ymir work/ui/zerant_interface/btn_minimize_over.tga", "down_image" : "d:/ymir work/ui/zerant_interface/btn_minimize_down.tga", "disable_image" : "d:/ymir work/ui/zerant_interface/btn_minimize_disabled.tga",
+					"name" : "MinimizeBtn", "type" : "button", "x" : 2, "y" : 10, "width" : 10, "default_image" : "d:/ymir work/ui/game/biolog_system/btn_minimize_normal.tga", "over_image" : "d:/ymir work/ui/game/biolog_system/btn_minimize_over.tga", "down_image" : "d:/ymir work/ui/game/biolog_system/btn_minimize_down.tga", "disable_image" : "d:/ymir work/ui/game/biolog_system/btn_minimize_disabled.tga",
 				},
 				{
 					"name" : "BeltInventoryBoard", "type" : "board", "style" : ("attach", "float"), "x" : 10, "y" : 5, "width" : 138, "height" : 90,
@@ -30,7 +30,7 @@ window = {
 							"name" : "BeltInventorySlot", "type" : "grid_table", "x" : 15, "y" : 52-36, "start_index" : 0, "x_count" : 1, "y_count" : 1, "x_step" : 32, "y_step" : 32, "image" : "d:/ymir work/ui/public/Slot_Base.sub"
 						},
 						{
-							"name" : "send_biolog", "type" : "button", "x" : 41, "y" : 52-36+45, "text" : "", "default_image" : "d:/ymir work/ui/game/biolog_system_vegas/acceptbutton00.tga", "over_image" : "d:/ymir work/ui/game/biolog_system_vegas/acceptbutton01.tga", "down_image" : "d:/ymir work/ui/game/biolog_system_vegas/acceptbutton02.tga",
+							"name" : "send_biolog", "type" : "button", "x" : 41, "y" : 52-36+45, "text" : "", "default_image" : "d:/ymir work/ui/game/biolog_system/acceptbutton00.tga", "over_image" : "d:/ymir work/ui/game/biolog_system/acceptbutton01.tga", "down_image" : "d:/ymir work/ui/game/biolog_system/acceptbutton02.tga",
 						},
 						{
 							"name" : "LineUp", "type" : "line", "x"	: 60, "y" : 10, "width" : 0, "height" : 43, "color" : 0xffffffff,

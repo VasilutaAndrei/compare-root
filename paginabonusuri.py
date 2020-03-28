@@ -54,7 +54,7 @@ class BonusBoardDialog(ui.ScriptWindow):
 		Vertical.SetParent(self.Board)
 		Vertical.SetPosition(10, 50)
 		Vertical.SetSize(300, 0)
-		Vertical.SetColor(0xff0e4502)
+		Vertical.SetColor(0xff777777)
 		Vertical.Show()
 		self.UI.append(Vertical)
 		

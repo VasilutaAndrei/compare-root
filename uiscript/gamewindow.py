@@ -58,24 +58,24 @@ window = {
 			),
 		},
 		{ 
-			"name":"AdmPanel2", "type" : "button",  "x" : 230, "y" : SCREEN_HEIGHT-120, "default_image" : "d:/ymir work/ui/game/windows/btn_bigplus_up.sub", "over_image" : "d:/ymir work/ui/game/windows/btn_bigplus_over.sub", "down_image" : "d:/ymir work/ui/game/windows/btn_bigplus_down.sub",
+			"name":"AP_0", "type" : "button",  "x" : 180, "y" : SCREEN_HEIGHT-120, "default_image" : "d:/ymir work/ui/game/windows/btn_bigplus_up.sub", "over_image" : "d:/ymir work/ui/game/windows/btn_bigplus_over.sub", "down_image" : "d:/ymir work/ui/game/windows/btn_bigplus_down.sub",
 			"children" : 
 			(
-				{ "name":"RealizariSystemText", "type":"text", "x": 16, "y": 40, "text": "Kick", "r":238.0, "g":20.0, "b":20.0, "a":1.0, "text_horizontal_align":"center" },	
+				{ "name":"AP0_TEXT", "type":"text", "x": 16, "y": 40, "text": " MESAJ GLOBAL ", "r":1.0, "g":20.0, "b":20.0, "a":1.0, "text_horizontal_align":"center" },	
 			),
 		},
 		{ 
-			"name":"AdmPanel3", "type" : "button",  "x" : 300, "y" : SCREEN_HEIGHT-120, "default_image" : "d:/ymir work/ui/game/windows/btn_bigplus_up.sub", "over_image" : "d:/ymir work/ui/game/windows/btn_bigplus_over.sub", "down_image" : "d:/ymir work/ui/game/windows/btn_bigplus_down.sub",
+			"name":"AP_1", "type" : "button",  "x" : 270, "y" : SCREEN_HEIGHT-120, "default_image" : "d:/ymir work/ui/game/windows/btn_bigplus_up.sub", "over_image" : "d:/ymir work/ui/game/windows/btn_bigplus_over.sub", "down_image" : "d:/ymir work/ui/game/windows/btn_bigplus_down.sub",
 			"children" : 
 			(
-				{ "name":"RealizariSystemText", "type":"text", "x": 16, "y": 40, "text": "Adm. Soapta", "r":238.0, "g":20.0, "b":20.0, "a":1.0, "text_horizontal_align":"center" },	
+				{ "name":"AP1_TEXT", "type":"text", "x": 16, "y": 40, "text": " BLOCARE CHAT ", "r":1.0, "g":20.0, "b":20.0, "a":1.0, "text_horizontal_align":"center" },	
 			),
 		},
-        { 
-			"name":"AdmPanel", "type" : "button",  "x" : 370, "y" : SCREEN_HEIGHT-120, "default_image" : "d:/ymir work/ui/game/windows/btn_bigplus_up.sub", "over_image" : "d:/ymir work/ui/game/windows/btn_bigplus_over.sub", "down_image" : "d:/ymir work/ui/game/windows/btn_bigplus_down.sub",
+		{ 
+			"name":"AP_2", "type" : "button",  "x" : 350, "y" : SCREEN_HEIGHT-120, "default_image" : "d:/ymir work/ui/game/windows/btn_bigplus_up.sub", "over_image" : "d:/ymir work/ui/game/windows/btn_bigplus_over.sub", "down_image" : "d:/ymir work/ui/game/windows/btn_bigplus_down.sub",
 			"children" : 
 			(
-				{ "name":"RealizariSystemText", "type":"text", "x": 16, "y": 40, "text": "Block Chat", "r":238.0, "g":20.0, "b":20.0, "a":1.0, "text_horizontal_align":"center" },	
+				{ "name":"AP2_TEXT", "type":"text", "x": 16, "y": 40, "text": " INTERZICERE ", "r":1.0, "g":20.0, "b":20.0, "a":1.0, "text_horizontal_align":"center" },	
 			),
 		},
 		{
@@ -113,7 +113,7 @@ window = {
 		{ 
 			"name":"SkillPlusButton", 
 			"type" : "button", 
-			"x" : 160,
+			"x" : SCREEN_WIDTH-50-32,
 			"y" : SCREEN_HEIGHT-120,
 			"default_image" : "d:/ymir work/ui/game/windows/btn_bigplus_up.sub",
 			"over_image" : "d:/ymir work/ui/game/windows/btn_bigplus_over.sub",

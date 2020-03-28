@@ -2,7 +2,7 @@ import uiScriptLocale
 
 BOARD_WIDTH = 368
 ROOT_PATH = "d:/ymir work/ui/game/guild/dragonlairranking/"
-BACK_IMG_PATH = "d:/ymir work/ui/public/public_board_back/"
+BACK_IMG_PATH = "d:/ymir work/ui/public/public_board/"
 
 window = {
 	"name" : "GuildDragonLairWindow",

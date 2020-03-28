@@ -1,4 +1,5 @@
 import uiScriptLocale
+import app
 
 window = {
 	"name" : "PrivateShopBuilder",
@@ -9,7 +10,7 @@ window = {
 	"style" : ("movable", "float",),
 
 	"width" : 184,
-	"height" : 328 + 26,
+	"height" : 328 + 26+32,
 
 	"children" :
 	(
@@ -22,7 +23,7 @@ window = {
 			"y" : 0,
 
 			"width" : 184,
-			"height" : 328 + 26,
+			"height" : 328 + 26+32,
 
 			"children" :
 			(
@@ -44,11 +45,6 @@ window = {
 					),
 				},
 
-				## Name_Static
-				#{
-				#	"name" : "Name_Static", "type" : "text", "x" : 15, "y" : 35 + 3, "text" : uiScriptLocale.PRIVATE_SHOP_NAME,
-				#},
-				## Name
 				{
 					"name" : "NameSlot",
 					"type" : "slotbar",
@@ -67,7 +63,7 @@ window = {
 							"width" : 157,
 							"height" : 15,
 							"input_limit" : 25,
-							"text" : "",
+							"text" : "1234567890123456789012345",
 						},
 					),
 				},
@@ -82,7 +78,7 @@ window = {
 
 					"start_index" : 0,
 					"x_count" : 5,
-					"y_count" : 8,
+					"y_count" : 9,
 					"x_step" : 32,
 					"y_step" : 32,
 
@@ -95,7 +91,7 @@ window = {
 					"type" : "button",
 
 					"x" : 21,
-					"y" : 295 + 26,
+					"y" : 295 + 26+32,
 
 					"width" : 61,
 					"height" : 21,
@@ -113,7 +109,7 @@ window = {
 					"type" : "button",
 
 					"x" : 104,
-					"y" : 295 + 26,
+					"y" : 295 + 26+32,
 
 					"width" : 61,
 					"height" : 21,
@@ -127,4 +123,4 @@ window = {
 			),
 		},
 	),
-}
+}	

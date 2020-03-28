@@ -31,7 +31,6 @@ if app.ENABLE_CHANGELOOK_SYSTEM:
 from _weakref import proxy
 from switchbot import Bot
 import switchbot
-import uiInventoryMenue
 import interfaceModule
 
 ITEM_MALL_BUTTON_ENABLE = True
@@ -71,6 +70,11 @@ class CostumeWindow(ui.ScriptWindow):
 
 	def Close(self):
 		self.Hide()
+		
+	if app.WJ_ENABLE_PICKUP_ITEM_EFFECT:
+		def HighlightSlot(self, slot):
+			if not slot in self.listHighlightedSlot:
+				self.listHighlightedSlot.append(slot)
 
 	def __LoadWindow(self):
 		if self.isLoaded == 1:
@@ -166,6 +170,11 @@ class BeltInventoryWindow(ui.ScriptWindow):
 
 	def Close(self):
 		self.Hide()
+		
+	if app.WJ_ENABLE_PICKUP_ITEM_EFFECT:
+		def HighlightSlot(self, slot):
+			if not slot in self.listHighlightedSlot:
+				self.listHighlightedSlot.append(slot)
 
 	def IsOpeningInventory(self):
 		return self.wndBeltInventoryLayer.IsShow()
@@ -459,6 +468,27 @@ class InventoryWindow(ui.ScriptWindow):
 		# Belt System
 		if self.wndBelt:
 			self.wndBelt.Show(self.isOpenedBeltWindowWhenClosingInventory)
+			
+		job = player.GetJob()
+		
+		if job == 1:
+			if self.wndEquip:
+				self.wndEquip.Hide()
+				
+			if self.wndEquipNinja:
+				self.wndEquipNinja.Show()
+				
+			if self.wndEquipBase:
+				self.wndEquipBase.LoadImage("inventory/equipment_bg_without_ring_ninja.tga")
+		else:
+			if self.wndEquip:
+				self.wndEquip.Show()
+				
+			if self.wndEquipNinja:
+				self.wndEquipNinja.Hide()
+				
+			if self.wndEquipBase:
+				self.wndEquipBase.LoadImage("inventory/equipment_bg_without_ring.tga")
 
 	def BindInterfaceClass(self, interface):
 		self.interface = interface
@@ -475,11 +505,7 @@ class InventoryWindow(ui.ScriptWindow):
 
 		try:
 			pyScrLoader = ui.PythonScriptLoader()
-
-			if ITEM_MALL_BUTTON_ENABLE:
-				pyScrLoader.LoadScriptFile(self, uiScriptLocale.LOCALE_UISCRIPT_PATH + "InventoryWindow.py")
-			else:
-				pyScrLoader.LoadScriptFile(self, "UIScript/InventoryWindow.py")
+			pyScrLoader.LoadScriptFile(self, "UIScript/InventoryWindow.py")
 		except:
 			import exception
 			exception.Abort("InventoryWindow.LoadWindow.LoadObject")
@@ -487,20 +513,19 @@ class InventoryWindow(ui.ScriptWindow):
 		try:
 			wndItem = self.GetChild("ItemSlot")
 			wndEquip = self.GetChild("EquipmentSlot")
+			wndEquipNinja = self.GetChild("EquipmentSlotNinja")
+
+			self.wndEquipBase = self.GetChild("Equipment_Base")
 			self.GetChild("TitleBar").SetCloseEvent(ui.__mem_func__(self.Close))
-			#self.wndMoney = self.GetChild("Money")
-			#self.wndMoneySlot = self.GetChild("Money_Slot")
-			# self.mallButton = self.GetChild2("MallButton")
-			self.OFFButton = self.GetChild2("OFFButton")
-			self.SWITCHButton = self.GetChild2("SWITCHButton")
-			self.INFOCHESTButton = self.GetChild2("INFOCHESTButton")
+			self.DSSButton = self.GetChild2("DSSButton")
+			self.SpecialStorageButton = self.GetChild2("SpecialStorageButton")
+			# self.INFOCHESTButton = self.GetChild2("INFOCHESTButton")
 			self.costumeButton = self.GetChild2("CostumeButton")
+			self.arrange_button = self.GetChild2("arrange_button")
 				
 			self.inventoryTab = []
-			self.inventoryTab.append(self.GetChild("Inventory_Tab_01"))
-			self.inventoryTab.append(self.GetChild("Inventory_Tab_02"))
-			self.inventoryTab.append(self.GetChild("Inventory_Tab_03"))
-			self.inventoryTab.append(self.GetChild("Inventory_Tab_04"))
+			for i in xrange(player.INVENTORY_PAGE_COUNT):
+				self.inventoryTab.append(self.GetChild("Inventory_Tab_%02d" % (i+1)))
 
 			self.equipmentTab = []
 			self.equipmentTab.append(self.GetChild("Equipment_Tab_01"))
@@ -539,6 +564,13 @@ class InventoryWindow(ui.ScriptWindow):
 		wndEquip.SetUseSlotEvent(ui.__mem_func__(self.UseItemSlot))
 		wndEquip.SetOverInItemEvent(ui.__mem_func__(self.OverInItem))
 		wndEquip.SetOverOutItemEvent(ui.__mem_func__(self.OverOutItem))
+		
+		wndEquipNinja.SetSelectEmptySlotEvent(ui.__mem_func__(self.SelectEmptySlot))
+		wndEquipNinja.SetSelectItemSlotEvent(ui.__mem_func__(self.SelectItemSlot))
+		wndEquipNinja.SetUnselectItemSlotEvent(ui.__mem_func__(self.UseItemSlot))
+		wndEquipNinja.SetUseSlotEvent(ui.__mem_func__(self.UseItemSlot))
+		wndEquipNinja.SetOverInItemEvent(ui.__mem_func__(self.OverInItem))
+		wndEquipNinja.SetOverOutItemEvent(ui.__mem_func__(self.OverOutItem))
 
 		## PickMoneyDialog
 		dlgPickMoney = uiPickMoney.PickMoneyDialog()
@@ -560,12 +592,9 @@ class InventoryWindow(ui.ScriptWindow):
 		## MoneySlot
 		#self.wndMoneySlot.SetEvent(ui.__mem_func__(self.OpenPickMoneyDialog))
 
-		self.inventoryTab[0].SetEvent(lambda arg=0: self.SetInventoryPage(arg))
-		self.inventoryTab[1].SetEvent(lambda arg=1: self.SetInventoryPage(arg))
-		self.inventoryTab[2].SetEvent(lambda arg=2: self.SetInventoryPage(arg))
-		self.inventoryTab[3].SetEvent(lambda arg=3: self.SetInventoryPage(arg))
+		for i in xrange(player.INVENTORY_PAGE_COUNT):
+			self.inventoryTab[i].SetEvent(lambda arg=i: self.SetInventoryPage(arg))
 		self.inventoryTab[0].Down()
-		self.inventoryPageIndex = 0
 
 		self.equipmentTab[0].SetEvent(lambda arg=0: self.SetEquipmentPage(arg))
 		self.equipmentTab[1].SetEvent(lambda arg=1: self.SetEquipmentPage(arg))
@@ -575,26 +604,39 @@ class InventoryWindow(ui.ScriptWindow):
 
 		self.wndItem = wndItem
 		self.wndEquip = wndEquip
-		self.dlgPickMoney = dlgPickMoney				
-		
+		self.wndEquipNinja = wndEquipNinja
+		self.dlgPickMoney = dlgPickMoney
+
 		# MallButton
 		# if self.mallButton:
 			# self.mallButton.SetEvent(ui.__mem_func__(self.ClickMallButton))
 
-		if self.OFFButton:
-			self.OFFButton.SetEvent(ui.__mem_func__(self.ClickOFFButton))
+		if self.DSSButton:
+			self.DSSButton.SetEvent(ui.__mem_func__(self.ClickDSSButton))
+			
+		if self.SpecialStorageButton:
+			self.SpecialStorageButton.SetEvent(ui.__mem_func__(self.ClickSpecialStorageButton))
 
-		if self.SWITCHButton:
-			self.SWITCHButton.SetEvent(ui.__mem_func__(self.SwitchBot))
+		# if self.OFFButton:
+			# self.OFFButton.SetEvent(ui.__mem_func__(self.ClickOFFButton))
 
-		if self.INFOCHESTButton:
-			self.INFOCHESTButton.SetEvent(ui.__mem_func__(self.InfoChest))
+		# if self.SWITCHButton:
+			# self.SWITCHButton.SetEvent(ui.__mem_func__(self.SwitchBot))
+
+		# if self.INFOCHESTButton:
+			# self.INFOCHESTButton.SetEvent(ui.__mem_func__(self.InfoChest))
 							
 		# Costume Button
 		if self.costumeButton:
 			self.costumeButton.SetEvent(ui.__mem_func__(self.ClickCostumeButton))
 
+		if self.arrange_button:
+			self.arrange_button.SetEvent(ui.__mem_func__(self.click_arrange))
+
 		self.wndCostume = None
+		
+		if app.WJ_ENABLE_PICKUP_ITEM_EFFECT:
+			self.listHighlightedSlot = []
 
  		#####
 
@@ -623,15 +665,17 @@ class InventoryWindow(ui.ScriptWindow):
 		self.tooltipItem = None
 		self.wndItem = 0
 		self.wndEquip = 0
+		self.wndEquipNinja = 0
 		self.dlgPickMoney = 0
 		#self.wndMoney = 0
 		#self.wndMoneySlot = 0
 		self.questionDialog = None
+		self.arrange_button = None
 		# self.mallButton = None
 		self.DSSButton = None
-		self.OFFButton = None
-		self.SWITCHButton = None
-		self.INFOCHESTButton = None
+		# self.OFFButton = None
+		# self.SWITCHButton = None
+		# self.INFOCHESTButton = None
 		self.interface = None
 		if app.WJ_ENABLE_TRADABLE_ICON:
 			self.bindWnds = []
@@ -688,19 +732,18 @@ class InventoryWindow(ui.ScriptWindow):
 
 	def Close(self):
 		self.Hide()
+		
+	if app.WJ_ENABLE_PICKUP_ITEM_EFFECT:
+		def HighlightSlot(self, slot):
+			if not slot in self.listHighlightedSlot:
+				self.listHighlightedSlot.append(slot)
 
 	def SetInventoryPage(self, page):
-		self.inventoryTab[self.inventoryPageIndex].SetUp()
 		self.inventoryPageIndex = page
-		self.inventoryTab[self.inventoryPageIndex].Down()
-		self.RefreshBagSlotWindow()		
-		
-	# def SetInventoryPage(self, page):
-		# self.inventoryPageIndex = page
-		# self.inventoryTab[(page+1)%4].SetUp()
-		# self.inventoryTab[(page+2)%4].SetUp()
-		# self.inventoryTab[(page+3)%4].SetUp()
-		# self.RefreshBagSlotWindow()
+		for i in xrange(player.INVENTORY_PAGE_COUNT):
+			if i!=page:
+				self.inventoryTab[i].SetUp()
+		self.RefreshBagSlotWindow()
 
 	def SetEquipmentPage(self, page):
 		self.equipmentPageIndex = page
@@ -712,21 +755,41 @@ class InventoryWindow(ui.ScriptWindow):
 		# net.SendChatPacket("/click_mall")
 
 	# DSSButton
-	def ClickOFFButton(self):
-		print "click_off_button"
-		import uiNewShop
-		net.SendChatPacket("/open_shop")
+	# def ClickOFFButton(self):
+		# print "click_off_button"
+		# import uiNewShop
+		# net.SendChatPacket("/open_shop")
 				
 	def ClickDSSButton(self):
-		print "click_dss_button"
 		self.interface.ToggleDragonSoulWindow()
 		
-	def SwitchBot(self):
+	def ClickSpecialStorageButton(self):
 		self.interface.ToggleSpecialStorageWindow()
+		
+	# def SwitchBot(self):
+		# self.interface.ToggleSpecialStorageWindow()
 
-	def InfoChest(self):
-		self.meniuinventar = uiInventoryMenue.InventoryMenueDialog()
-		self.meniuinventar.Show()			
+	# def InfoChest(self):
+		# self.meniuinventar = uiInventoryMenue.InventoryMenueDialog()
+		# self.meniuinventar.Show()			
+	def click_arrange(self):
+		self.__ClickStartButton()
+		
+	def __ClickStartButton(self):
+		startQuestionDialog = uiCommon.QuestionDialog2()
+		startQuestionDialog.SetText1("Acesta optiune ajuta la stacarea obiectelor din inventar.")
+		startQuestionDialog.SetText2("Doresti sa continui aceasta actiune ?")
+		startQuestionDialog.SetAcceptEvent(ui.__mem_func__(self.__StartAccept))
+		startQuestionDialog.SetCancelEvent(ui.__mem_func__(self.__StartCancel))
+		startQuestionDialog.Open()
+		self.startQuestionDialog = startQuestionDialog	
+	
+	def __StartAccept(self):
+		net.SendChatPacket("/click_sort_items")
+		self.__StartCancel()
+		
+	def __StartCancel(self):
+		self.startQuestionDialog.Close()
 
 	def ClickCostumeButton(self):
 		print "Click Costume Button"
@@ -852,9 +915,12 @@ class InventoryWindow(ui.ScriptWindow):
 		getItemVNum=player.GetItemIndex
 		getItemCount=player.GetItemCount
 		setItemVNum=self.wndItem.SetItemSlot
-		for i in xrange(player.INVENTORY_PAGE_SIZE):
+
+		for i in xrange(player.INVENTORY_PAGE_SIZE*2):
 			slotNumber = self.__InventoryLocalSlotPosToGlobalSlotPos(i)
+
 			itemCount = getItemCount(slotNumber)
+
 			if 0 == itemCount:
 				self.wndItem.ClearSlot(i)
 				continue
@@ -863,17 +929,18 @@ class InventoryWindow(ui.ScriptWindow):
 
 			itemVnum = getItemVNum(slotNumber)
 			setItemVNum(i, itemVnum, itemCount)
+
 			if app.ENABLE_CHANGELOOK_SYSTEM:
 				itemTransmutedVnum = player.GetItemTransmutation(slotNumber)
 				if itemTransmutedVnum:
 					self.wndItem.DisableCoverButton(i)
 				else:
 					self.wndItem.EnableCoverButton(i)
-					
+
 			if constInfo.IS_AUTO_POTION(itemVnum):
 				metinSocket = [player.GetItemMetinSocket(slotNumber, j) for j in xrange(player.METIN_SOCKET_MAX_NUM)]
-				if slotNumber >= player.INVENTORY_PAGE_SIZE:
-					slotNumber -= player.INVENTORY_PAGE_SIZE
+				if slotNumber >= player.INVENTORY_PAGE_SIZE*self.inventoryPageIndex:
+					slotNumber -= player.INVENTORY_PAGE_SIZE*self.inventoryPageIndex
 				
 				isActivated = 0 != metinSocket[0]
 				if isActivated:
@@ -889,6 +956,11 @@ class InventoryWindow(ui.ScriptWindow):
 					player.SetAutoPotionInfo(potionType, isActivated, (totalAmount - usedAmount), totalAmount, self.__InventoryLocalSlotPosToGlobalSlotPos(i))
 				else:
 					self.wndItem.DeactivateSlotOld(i)
+
+			elif app.WJ_ENABLE_PICKUP_ITEM_EFFECT:
+				if slotNumber in self.listHighlightedSlot:
+					self.wndItem.ActivateSlot(i)
+
 			if app.WJ_ENABLE_TRADABLE_ICON:
 				self.RefreshMarkSlots(i)
 				
@@ -898,6 +970,13 @@ class InventoryWindow(ui.ScriptWindow):
 
 			if app.ENABLE_SASH_SYSTEM:
 				slotNumberChecked = 0
+				if not constInfo.IS_AUTO_POTION(itemVnum):
+					if app.WJ_ENABLE_PICKUP_ITEM_EFFECT:
+						if not slotNumber in self.listHighlightedSlot:
+							self.wndItem.DeactivateSlot(i)
+					else:
+						self.wndItem.DeactivateSlot(i)
+				
 				for j in xrange(sash.WINDOW_MAX_MATERIALS):
 					(isHere, iCell) = sash.GetAttachedItem(j)
 					if isHere:
@@ -928,71 +1007,48 @@ class InventoryWindow(ui.ScriptWindow):
 							self.wndItem.DeactivateSlot(i)
 							self.listAttachedCl.remove(slotNumber)
 
-			if self.IS_NEW_SPEED_POTION(itemVnum):
-				metinSocket = [player.GetItemMetinSocket(slotNumber, j) for j in xrange(player.METIN_SOCKET_MAX_NUM)]
-				if slotNumber >= player.INVENTORY_PAGE_SIZE * self.inventoryPageIndex:
-					slotNumber -= player.INVENTORY_PAGE_SIZE * self.inventoryPageIndex
-
-				isActivated = 0 != metinSocket[0]
-	
-				if isActivated:
-					self.wndItem.ActivateSlotOld(i)
-				else:
-					self.wndItem.DeactivateSlotOld(i)
-				
 		self.wndItem.RefreshSlot()
+
 		if self.wndBelt:
 			self.wndBelt.RefreshSlot()
+
 		if app.WJ_ENABLE_TRADABLE_ICON:
 			map(lambda wnd:wnd.RefreshLockedSlot(), self.bindWnds)
-
-	def IS_NEW_SPEED_POTION(self, itemVnum):
-		if itemVnum == 20201:
-			return 1
-		if itemVnum == 20202:
-			return 1
-		if itemVnum == 20203:
-			return 1
-		if itemVnum == 20204:
-			return 1
-		if itemVnum == 20205:
-			return 1
-		if itemVnum == 20206:
-			return 1
-		if itemVnum == 20207:
-			return 1
-		if itemVnum == 20208:
-			return 1
-		if itemVnum == 20209:
-			return 1
-		if itemVnum == 20210:
-			return 1
-		if itemVnum == 20211:
-			return 1
-		if itemVnum == 20212:
-			return 1
-		if itemVnum == 20213:
-			return 1
-		if itemVnum == 20214:
-			return 1
 
 	def RefreshEquipSlotWindow(self):
 		getItemVNum=player.GetItemIndex
 		getItemCount=player.GetItemCount
-		setItemVNum=self.wndEquip.SetItemSlot
+		# setItemVNum=self.wndEquip.SetItemSlot
+		job = player.GetJob()
 		for i in xrange(player.EQUIPMENT_PAGE_COUNT):
 			slotNumber = player.EQUIPMENT_SLOT_START + i
 			itemCount = getItemCount(slotNumber)
 			if itemCount <= 1:
 				itemCount = 0
 			
-			setItemVNum(slotNumber, getItemVNum(slotNumber), itemCount)
+			# setItemVNum(slotNumber, getItemVNum(slotNumber), itemCount)
+			if job == 1:
+				self.wndEquipNinja.SetItemSlot(slotNumber, getItemVNum(slotNumber), itemCount)
+			else:
+				self.wndEquip.SetItemSlot(slotNumber, getItemVNum(slotNumber), itemCount)
+			# if app.ENABLE_CHANGELOOK_SYSTEM:
+				# itemTransmutedVnum = player.GetItemTransmutation(slotNumber)
+				# if itemTransmutedVnum:
+					# self.wndEquip.DisableCoverButton(slotNumber)
+				# else:
+					# self.wndEquip.EnableCoverButton(slotNumber)
 			if app.ENABLE_CHANGELOOK_SYSTEM:
 				itemTransmutedVnum = player.GetItemTransmutation(slotNumber)
-				if itemTransmutedVnum:
-					self.wndEquip.DisableCoverButton(slotNumber)
+				if job == 1:
+					if itemTransmutedVnum:
+						self.wndEquipNinja.DisableCoverButton(slotNumber)
+					else:
+						self.wndEquipNinja.EnableCoverButton(slotNumber)
 				else:
-					self.wndEquip.EnableCoverButton(slotNumber)
+					if itemTransmutedVnum:
+						self.wndEquip.DisableCoverButton(slotNumber)
+					else:
+						self.wndEquip.EnableCoverButton(slotNumber)
 		
 		if app.ENABLE_NEW_EQUIPMENT_SYSTEM:
 			for i in xrange(player.NEW_EQUIPMENT_SLOT_COUNT):
@@ -1001,17 +1057,35 @@ class InventoryWindow(ui.ScriptWindow):
 				if itemCount <= 1:
 					itemCount = 0
 				
-				setItemVNum(slotNumber, getItemVNum(slotNumber), itemCount)
+				# setItemVNum(slotNumber, getItemVNum(slotNumber), itemCount)
+				if job == 1:
+					self.wndEquipNinja.SetItemSlot(slotNumber, getItemVNum(slotNumber), itemCount)
+				else:
+					self.wndEquip.SetItemSlot(slotNumber, getItemVNum(slotNumber), itemCount)
+				# if app.ENABLE_CHANGELOOK_SYSTEM:
+					# itemTransmutedVnum = player.GetItemTransmutation(slotNumber)
+					# if itemTransmutedVnum:
+						# self.wndEquip.DisableCoverButton(slotNumber)
+					# else:
+						# self.wndEquip.EnableCoverButton(slotNumber)
 				if app.ENABLE_CHANGELOOK_SYSTEM:
 					itemTransmutedVnum = player.GetItemTransmutation(slotNumber)
-					if itemTransmutedVnum:
-						self.wndEquip.DisableCoverButton(slotNumber)
+					if job == 1:
+						if itemTransmutedVnum:
+							self.wndEquipNinja.DisableCoverButton(slotNumber)
+						else:
+							self.wndEquipNinja.EnableCoverButton(slotNumber)
 					else:
-						self.wndEquip.EnableCoverButton(slotNumber)
-				
-				print "ENABLE_NEW_EQUIPMENT_SYSTEM", slotNumber, itemCount, getItemVNum(slotNumber)
+						if itemTransmutedVnum:
+							self.wndEquip.DisableCoverButton(slotNumber)
+						else:
+							self.wndEquip.EnableCoverButton(slotNumber)
 		
-		self.wndEquip.RefreshSlot()
+		# self.wndEquip.RefreshSlot()
+		if job == 1:
+			self.wndEquipNinja.RefreshSlot()
+		else:
+			self.wndEquip.RefreshSlot()
 		
 		if self.wndCostume:
 			self.wndCostume.RefreshCostumeSlot()
@@ -1023,6 +1097,23 @@ class InventoryWindow(ui.ScriptWindow):
 	def RefreshStatus(self):
 		money = player.GetElk()
 		#self.wndMoney.SetText(localeInfo.NumberToMoneyString(money))
+	def ActivateDragonSoul(self, deck):
+		if deck == 0:
+			if self.DSSButton:
+				self.DSSButton.SetUpVisual("d:/ymir work/ui/dragonsoul/deck1_1.tga")
+				self.DSSButton.SetOverVisual("d:/ymir work/ui/dragonsoul/deck1_2.tga")
+				self.DSSButton.SetDownVisual("d:/ymir work/ui/dragonsoul/deck1_3.tga")	
+		else:
+			if self.DSSButton:
+				self.DSSButton.SetUpVisual("d:/ymir work/ui/dragonsoul/deck2_1.tga")
+				self.DSSButton.SetOverVisual("d:/ymir work/ui/dragonsoul/deck2_2.tga")
+				self.DSSButton.SetDownVisual("d:/ymir work/ui/dragonsoul/deck2_3.tga")	
+		
+	def DeactivateDragonSoul(self):
+		if self.DSSButton:
+			self.DSSButton.SetUpVisual("d:/ymir work/ui/dragonsoul/ds_01.tga")
+			self.DSSButton.SetOverVisual("d:/ymir work/ui/dragonsoul/ds_02.tga")
+			self.DSSButton.SetDownVisual("d:/ymir work/ui/dragonsoul/ds_03.tga")	
 
 	def SetItemToolTip(self, tooltipItem):
 		self.tooltipItem = tooltipItem
@@ -1064,10 +1155,10 @@ class InventoryWindow(ui.ScriptWindow):
 			attachedSlotPos = mouseModule.mouseController.GetAttachedSlotNumber()
 			attachedItemCount = mouseModule.mouseController.GetAttachedItemCount()
 			attachedItemIndex = mouseModule.mouseController.GetAttachedItemIndex()
-			attachedCount = mouseModule.mouseController.GetAttachedItemCount()
 
 			if player.SLOT_TYPE_INVENTORY == attachedSlotType:
 				itemCount = player.GetItemCount(attachedSlotPos)
+				attachedCount = mouseModule.mouseController.GetAttachedItemCount()
 				self.__SendMoveItemPacket(attachedSlotPos, selectedSlotPos, attachedCount)
 
 				if item.IsRefineScroll(attachedItemIndex):
@@ -1090,20 +1181,7 @@ class InventoryWindow(ui.ScriptWindow):
 
 			elif player.SLOT_TYPE_MALL == attachedSlotType:
 				net.SendMallCheckoutPacket(attachedSlotPos, selectedSlotPos)
-			
-			elif app.ENABLE_SPECIAL_STORAGE and player.SLOT_TYPE_UPGRADE_INVENTORY == attachedSlotType:
-				net.SendSpecialMovePacket(player.UPGRADE_INVENTORY, attachedSlotPos, selectedSlotPos, attachedCount)
-
-			elif app.ENABLE_SPECIAL_STORAGE and player.SLOT_TYPE_BOOK_INVENTORY == attachedSlotType:
-				net.SendSpecialMovePacket(player.BOOK_INVENTORY, attachedSlotPos, selectedSlotPos, attachedCount)
-
-			elif app.ENABLE_SPECIAL_STORAGE and player.SLOT_TYPE_STONE_INVENTORY == attachedSlotType:
-				net.SendSpecialMovePacket(player.STONE_INVENTORY, attachedSlotPos, selectedSlotPos, attachedCount)
-			
-			elif app.ENABLE_SPECIAL_STORAGE and player.SLOT_TYPE_INVENTORY == attachedSlotType:
-				chat.AppendChat(1, "yes")
-				net.SendSpecialMovePacket(player.BOOK_INVENTORY, attachedSlotPos, selectedSlotPos, attachedCount, "test")
-			
+					
 			mouseModule.mouseController.DeattachObject()
 
 	def SelectItemSlot(self, itemSlotIndex):
@@ -1338,6 +1416,11 @@ class InventoryWindow(ui.ScriptWindow):
 		if player.REFINE_OK != player.CanRefine(scrollIndex, targetSlotPos):
 			return
 
+		if app.ENABLE_REFINE_RENEWAL:
+			constInfo.AUTO_REFINE_TYPE = 1
+			constInfo.AUTO_REFINE_DATA["ITEM"][0] = scrollSlotPos
+			constInfo.AUTO_REFINE_DATA["ITEM"][1] = targetSlotPos
+
 		###########################################################
 		self.__SendUseItemToItemPacket(scrollSlotPos, targetSlotPos)
 		#net.SendItemUseToItemPacket(scrollSlotPos, targetSlotPos)
@@ -1471,6 +1554,31 @@ class InventoryWindow(ui.ScriptWindow):
 			self.tooltipItem.HideToolTip()
 
 	def OverInItem(self, overSlotPos):
+		if app.WJ_ENABLE_PICKUP_ITEM_EFFECT:
+			stat = 0
+			slotNumber = self.__InventoryLocalSlotPosToGlobalSlotPos(overSlotPos)
+			itemVnum = player.GetItemIndex(slotNumber)
+			if constInfo.IS_AUTO_POTION(itemVnum):
+				metinSocket = [player.GetItemMetinSocket(slotNumber, j) for j in xrange(player.METIN_SOCKET_MAX_NUM)]
+				if slotNumber >= player.INVENTORY_PAGE_SIZE*self.inventoryPageIndex:
+					slotNumber -= player.INVENTORY_PAGE_SIZE*self.inventoryPageIndex
+				
+				isActivated = 0 != metinSocket[0]
+				if isActivated:
+					stat = 1
+			
+			if not stat:
+				if slotNumber in self.listHighlightedSlot:
+					self.wndItem.DeactivateSlot(overSlotPos)
+					try:
+						if app.ENABLE_SASH_SYSTEM:
+							if not slotNumber in self.listAttachedSashs:
+								self.listHighlightedSlot.remove(slotNumber)
+						else:
+							self.listHighlightedSlot.remove(slotNumber)
+					except:
+						pass
+						
 		overSlotPos = self.__InventoryLocalSlotPosToGlobalSlotPos(overSlotPos)
 		self.wndItem.SetUsableItem(False)
 
@@ -1495,21 +1603,18 @@ class InventoryWindow(ui.ScriptWindow):
 						self.wndItem.SetUsableItem(True)
 						self.ShowToolTip(overSlotPos)
 						return
-	
-				if self.__CanUseSrcItemToDstItem(attachedItemVNum, attachedSlotPos, overSlotPos):
-					self.wndItem.SetUsableItem(True)
-					self.ShowToolTip(overSlotPos)
-					return
 
 		self.ShowToolTip(overSlotPos)
-
 
 	def __IsUsableItemToItem(self, srcItemVNum, srcSlotPos):
 		"다른 아이템에 사용할 수 있는 아이템인가?"
 
 		if srcItemVNum >= 55701 and srcItemVNum <= 55708:
 			return True
-		
+
+		if srcItemVNum >= 91010 and srcItemVNum <= 91015:
+			return True
+
 		if srcItemVNum == 55001:
 			return True		
 		
@@ -1780,6 +1885,30 @@ class InventoryWindow(ui.ScriptWindow):
 		mouseModule.mouseController.DeattachObject()
 		self.OverOutItem()
 
+	def IsTreasureBox(self, slotIndex):
+		itemVnum = player.GetItemIndex(slotIndex)
+		item.SelectItem(itemVnum)
+		
+		if item.GetItemType() == item.ITEM_TYPE_GIFTBOX:
+			return True
+			
+		treasures = {
+			0: 50011,
+			1: 50024,
+			2: 50025,
+			3: 50031,
+			4: 50032,
+		}
+		
+		if itemVnum in treasures.values():
+			return True
+			
+		return False
+		
+	def SendMultipleUseItemPacket(self, slotIndex):	
+		for i in xrange(player.GetItemCount(slotIndex)):
+			self.__SendUseItemPacket(slotIndex)
+			
 	def __UseItem(self, slotIndex):
 		ItemVNum = player.GetItemIndex(slotIndex)
 		item.SelectItem(ItemVNum)
@@ -1790,6 +1919,11 @@ class InventoryWindow(ui.ScriptWindow):
 		if ItemVNum == 39117:
 			self.searchbtn2()
 			
+		#Open all stack of treasure box with CTRL + RIGHT CLICK - hunterukh 9.march.2017
+		if app.IsPressed(app.DIK_LCONTROL) and self.IsTreasureBox(slotIndex):
+			self.SendMultipleUseItemPacket(slotIndex)
+			return
+		
 		if item.IsFlag(item.ITEM_FLAG_CONFIRM_WHEN_USE):
 			net.SendItemUsePacket(slotIndex)
 		elif player.GetItemTypeBySlot(slotIndex) == item.ITEM_TYPE_GIFTBOX:
@@ -1875,7 +2009,7 @@ class InventoryWindow(ui.ScriptWindow):
 					return 1
 
 			return 0
-
+			
 	def OnMoveWindow(self, x, y):
 #		print "Inventory Global Pos : ", self.GetGlobalPosition()
 		if self.wndBelt:

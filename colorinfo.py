@@ -18,15 +18,13 @@ CHR_NAME_RGB_PVP = (238, 54, 223)
 CHR_NAME_RGB_PARTY = (128, 192, 255)
 CHR_NAME_RGB_WARP = (136, 218, 241)
 CHR_NAME_RGB_WAYPOINT = (255, 255, 255)
-if app.ENABLE_DEATHMATCH_SYSTEM:
-	CHR_NAME_DEATHMATCH = (0, 255, 255)
 
 CHR_NAME_RGB_EMPIRE_MOB = (235, 22, 9)
 CHR_NAME_RGB_EMPIRE_NPC = (122, 231, 93)
 CHR_NAME_RGB_EMPIRE_PC_A = (157, 0, 0)
 CHR_NAME_RGB_EMPIRE_PC_B = (222, 160, 47)
 CHR_NAME_RGB_EMPIRE_PC_C = (23, 30, 138)
-CHR_NAME_RGB_SHOP = (0, 200, 255) ##Shop color
+CHR_NAME_RGB_SHOP = (252, 103, 12) ##Shop color
 
 
 
@@ -52,7 +50,7 @@ TITILE_NAME_9 = (app.GetRandom(0, 255), app.GetRandom(0, 255), app.GetRandom(0, 
 TITILE_NAME_10 = (app.GetRandom(0, 255), app.GetRandom(0, 255), app.GetRandom(0, 255))
 TITILE_NAME_11 = (app.GetRandom(0, 255), app.GetRandom(0, 255), app.GetRandom(0, 255))
 TITILE_NAME_12 = (app.GetRandom(0, 255), app.GetRandom(0, 255), app.GetRandom(0, 255))
-TITILE_NAME_13 = (app.GetRandom(0, 255), app.GetRandom(0, 255), app.GetRandom(0, 255))
+TITILE_NAME_13 = (  0, 204, 255)
 TITILE_NAME_14 = (app.GetRandom(0, 255), app.GetRandom(0, 255), app.GetRandom(0, 255))
 TITILE_NAME_15 = (app.GetRandom(0, 255), app.GetRandom(0, 255), app.GetRandom(0, 255))
 TITILE_NAME_16 = (app.GetRandom(0, 255), app.GetRandom(0, 255), app.GetRandom(0, 255))

@@ -9,7 +9,7 @@ MAP_TREE2 = "MAP_TREE2"
 BLEND_POTION_NO_TIME = "BLEND_POTION_NO_TIME"
 BLEND_POTION_NO_INFO = "BLEND_POTION_NO_INFO"
 
-APP_TITLE = "Metin2 Cybernetic"
+APP_TITLE = "Metin2 New"
 GUILD_HEADQUARTER = "Main Building"
 GUILD_FACILITY = "Facility"
 GUILD_OBJECT = "Object"
@@ -273,10 +273,10 @@ def CutMoneyString(sourceText, startIndex, endIndex, insertingText, backText):
 	if not text:
 		return backText
 
-	if int(text) <= 0:
+	if long(text) <= 0:
 		return backText
 
-	text = str(int(text))
+	text = str(long(text))
 
 	if backText:
 		backText = " " + backText
@@ -633,11 +633,11 @@ if app.ENABLE_TITLE_SYSTEM:
 	TITLE_SYSTEM_LIST = (TITILE_NAME_1, TITILE_NAME_2, TITILE_NAME_3, TITILE_NAME_4, TITILE_NAME_5, TITILE_NAME_6, TITILE_NAME_7, TITILE_NAME_8, TITILE_NAME_9, TITILE_NAME_10, TITILE_NAME_11, TITILE_NAME_12, TITILE_NAME_13, TITILE_NAME_14, TITILE_NAME_15, TITILE_NAME_16, TITILE_NAME_17, TITILE_NAME_18, TITILE_NAME_19, TITILE_NAME_20)
 
 def GetLetterImageName():
-	return "locale/es/icon/scroll_close.tga"
+	return "locale/ro/icon/scroll_close.tga"
 def GetLetterOpenImageName():
-	return "locale/es/icon/scroll_open.tga"
+	return "locale/ro/icon/scroll_open.tga"
 def GetLetterCloseImageName():
-	return "locale/es/icon/scroll_close.tga"
+	return "locale/ro/icon/scroll_close.tga"
 
 if 949 == app.GetDefaultCodePage():
 	def EUL(name):

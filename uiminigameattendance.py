@@ -356,7 +356,7 @@ class MiniGameAttendance(ui.ScriptWindow):
 			return
 		
 		if None == self.rewardQuestionDialog:
-			self.rewardQuestionDialog = uiCommon.QuestionDialog()
+			self.rewardQuestionDialog = uiCommon.QuestionDialog2()
 			self.rewardQuestionDialog.SetText(localeInfo.ATTENDANCE_REWARD_QUESTION)
 			self.rewardQuestionDialog.SetAcceptEvent(ui.__mem_func__(self.__RewardAccept))
 			self.rewardQuestionDialog.SetCancelEvent(ui.__mem_func__(self.__RewardCancel))

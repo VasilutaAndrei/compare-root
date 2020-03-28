@@ -15,8 +15,8 @@ JOB_WARRIOR		= 0
 JOB_ASSASSIN	= 1
 JOB_SURA		= 2
 JOB_SHAMAN		= 3
-if app.ENABLE_WOLFMAN_CHARACTER:
-	JOB_WOLFMAN		= 4
+#if app.ENABLE_WOLFMAN_CHARACTER:
+#	JOB_WOLFMAN		= 4
 
 RACE_WARRIOR_M	= 0
 RACE_ASSASSIN_W	= 1
@@ -26,8 +26,8 @@ RACE_WARRIOR_W	= 4
 RACE_ASSASSIN_M	= 5
 RACE_SURA_W		= 6
 RACE_SHAMAN_M	= 7
-if app.ENABLE_WOLFMAN_CHARACTER:
-	RACE_WOLFMAN_M	= 8
+#if app.ENABLE_WOLFMAN_CHARACTER:
+#	RACE_WOLFMAN_M	= 8
 
 COMBO_TYPE_1 = 0
 COMBO_TYPE_2 = 1
@@ -40,16 +40,28 @@ COMBO_INDEX_4 = 3
 COMBO_INDEX_5 = 4
 COMBO_INDEX_6 = 5
 
-HORSE_SKILL_WILDATTACK = chr.MOTION_SKILL+121
-HORSE_SKILL_CHARGE = chr.MOTION_SKILL+122
-HORSE_SKILL_SPLASH = chr.MOTION_SKILL+123
+if app.ENABLE_SKILLS_LEVEL_OVER_P:
+	HORSE_SKILL_WILDATTACK = chr.MOTION_SKILL+113
+	HORSE_SKILL_CHARGE = chr.MOTION_SKILL+114
+	HORSE_SKILL_SPLASH = chr.MOTION_SKILL+115
 
-GUILD_SKILL_DRAGONBLOOD = chr.MOTION_SKILL+101
-GUILD_SKILL_DRAGONBLESS = chr.MOTION_SKILL+102
-GUILD_SKILL_BLESSARMOR = chr.MOTION_SKILL+103
-GUILD_SKILL_SPPEDUP = chr.MOTION_SKILL+104
-GUILD_SKILL_DRAGONWRATH = chr.MOTION_SKILL+105
-GUILD_SKILL_MAGICUP = chr.MOTION_SKILL+106
+	GUILD_SKILL_DRAGONBLOOD = chr.MOTION_SKILL+107
+	GUILD_SKILL_DRAGONBLESS = chr.MOTION_SKILL+108
+	GUILD_SKILL_BLESSARMOR = chr.MOTION_SKILL+109
+	GUILD_SKILL_SPPEDUP = chr.MOTION_SKILL+110
+	GUILD_SKILL_DRAGONWRATH = chr.MOTION_SKILL+111
+	GUILD_SKILL_MAGICUP = chr.MOTION_SKILL+112
+else:
+	HORSE_SKILL_WILDATTACK = chr.MOTION_SKILL+121
+	HORSE_SKILL_CHARGE = chr.MOTION_SKILL+122
+	HORSE_SKILL_SPLASH = chr.MOTION_SKILL+123
+
+	GUILD_SKILL_DRAGONBLOOD = chr.MOTION_SKILL+101
+	GUILD_SKILL_DRAGONBLESS = chr.MOTION_SKILL+102
+	GUILD_SKILL_BLESSARMOR = chr.MOTION_SKILL+103
+	GUILD_SKILL_SPPEDUP = chr.MOTION_SKILL+104
+	GUILD_SKILL_DRAGONWRATH = chr.MOTION_SKILL+105
+	GUILD_SKILL_MAGICUP = chr.MOTION_SKILL+106
 
 PASSIVE_GUILD_SKILL_INDEX_LIST = ( 151, )
 ACTIVE_GUILD_SKILL_INDEX_LIST = ( 152, 153, 154, 155, 156, 157, )
@@ -108,14 +120,14 @@ def DefineSkillIndexDict():
 				"SUPPORT" : (122, 123, 121, 124, 125, 129, 0, 0, 130, 131,),
 			},
 		}
-	if app.ENABLE_WOLFMAN_CHARACTER:
-		SKILL_INDEX_DICT.update({
-			JOB_WOLFMAN : {
-				1 : (170, 171, 172, 173, 174, 175, 0, 0, 137, 0, 138, 0, 139, 0,),
-				2 : (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,),
-				"SUPPORT" : (122, 123, 121, 124, 125, 129, 0, 0, 130, 131,),
-			},
-		})
+#	if app.ENABLE_WOLFMAN_CHARACTER:
+#		SKILL_INDEX_DICT.update({
+#			JOB_WOLFMAN : {
+#				1 : (170, 171, 172, 173, 174, 175, 0, 0, 137, 0, 138, 0, 139, 0,),
+#				2 : (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,),
+#				"SUPPORT" : (122, 123, 121, 124, 125, 129, 0, 0, 130, 131,),
+#			},
+#		})
 
 def RegisterSkill(race, group, empire=0):
 
@@ -132,7 +144,7 @@ def RegisterSkill(race, group, empire=0):
 			for i in xrange(len(activeSkillList)):
 				skillIndex = activeSkillList[i]
 
-				## 7ï¿½ï¿½ 8ï¿½ï¿½ ï¿½ï¿½Å³ï¿½ï¿½ ï¿½ï¿½ï¿½â¼­ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½Èµï¿½
+				## 7¹ø 8¹ø ½ºÅ³Àº ¿©±â¼­ ¼³Á¤ÇÏ¸é ¾ÈµÊ
 				if i != 6 and i != 7:
 					player.SetSkill(i+1, skillIndex)
 
@@ -193,23 +205,23 @@ def SetGeneralMotions(mode, folder):
 	chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DEAD,				"dead.msa")
 	chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DIG,					"dig.msa")
 
-if app.ENABLE_WOLFMAN_CHARACTER:
-	def SetGeneralMotionsForWolfman(mode, folder):
-		chrmgr.SetPathName(folder)
-		chrmgr.RegisterMotionMode(mode)
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_WAIT,				"wait.msa")
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_WALK,				"walk.msa")
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_RUN,					"run.msa")
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE,				"front_damage.msa", 50)
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE,				"front_damage1.msa", 50)
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE_BACK,			"back_damage.msa", 50)
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE_BACK,			"back_damage1.msa", 50)
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE_FLYING,		"front_damage_flying.msa")
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_STAND_UP,			"front_falling_standup.msa")
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE_FLYING_BACK,	"back_damage_flying.msa")
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_STAND_UP_BACK,		"back_falling_standup.msa")
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DEAD,				"dead.msa")
-		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DIG,					"dig.msa")
+#if app.ENABLE_WOLFMAN_CHARACTER:
+#	def SetGeneralMotionsForWolfman(mode, folder):
+#		chrmgr.SetPathName(folder)
+#		chrmgr.RegisterMotionMode(mode)
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_WAIT,				"wait.msa")
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_WALK,				"walk.msa")
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_RUN,					"run.msa")
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE,				"front_damage.msa", 50)
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE,				"front_damage1.msa", 50)
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE_BACK,			"back_damage.msa", 50)
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE_BACK,			"back_damage1.msa", 50)
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE_FLYING,		"front_damage_flying.msa")
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_STAND_UP,			"front_falling_standup.msa")
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DAMAGE_FLYING_BACK,	"back_damage_flying.msa")
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_STAND_UP_BACK,		"back_falling_standup.msa")
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DEAD,				"dead.msa")
+#		chrmgr.RegisterCacheMotionData(mode,		chr.MOTION_DIG,					"dig.msa")
 
 def SetIntroMotions(mode, folder):
 	chrmgr.SetPathName(folder)
@@ -240,20 +252,20 @@ def __InitData():
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_SPEEDUP_GREEN, "", "d:/ymir work/effect/etc/recuperation/drugup_green.mse")
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_DXUP_PURPLE, "", "d:/ymir work/effect/etc/recuperation/drugup_purple.mse")
 
-	#ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ HP, SP
+	#ÀÚµ¿¹°¾à HP, SP
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_AUTO_HPUP, "", "d:/ymir work/effect/etc/recuperation/autodrugup_red.mse")
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_AUTO_SPUP, "", "d:/ymir work/effect/etc/recuperation/autodrugup_blue.mse")
 
-	#ï¿½ó¸¶´ï¿½ ï¿½Ê½Â´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(71135) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ßµï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
+	#¶ó¸¶´Ü ÃÊ½Â´ÞÀÇ ¹ÝÁö(71135) Âø¿ë¼ø°£ ¹ßµ¿ ÀÌÆåÆ®
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_RAMADAN_RING_EQUIP, "", "d:/ymir work/effect/etc/buffnew/buff_item1.mse")
 
-	#ï¿½Ò·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ßµï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
+	#ÇÒ·ÎÀ© »çÅÁ Âø¿ë¼ø°£ ¹ßµ¿ ÀÌÆåÆ®
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_HALLOWEEN_CANDY_EQUIP, "", "d:/ymir work/effect/etc/buffnew/buff_item2.mse")
 
-	#ï¿½àº¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ßµï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
+	#Çàº¹ÀÇ ¹ÝÁö Âø¿ë¼ø°£ ¹ßµ¿ ÀÌÆåÆ®
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_HAPPINESS_RING_EQUIP, "", "d:/ymir work/effect/etc/buffnew/buff_item3.mse")
 
-	#ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ßµï¿½ ï¿½ï¿½ï¿½ï¿½Æ®
+	#»ç¶ûÀÇ ÆÒ´øÆ® Âø¿ë¼ø°£ ¹ßµ¿ ÀÌÆåÆ®
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_LOVE_PENDANT_EQUIP, "", "d:/ymir work/effect/etc/buffnew/buff_item4.mse")
 	if app.ENABLE_BATTLE_FIELD:
 		chrmgr.RegisterCacheEffect(chrmgr.EFFECT_BATTLE_POTION, "", "d:/ymir work/effect/etc/buff/buff_item12.mse")
@@ -287,8 +299,8 @@ def __InitData():
 	#chrmgr.RegisterCacheEffect(chrmgr.EFFECT_SUCCESS, "",			"season1/effect/success.mse")
 	#chrmgr.RegisterCacheEffect(chrmgr.EFFECT_FAIL, "",	"season1/effect/fail.mse")
 
-	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_LEVELUP_ON_14_FOR_GERMANY, "","season1/effect/paymessage_warning.mse")	#ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 14ï¿½Ï¶ï¿½ ( ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ )
-	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_LEVELUP_UNDER_15_FOR_GERMANY, "", "d:/ymir work/title/ucenic.mse" )#ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 15ï¿½Ï¶ï¿½ ( ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ )
+	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_LEVELUP_ON_14_FOR_GERMANY, "","season1/effect/paymessage_warning.mse")	#·¹º§¾÷ 14ÀÏ¶§ ( µ¶ÀÏÀü¿ë )
+	# chrmgr.RegisterCacheEffect(chrmgr.EFFECT_LEVELUP_UNDER_15_FOR_GERMANY, "", "d:/ymir work/title/ucenic.mse" )#·¹º§¾÷ 15ÀÏ¶§ ( µ¶ÀÏÀü¿ë )
 
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_PERCENT_DAMAGE1, "", "d:/ymir work/effect/hit/percent_damage1.mse")
 	chrmgr.RegisterCacheEffect(chrmgr.EFFECT_PERCENT_DAMAGE2, "", "d:/ymir work/effect/hit/percent_damage2.mse")
@@ -353,14 +365,14 @@ def __InitData():
 	chrmgr.LoadLocalRaceData("shaman_m.msm")
 	SetIntroMotions(chr.MOTION_MODE_GENERAL, "d:/ymir work/pc2/shaman/intro/")
 
-	if app.ENABLE_WOLFMAN_CHARACTER:
+#	if app.ENABLE_WOLFMAN_CHARACTER:
 		##############
 		# WOLFMAN
 		##############
-		chrmgr.CreateRace(RACE_WOLFMAN_M)
-		chrmgr.SelectRace(RACE_WOLFMAN_M)
-		chrmgr.LoadLocalRaceData("wolfman_m.msm")
-		SetIntroMotions(chr.MOTION_MODE_GENERAL, "d:/ymir work/pc3/wolfman/intro/")
+#		chrmgr.CreateRace(RACE_WOLFMAN_M)
+#		chrmgr.SelectRace(RACE_WOLFMAN_M)
+#		chrmgr.LoadLocalRaceData("wolfman_m.msm")
+#		SetIntroMotions(chr.MOTION_MODE_GENERAL, "d:/ymir work/pc3/wolfman/intro/")
 
 
 
@@ -402,43 +414,50 @@ def __LoadGameEffect():
 		chrmgr.RegisterEffect(chrmgr.EFFECT_EMPIRE+2, "Bip01", "d:/ymir work/effect/etc/empire/empire_B.mse")
 		chrmgr.RegisterEffect(chrmgr.EFFECT_EMPIRE+3, "Bip01", "d:/ymir work/effect/etc/empire/empire_C.mse")
 
-	chrmgr.RegisterEffect(chrmgr.EFFECT_WEAPON+1, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_sword_loop.mse")
+	chrmgr.RegisterEffect(chrmgr.EFFECT_WEAPON+1, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_5_sword_loop.mse") #Skill L
 	chrmgr.RegisterEffect(chrmgr.EFFECT_WEAPON+2, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_spear_loop.mse")
+
+	# chrmgr.RegisterEffect(chrmgr.EFFECT_WEAPON+1, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_5_sword_loop.mse")
+	# chrmgr.RegisterEffect(chrmgr.EFFECT_WEAPON+2, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_5_spear_loop.mse")
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+50, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_2_sword_loop.mse") # 19 Puncte
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+51, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_2_sword_loop.mse") #Skill M
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+52, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_2_sword_loop.mse") #Skill G
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+53, "equip_right_hand", "d:/ymir work/pc/warrior/effect/geom_3_sword_loop.mse") #Skill P
 
 	# LOCALE
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+0, "Bip01", localeInfo.FN_GM_MARK)
 	# END_OF_LOCALE
 
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+3, "Bip01", "d:/ymir work/effect/hit/blow_poison/poison_loop.mse") ## ï¿½ßµï¿½
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+3, "Bip01", "d:/ymir work/effect/hit/blow_poison/poison_loop.mse") ## Áßµ¶
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+4, "", "d:/ymir work/effect/affect/slow.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+5, "Bip01 Head", "d:/ymir work/effect/etc/stun/stun_loop.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+6, "", "d:/ymir work/effect/etc/ready/ready.mse")
 	#chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+8, "", "d:/ymir work/guild/effect/10_construction.mse")
 	#chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+9, "", "d:/ymir work/guild/effect/20_construction.mse")
 	#chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+10, "", "d:/ymir work/guild/effect/20_upgrade.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+16, "", "d:/ymir work/pc/warrior/effect/gyeokgongjang_loop.mse") ## Ãµï¿½ï¿½ï¿½ï¿½ (ï¿½Ø¿ï¿½ï¿½ï¿½ ï¿½Öµï¿½-_-)
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+17, "", "d:/ymir work/pc/assassin/effect/gyeonggong_loop.mse") ## ï¿½Ú°ï¿½ - ï¿½ï¿½ï¿½
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+16, "", "d:/ymir work/pc/warrior/effect/gyeokgongjang_loop.mse") ## Ãµ±ÙÃß (¹Ø¿¡µµ ÀÖµû-_-)
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+17, "", "d:/ymir work/pc/assassin/effect/gyeonggong_loop.mse") ## ÀÚ°´ - °æ°ø
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+19, "Bip01 R Finger2", "d:/ymir work/pc/sura/effect/gwigeom_loop.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+20, "", "d:/ymir work/pc/sura/effect/fear_loop.mse") ## ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+21, "", "d:/ymir work/pc/sura/effect/jumagap_loop.mse") ## ï¿½ï¿½ï¿½ï¿½ - ï¿½Ö¸ï¿½ï¿½ï¿½
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+22, "", "d:/ymir work/pc/shaman/effect/3hosin_loop.mse") ## ï¿½ï¿½ï¿½ï¿½ - È£ï¿½ï¿½
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+23, "", "d:/ymir work/pc/shaman/effect/boho_loop.mse") ## ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½È£
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+24, "", "d:/ymir work/pc/shaman/effect/10kwaesok_loop.mse") ## ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+20, "", "d:/ymir work/pc/sura/effect/fear_loop.mse") ## ¼ö¶ó - °øÆ÷
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+21, "", "d:/ymir work/pc/sura/effect/jumagap_loop.mse") ## ¼ö¶ó - ÁÖ¸¶°©
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+22, "", "d:/ymir work/pc/shaman/effect/3hosin_loop.mse") ## ¹«´ç - È£½Å
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+23, "", "d:/ymir work/pc/shaman/effect/boho_loop.mse") ## ¹«´ç - º¸È£
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+24, "", "d:/ymir work/pc/shaman/effect/10kwaesok_loop.mse") ## ¹«´ç - Äè¼Ó
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+25, "", "d:/ymir work/pc/sura/effect/heuksin_loop.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+26, "", "d:/ymir work/pc/sura/effect/muyeong_loop.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+28, "Bip01", "d:/ymir work/effect/hit/blow_flame/flame_loop.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+29, "Bip01 R Hand", "d:/ymir work/pc/shaman/effect/6gicheon_hand.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+30, "Bip01 L Hand", "d:/ymir work/pc/shaman/effect/jeungryeok_hand.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+32, "Bip01 Head", "d:/ymir work/pc/sura/effect/pabeop_loop.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+33, "", "d:/ymir work/pc/warrior/effect/gyeokgongjang_loop.mse") ## Ãµï¿½ï¿½ï¿½ï¿½ (Fallen)
+	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+33, "", "d:/ymir work/pc/warrior/effect/gyeokgongjang_loop.mse") ## Ãµ±ÙÃß (Fallen)
 	## 34 Polymoph
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+35, "", "d:/ymir work/effect/etc/guild_war_flag/flag_red.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+36, "", "d:/ymir work/effect/etc/guild_war_flag/flag_blue.mse")
 	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+37, "", "d:/ymir work/effect/etc/guild_war_flag/flag_yellow.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT + 42, "", "d:/ymir work/effect/buffs/resistbuff.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT + 43, "Bip01 R Hand", "d:/ymir work/effect/buffs/criticalbuff.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT + 44, "", "d:/ymir work/effect/buffs/reflectbuff.mse")
-
+#	if app.ENABLE_WOLFMAN_CHARACTER:
+#		chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+42, "Bip01", "d:/ymir work/effect/hit/blow_poison/bleeding_loop.mse")
+#		chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+43, "Bip01", "d:/ymir work/effect/hit/blow_flame/flame_loop_w.mse")
+#		chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT+44, "", "d:/ymir work/pc3/common/effect/gyeokgongjang_loop_w.mse")
 	if app.ENABLE_MELEY_LAIR_DUNGEON:
 		chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT + chr.AFFECT_STATUE1, "", "d:/ymir work/effect/monster2/redd_moojuk.mse")
 		chrmgr.RegisterEffect(chrmgr.EFFECT_AFFECT + chr.AFFECT_STATUE2, "", "d:/ymir work/effect/monster2/redd_moojuk.mse")
@@ -470,49 +489,31 @@ def __LoadGameEffect():
 	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+18, "Bip01", "D:/ymir work/pc/common/effect/armor/armor_9.mse")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+19, "Bip01", "D:/ymir work/pc/common/effect/armor/armor-4-2-1.mse")
-        chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+29, "Bip01", "D:/ymir work/pc/common/effect/armor/cybernetic/aze_shining_red.mse")
-        chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+26, "Bip01", "D:/ymir work/pc/common/effect/armor/cybernetic/aze_shining_blue.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+32, "Bip01", "D:/ymir work/pc/common/effect/armor/cybernetic/aze_shining_yellow.mse")
+	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+20, "Bip01", "D:/ymir work/pc/common/effect/armor/armor-4-2-2.mse")
+
 	if app.ENABLE_SASH_SYSTEM:
-		chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED + 21, "Bip01", "d:/ymir work/pc/common/effect/armor/acc_01.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED + 22, "Bip01", "d:/ymir work/pc/common/effect/armor/armor-5_jin.mse")
+		chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED + 22, "Bip01", "d:/ymir work/pc/common/effect/armor/acc_01.mse")
+
 	if app.VERSION_162_ENABLED:
 		chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+23, "Bip01", "D:/ymir work/pc/common/effect/armor/armor-5-1.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+33, "PART_WEAPON", "D:/ymir work/khan/arme3d/razboinic/sabie_razboinic.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+34, "PART_WEAPON", "D:/ymir work/khan/arme3d/razboinic/sabie_razboinic_2_maini.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+35, "PART_WEAPON", "D:/ymir work/khan/arme3d/ninja/pumnale.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+36, "PART_WEAPON_LEFT", "D:/ymir work/khan/arme3d/ninja/pumnale.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+37, "PART_WEAPON_LEFT", "D:/ymir work/khan/arme3d/ninja/arc.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+38, "PART_WEAPON", "D:/ymir work/khan/arme3d/sura/sabie_sura.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+39, "PART_WEAPON", "D:/ymir work/khan/arme3d/saman/clopot.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+40, "PART_WEAPON", "D:/ymir work/khan/arme3d/saman/evantai.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+41, "PART_WEAPON", "D:/ymir work/item/weapon/Ksjeu_Anim/Ksjeu_Dragonset/dagger.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+42, "PART_WEAPON_LEFT", "D:/ymir work/item/weapon/Ksjeu_Anim/Ksjeu_Dragonset/dagger.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+43, "PART_WEAPON", "D:/ymir work/item/weapon/Ksjeu_Anim/sabie_cianit.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+44, "PART_WEAPON", "D:/ymir work/item/weapon/Ksjeu_Anim/lama_cianit.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+45, "PART_WEAPON", "D:/ymir work/item/weapon/Ksjeu_Anim/pumnale_cianit.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+46, "PART_WEAPON_LEFT", "D:/ymir work/item/weapon/Ksjeu_Anim/pumnale_cianit.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+47, "PART_WEAPON_LEFT", "D:/ymir work/item/weapon/Ksjeu_Anim/arc_cianit.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+48, "PART_WEAPON", "D:/ymir work/item/weapon/Ksjeu_Anim/clopot_cianit.mse")
-	chrmgr.RegisterEffect(chrmgr.EFFECT_REFINED+49, "PART_WEAPON", "D:/ymir work/item/weapon/Ksjeu_Anim/evantai_cianit.mse")
-
+		
 	# FlyData
 	effect.RegisterIndexedFlyData(effect.FLY_EXP, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_yellow_small2.msf")
-	effect.RegisterIndexedFlyData(effect.FLY_HP_MEDIUM, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_red_small.msf")			## ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (HP) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	effect.RegisterIndexedFlyData(effect.FLY_HP_BIG, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_red_big.msf")				## ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (HP) Å«ï¿½ï¿½
-	effect.RegisterIndexedFlyData(effect.FLY_SP_SMALL, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_blue_warrior_small.msf")	## ï¿½Ä¶ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Â°ï¿½
-	effect.RegisterIndexedFlyData(effect.FLY_SP_MEDIUM, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_blue_small.msf")			## ï¿½Ä¶ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	effect.RegisterIndexedFlyData(effect.FLY_SP_BIG, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_blue_big.msf")				## ï¿½Ä¶ï¿½ï¿½ï¿½ Å«ï¿½ï¿½
-	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK1, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_1.msf")		## ï¿½ï¿½ï¿½ï¿½ 1
-	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK2, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_2.msf")		## ï¿½ï¿½ï¿½ï¿½ 2
-	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK3, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_3.msf")		## ï¿½ï¿½ï¿½ï¿½ 3
-	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK4, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_4.msf")		## ï¿½ï¿½ï¿½ï¿½ 4
-	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK5, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_5.msf")		## ï¿½ï¿½ï¿½ï¿½ 5
-	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK6, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_6.msf")		## ï¿½ï¿½ï¿½ï¿½ 6
-	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK_XMAS, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_xmas.msf")	## ï¿½ï¿½ï¿½ï¿½ X-Mas
-	effect.RegisterIndexedFlyData(effect.FLY_CHAIN_LIGHTNING, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/pc/shaman/effect/pokroe.msf")						## ï¿½ï¿½ï¿½Ú°ï¿½
-	effect.RegisterIndexedFlyData(effect.FLY_HP_SMALL, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_red_smallest.msf")			## ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-	effect.RegisterIndexedFlyData(effect.FLY_SKILL_MUYEONG, effect.INDEX_FLY_TYPE_AUTO_FIRE, "d:/ymir work/pc/sura/effect/muyeong_fly.msf")					## ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	effect.RegisterIndexedFlyData(effect.FLY_HP_MEDIUM, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_red_small.msf")			## »¡°£»ö (HP) ÀÛÀº°Å
+	effect.RegisterIndexedFlyData(effect.FLY_HP_BIG, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_red_big.msf")				## »¡°£»ö (HP) Å«°Å
+	effect.RegisterIndexedFlyData(effect.FLY_SP_SMALL, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_blue_warrior_small.msf")	## ÆÄ¶õ»ö ²¿¸®¸¸ ÀÖ´Â°Å
+	effect.RegisterIndexedFlyData(effect.FLY_SP_MEDIUM, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_blue_small.msf")			## ÆÄ¶õ»ö ÀÛÀº°Å
+	effect.RegisterIndexedFlyData(effect.FLY_SP_BIG, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_blue_big.msf")				## ÆÄ¶õ»ö Å«°Å
+	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK1, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_1.msf")		## ÆøÁ× 1
+	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK2, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_2.msf")		## ÆøÁ× 2
+	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK3, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_3.msf")		## ÆøÁ× 3
+	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK4, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_4.msf")		## ÆøÁ× 4
+	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK5, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_5.msf")		## ÆøÁ× 5
+	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK6, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_6.msf")		## ÆøÁ× 6
+	effect.RegisterIndexedFlyData(effect.FLY_FIREWORK_XMAS, effect.INDEX_FLY_TYPE_FIRE_CRACKER, "d:/ymir work/effect/etc/firecracker/firecracker_xmas.msf")	## ÆøÁ× X-Mas
+	effect.RegisterIndexedFlyData(effect.FLY_CHAIN_LIGHTNING, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/pc/shaman/effect/pokroe.msf")						## Æø·Ú°Ý
+	effect.RegisterIndexedFlyData(effect.FLY_HP_SMALL, effect.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_red_smallest.msf")			## »¡°£»ö ¸Å¿ì ÀÛÀº°Å
+	effect.RegisterIndexedFlyData(effect.FLY_SKILL_MUYEONG, effect.INDEX_FLY_TYPE_AUTO_FIRE, "d:/ymir work/pc/sura/effect/muyeong_fly.msf")					## ¹«¿µÁø
 
 	#########################################################################################
 	## Emoticon
@@ -520,31 +521,31 @@ def __LoadGameEffect():
 	TitleStr = "d:/ymir work/title/"
 	
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+0, "", EmoticonStr+"sweat.mse")
-	net.RegisterEmoticonString("(È²ï¿½ï¿½)")
+	net.RegisterEmoticonString("(È²´ç)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+1, "", EmoticonStr+"money.mse")
-	net.RegisterEmoticonString("(ï¿½ï¿½)")
+	net.RegisterEmoticonString("(µ·)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+2, "", EmoticonStr+"happy.mse")
-	net.RegisterEmoticonString("(ï¿½ï¿½ï¿½)")
+	net.RegisterEmoticonString("(±â»Ý)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+3, "", EmoticonStr+"love_s.mse")
-	net.RegisterEmoticonString("(ï¿½ï¿½ï¿½ï¿½)")
+	net.RegisterEmoticonString("(ÁÁ¾Æ)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+4, "", EmoticonStr+"love_l.mse")
-	net.RegisterEmoticonString("(ï¿½ï¿½ï¿½)")
+	net.RegisterEmoticonString("(»ç¶û)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+5, "", EmoticonStr+"angry.mse")
-	net.RegisterEmoticonString("(ï¿½Ð³ï¿½)")
+	net.RegisterEmoticonString("(ºÐ³ë)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+6, "", EmoticonStr+"aha.mse")
-	net.RegisterEmoticonString("(ï¿½ï¿½ï¿½ï¿½)")
+	net.RegisterEmoticonString("(¾ÆÇÏ)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+7, "", EmoticonStr+"gloom.mse")
-	net.RegisterEmoticonString("(ï¿½ï¿½ï¿½)")
+	net.RegisterEmoticonString("(¿ì¿ï)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+8, "", EmoticonStr+"sorry.mse")
-	net.RegisterEmoticonString("(ï¿½Ë¼ï¿½)")
+	net.RegisterEmoticonString("(ÁË¼Û)")
 
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+9, "", EmoticonStr+"!_mix_back.mse")
 	net.RegisterEmoticonString("(!)")
@@ -555,8 +556,8 @@ def __LoadGameEffect():
 	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+11, "", EmoticonStr+"fish.mse")
 	net.RegisterEmoticonString("(fish)")
 
-	chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+12, "", TitleStr+"ucenic.mse")
-	net.RegisterEmoticonString("(!realizare_title_1!)")
+	# chrmgr.RegisterEffect(chrmgr.EFFECT_EMOTICON+12, "", TitleStr+"ucenic.mse")
+	# net.RegisterEmoticonString("(!realizare_title_1!)")
 
 	## Emoticon
 	#########################################################################################
@@ -578,9 +579,9 @@ def __LoadGameShaman():
 	__LoadGameShamanEx(RACE_SHAMAN_W, "d:/ymir work/pc/shaman/")
 	__LoadGameShamanEx(RACE_SHAMAN_M, "d:/ymir work/pc2/shaman/")
 
-if app.ENABLE_WOLFMAN_CHARACTER:
-	def __LoadGameWolfman():
-		__LoadGameWolfmanEx(RACE_WOLFMAN_M, "d:/ymir work/pc3/wolfman/")
+#if app.ENABLE_WOLFMAN_CHARACTER:
+#	def __LoadGameWolfman():
+#		__LoadGameWolfmanEx(RACE_WOLFMAN_M, "d:/ymir work/pc3/wolfman/")
 
 def __LoadGameWarriorEx(race, path):
 
@@ -1223,11 +1224,12 @@ def __LoadGameShamanEx(race, path):
 	#chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+10,	"budong.msa")
 
 	START_INDEX = 0
-	#skill.SKILL_EFFECT_COUNT ï¿½ï¿½ï¿½ï¿½//
-	if constInfo.ENABLE_NEW_LEVELSKILL_SYSTEM:
+	#skill.SKILL_EFFECT_COUNT ±îÁö//
+	if app.ENABLE_SKILLS_LEVEL_OVER_P:
 		SHAMY_LIST = (1, 2, 3, 4)
 	else:
 		SHAMY_LIST = (1, 2, 3)
+	
 	for i in SHAMY_LIST:
 		END_STRING = ""
 		if i != 0: END_STRING = "_%d" % (i+1)
@@ -1308,140 +1310,140 @@ def __LoadGameShamanEx(race, path):
 	if app.ENABLE_SASH_SYSTEM:
 		chrmgr.RegisterAttachingBoneName(chr.PART_SASH, "Bip01 Spine2")
 
-if app.ENABLE_WOLFMAN_CHARACTER:
-	def __LoadGameWolfmanEx(race, path):
+#if app.ENABLE_WOLFMAN_CHARACTER:
+#	def __LoadGameWolfmanEx(race, path):
 
 		## Wolfman
 		#########################################################################################
-		chrmgr.SelectRace(race)
+#		chrmgr.SelectRace(race)
 
 		## GENERAL MODE
-		SetGeneralMotionsForWolfman(chr.MOTION_MODE_GENERAL, path + "general/")
-		chrmgr.SetMotionRandomWeight(chr.MOTION_MODE_GENERAL, chr.MOTION_WAIT, 0, 70)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_WAIT, "wait.msa", 30)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_COMBO_ATTACK_1, "attack1.msa", 50)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_COMBO_ATTACK_1, "attack2.msa", 50)
+#		SetGeneralMotionsForWolfman(chr.MOTION_MODE_GENERAL, path + "general/")
+#		chrmgr.SetMotionRandomWeight(chr.MOTION_MODE_GENERAL, chr.MOTION_WAIT, 0, 70)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_WAIT, "wait.msa", 30)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_COMBO_ATTACK_1, "attack1.msa", 50)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_COMBO_ATTACK_1, "attack2.msa", 50)
 
-		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, 6)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_4, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_5, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_6, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, 6)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_4, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_5, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_6, chr.MOTION_COMBO_ATTACK_1)
 
 		## SKILL
-		chrmgr.SetPathName(path + "skill/")
-		for i in xrange(skill.SKILL_EFFECT_COUNT):
-			END_STRING = ""
-			if i != 0: END_STRING = "_%d" % (i)
-			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+1, "split_slash" + END_STRING + ".msa")
-			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+2, "wind_death" + END_STRING + ".msa")
-			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+3, "reef_attack" + END_STRING + ".msa")
-			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+4, "wreckage" + END_STRING + ".msa")
-			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+5, "red_possession" + END_STRING + ".msa")
-			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+6, "blue_possession" + END_STRING + ".msa")
+#		chrmgr.SetPathName(path + "skill/")
+#		for i in xrange(skill.SKILL_EFFECT_COUNT):
+#			END_STRING = ""
+#			if i != 0: END_STRING = "_%d" % (i)
+#			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+1, "split_slash" + END_STRING + ".msa")
+#			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+2, "wind_death" + END_STRING + ".msa")
+#			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+3, "reef_attack" + END_STRING + ".msa")
+#			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+4, "wreckage" + END_STRING + ".msa")
+#			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+5, "red_possession" + END_STRING + ".msa")
+#			chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, chr.MOTION_SKILL+(i*skill.SKILL_GRADEGAP)+6, "blue_possession" + END_STRING + ".msa")
 
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_DRAGONBLOOD, "guild_yongsinuipi.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_DRAGONBLESS, "guild_yongsinuichukbok.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_BLESSARMOR, "guild_seonghwigap.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_SPPEDUP, "guild_gasokhwa.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_DRAGONWRATH, "guild_yongsinuibunno.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_MAGICUP, "guild_jumunsul.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_DRAGONBLOOD, "guild_yongsinuipi.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_DRAGONBLESS, "guild_yongsinuichukbok.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_BLESSARMOR, "guild_seonghwigap.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_SPPEDUP, "guild_gasokhwa.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_DRAGONWRATH, "guild_yongsinuibunno.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_GENERAL, GUILD_SKILL_MAGICUP, "guild_jumunsul.msa")
 
-		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, 1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, 1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
 
 		## EMOTION
-		emotion.RegisterEmotionAnis(path)
+#		emotion.RegisterEmotionAnis(path)
 
 		## CLAW
-		chrmgr.SetPathName(path + "claw/")
-		chrmgr.RegisterMotionMode(chr.MOTION_MODE_CLAW)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_WAIT,				"wait.msa", 50)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_WAIT,				"wait1.msa", 50)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_WALK,				"walk.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_RUN,				"run.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_DAMAGE,			"front_damage.msa", 50)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_DAMAGE,			"back_damage.msa", 50)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_DAMAGE_BACK,		"back_damage.msa", 50)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_DAMAGE_BACK,		"back_damage.msa", 50)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_1,	"combo_01.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_2,	"combo_02.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_3,	"combo_03.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_4,	"combo_04.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_5,	"combo_05.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_6,	"combo_06.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_7,	"combo_07.msa")
+#		chrmgr.SetPathName(path + "claw/")
+#		chrmgr.RegisterMotionMode(chr.MOTION_MODE_CLAW)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_WAIT,				"wait.msa", 50)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_WAIT,				"wait1.msa", 50)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_WALK,				"walk.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_RUN,				"run.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_DAMAGE,			"front_damage.msa", 50)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_DAMAGE,			"back_damage.msa", 50)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_DAMAGE_BACK,		"back_damage.msa", 50)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_DAMAGE_BACK,		"back_damage.msa", 50)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_1,	"combo_01.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_2,	"combo_02.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_3,	"combo_03.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_4,	"combo_04.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_5,	"combo_05.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_6,	"combo_06.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_CLAW, chr.MOTION_COMBO_ATTACK_7,	"combo_07.msa")
 
 		## Combo Type 1
-		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, 4)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_2)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_3)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, COMBO_INDEX_4, chr.MOTION_COMBO_ATTACK_4)
+#		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, 4)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_2)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_3)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_1, COMBO_INDEX_4, chr.MOTION_COMBO_ATTACK_4)
 
-		## Combo Type 2
-		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, 5)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_2)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_3)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_4, chr.MOTION_COMBO_ATTACK_5)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_5, chr.MOTION_COMBO_ATTACK_7)
+#		## Combo Type 2
+#		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, 5)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_2)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_3)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_4, chr.MOTION_COMBO_ATTACK_5)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_2, COMBO_INDEX_5, chr.MOTION_COMBO_ATTACK_7)
 
-		## Combo Type 3
-		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, 6)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_2)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_3)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_4, chr.MOTION_COMBO_ATTACK_5)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_5, chr.MOTION_COMBO_ATTACK_6)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_6, chr.MOTION_COMBO_ATTACK_4)
+#		## Combo Type 3
+#		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, 6)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_2)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_3)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_4, chr.MOTION_COMBO_ATTACK_5)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_5, chr.MOTION_COMBO_ATTACK_6)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_CLAW, COMBO_TYPE_3, COMBO_INDEX_6, chr.MOTION_COMBO_ATTACK_4)
 
 		## FISHING
-		chrmgr.SetPathName(path + "fishing/")
-		chrmgr.RegisterMotionMode(chr.MOTION_MODE_FISHING)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_WAIT,			"wait.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_WALK,			"walk.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_RUN,				"run.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_THROW,	"throw.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_WAIT,	"fishing_wait.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_STOP,	"fishing_cancel.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_REACT,	"fishing_react.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_CATCH,	"fishing_catch.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_FAIL,	"fishing_fail.msa")
+#		chrmgr.SetPathName(path + "fishing/")
+#		chrmgr.RegisterMotionMode(chr.MOTION_MODE_FISHING)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_WAIT,			"wait.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_WALK,			"walk.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_RUN,				"run.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_THROW,	"throw.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_WAIT,	"fishing_wait.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_STOP,	"fishing_cancel.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_REACT,	"fishing_react.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_CATCH,	"fishing_catch.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_FISHING, chr.MOTION_FISHING_FAIL,	"fishing_fail.msa")
 
-		## HORSE
-		chrmgr.SetPathName(path + "horse/")
-		chrmgr.RegisterMotionMode(chr.MOTION_MODE_HORSE)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_WAIT,				"wait.msa", 90)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_WAIT,				"wait1.msa", 9)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_WAIT,				"wait2.msa", 1)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_WALK,				"walk.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_RUN,				"run.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_DAMAGE,			"front_damage.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_DAMAGE_BACK,		"front_damage.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_DEAD,				"dead.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, HORSE_SKILL_CHARGE,			"skill_charge.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, HORSE_SKILL_SPLASH,			"skill_splash.msa")
+#		## HORSE
+#		chrmgr.SetPathName(path + "horse/")
+#		chrmgr.RegisterMotionMode(chr.MOTION_MODE_HORSE)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_WAIT,				"wait.msa", 90)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_WAIT,				"wait1.msa", 9)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_WAIT,				"wait2.msa", 1)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_WALK,				"walk.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_RUN,				"run.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_DAMAGE,			"front_damage.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_DAMAGE_BACK,		"front_damage.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, chr.MOTION_DEAD,				"dead.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, HORSE_SKILL_CHARGE,			"skill_charge.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE, HORSE_SKILL_SPLASH,			"skill_splash.msa")
+#
+#		## HORSE_CLAW
+#		chrmgr.SetPathName(path + "horse_claw/")
+#		chrmgr.RegisterMotionMode(chr.MOTION_MODE_HORSE_CLAW)
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE_CLAW, chr.MOTION_COMBO_ATTACK_1, "combo_01.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE_CLAW, chr.MOTION_COMBO_ATTACK_2, "combo_02.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE_CLAW, chr.MOTION_COMBO_ATTACK_3, "combo_03.msa")
+#		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE_CLAW, HORSE_SKILL_WILDATTACK, "skill_wildattack.msa")
+#		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_HORSE_CLAW, COMBO_TYPE_1, 3)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_HORSE_CLAW, COMBO_TYPE_1, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_HORSE_CLAW, COMBO_TYPE_1, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_2)
+#		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_HORSE_CLAW, COMBO_TYPE_1, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_3)
 
-		## HORSE_CLAW
-		chrmgr.SetPathName(path + "horse_claw/")
-		chrmgr.RegisterMotionMode(chr.MOTION_MODE_HORSE_CLAW)
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE_CLAW, chr.MOTION_COMBO_ATTACK_1, "combo_01.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE_CLAW, chr.MOTION_COMBO_ATTACK_2, "combo_02.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE_CLAW, chr.MOTION_COMBO_ATTACK_3, "combo_03.msa")
-		chrmgr.RegisterCacheMotionData(chr.MOTION_MODE_HORSE_CLAW, HORSE_SKILL_WILDATTACK, "skill_wildattack.msa")
-		chrmgr.ReserveComboAttackNew(chr.MOTION_MODE_HORSE_CLAW, COMBO_TYPE_1, 3)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_HORSE_CLAW, COMBO_TYPE_1, COMBO_INDEX_1, chr.MOTION_COMBO_ATTACK_1)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_HORSE_CLAW, COMBO_TYPE_1, COMBO_INDEX_2, chr.MOTION_COMBO_ATTACK_2)
-		chrmgr.RegisterComboAttackNew(chr.MOTION_MODE_HORSE_CLAW, COMBO_TYPE_1, COMBO_INDEX_3, chr.MOTION_COMBO_ATTACK_3)
-
-		## Bone
-		chrmgr.RegisterAttachingBoneName(chr.PART_WEAPON, "equip_right")
-		chrmgr.RegisterAttachingBoneName(chr.PART_WEAPON_LEFT, "equip_left_weapon")
-		if app.ENABLE_SASH_SYSTEM:
-			chrmgr.RegisterAttachingBoneName(chr.PART_SASH, "Bip01 Spine2")
+#		## Bone
+#		chrmgr.RegisterAttachingBoneName(chr.PART_WEAPON, "equip_right")
+#		chrmgr.RegisterAttachingBoneName(chr.PART_WEAPON_LEFT, "equip_left_weapon")
+#		if app.ENABLE_SASH_SYSTEM:
+#			chrmgr.RegisterAttachingBoneName(chr.PART_SASH, "Bip01 Spine2")
 		#chrmgr.RegisterAttachingBoneName(chr.PART_BACK, "Bip01 Spine2")
 
 
@@ -1572,7 +1574,7 @@ def LoadGuildBuildingList(filename):
 				elif itemID == uiGuild.MATERIAL_PLYWOOD_ID:
 					materialList[uiGuild.MATERIAL_PLYWOOD_INDEX] = count
 
-		## GuildSymbol ï¿½ï¿½ ï¿½Ï¹ï¿½ NPC ï¿½ï¿½ï¿½ ï¿½Ô²ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+		## GuildSymbol Àº ÀÏ¹Ý NPC µé°ú ÇÔ²² µî·ÏÇÑ´Ù.
 		import chrmgr
 		chrmgr.RegisterRaceSrcName(name, folderName)
 		chrmgr.RegisterRaceName(vnum, name)
@@ -1609,8 +1611,8 @@ loadGameDataDict={
 	"ENEMY" : __LoadGameEnemy,
 	"NPC" : __LoadGameNPC,
 }
-if app.ENABLE_WOLFMAN_CHARACTER:
-	loadGameDataDict.update({"WOLFMAN": __LoadGameWolfman,})
+#if app.ENABLE_WOLFMAN_CHARACTER:
+#	loadGameDataDict.update({"WOLFMAN": __LoadGameWolfman,})
 
 def LoadGameData(name):
 	global loadGameDataDict
